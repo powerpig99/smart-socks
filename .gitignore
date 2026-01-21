@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arduino
+*.elf
+*.hex
+*.bin
+
+# Data files (large files - track selectively)
+*.csv
+*.pkl
+*.npy
+
+# But track example/template CSVs
+!**/example_*.csv
