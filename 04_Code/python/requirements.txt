@@ -1,0 +1,21 @@
+# Smart Socks - Python Dependencies
+# ELEC-E7840 Smart Wearables (Aalto University)
+#
+# Install with: pip install -r requirements.txt
+
+# Data handling
+numpy>=1.21.0
+pandas>=1.3.0
+
+# Machine learning
+scikit-learn>=1.0.0
+
+# Visualization
+matplotlib>=3.4.0
+seaborn>=0.11.0
+
+# Serial communication with ESP32
+pyserial>=3.5
+
+# Signal processing (optional, for advanced filtering)
+scipy>=1.7.0
