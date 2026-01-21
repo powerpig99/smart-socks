@@ -57,6 +57,52 @@ Claude can help with: code, data analysis, document drafts, troubleshooting, ML 
 
 ---
 
+## Technical Reference
+
+### Hardware Setup
+- **MCU:** ESP32S3 XIAO
+- **Sensors:** 10 piezoresistive fabric sensors (5 per sock)
+- **Zones:** Heel, Arch, Metatarsal medial, Metatarsal lateral, Toe
+- **Circuit:** Voltage dividers with 10kΩ resistors
+- **Sampling:** 50 Hz, 12-bit ADC (0-4095)
+
+### Code Structure
+```
+04_Code/
+├── arduino/
+│   ├── sensor_test/       # Basic ADC reading for characterization
+│   └── data_collection/   # Multi-channel recording with serial commands
+└── python/
+    ├── requirements.txt
+    ├── serial_receiver.py          # Save serial data to CSV
+    └── sensor_characterization.py  # Calibration curve analysis
+```
+
+### Commands
+```bash
+# Install Python dependencies
+pip install -r 04_Code/python/requirements.txt
+
+# Run serial receiver
+python 04_Code/python/serial_receiver.py --port /dev/ttyUSB0
+
+# Arduino serial commands
+START S01 walking_forward   # Start recording
+STOP                        # Stop recording
+STATUS                      # Check status
+```
+
+### Data Naming Convention
+Format: `<subject_id>_<activity>_<timestamp>.csv`
+
+Activities: `walking_forward`, `walking_backward`, `stairs_up`, `stairs_down`, `sitting_floor`, `sitting_crossed`, `sit_to_stand`, `stand_to_sit`, `standing_upright`, `standing_lean_left`, `standing_lean_right`
+
+### Git
+- Local only (no remote)
+- `.gitignore` excludes `.csv` data files, Python cache, IDE settings
+
+---
+
 ## Contacts
 
 - **Saara** — ML, sensors, documentation
