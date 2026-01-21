@@ -34,8 +34,15 @@ Piezoresistive fabric sensors (5 per sock)
 00_Planning/       - Project plans, meeting notes
 01_Design/         - Sensor layouts, circuit diagrams
 02_Fabrication/    - Prototype photos, build docs
-03_Data/           - Sensor characterization, activity data
-04_Code/           - Arduino sketches, Python scripts
+03_Data/           - Sensor characterization, activity data (see README.md for naming)
+04_Code/
+  ├── arduino/
+  │   ├── sensor_test/       - Basic ADC reading for characterization
+  │   └── data_collection/   - Multi-channel recording with serial commands
+  └── python/
+      ├── requirements.txt
+      ├── serial_receiver.py          - Save serial data to CSV
+      └── sensor_characterization.py  - Calibration curve analysis
 05_Analysis/       - ML results, plots, confusion matrices
 06_Presentation/   - Slides, final report
 07_References/     - Research papers
@@ -43,22 +50,29 @@ Piezoresistive fabric sensors (5 per sock)
 
 ## Development Commands
 
-When code is implemented, expect:
-
 **Arduino (ESP32S3):**
 ```bash
 # Compile and upload via Arduino IDE or arduino-cli
-arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/firmware/
-arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/firmware/
+arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
+arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
 ```
 
-**Python data collection/ML:**
+**Python:**
 ```bash
-# Expected dependencies: numpy, pandas, scikit-learn, matplotlib, pyserial
-pip install -r requirements.txt
-python 04_Code/collect_data.py --port /dev/ttyUSB0
-python 04_Code/train_model.py --data 03_Data/
+pip install -r 04_Code/python/requirements.txt
+python 04_Code/python/serial_receiver.py --port /dev/ttyUSB0
+python 04_Code/python/sensor_characterization.py --data 03_Data/calibration/
 ```
+
+**Arduino Serial Commands (data_collection sketch):**
+```
+START S01 walking_forward   # Start recording for subject S01
+STOP                        # Stop recording
+STATUS                      # Check current status
+HELP                        # Show available commands
+```
+
+**Activity Labels:** `walking_forward`, `walking_backward`, `stairs_up`, `stairs_down`, `sitting_floor`, `sitting_crossed`, `sit_to_stand`, `stand_to_sit`, `standing_upright`, `standing_lean_left`, `standing_lean_right`
 
 ## Key Technical Details
 
