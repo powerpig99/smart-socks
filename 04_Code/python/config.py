@@ -41,26 +41,42 @@ HARDWARE = {
 
 # =============================================================================
 # SENSOR CONFIGURATION
+# Updated Jan 29, 2026: New design with pressure + stretch sensors
 # =============================================================================
 
 SENSORS = {
-    'count': 10,
+    # New design: 2 pressure sensors per sock + 1 stretch sensor per knee pad
+    # Total: 6 sensors (4 pressure + 2 stretch)
+    'count': 6,
     'names': [
-        "L_Heel", "L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-        "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"
+        # Left leg
+        "L_P_Heel",    # Left Pressure - Heel
+        "L_P_Ball",    # Left Pressure - Ball of foot
+        "L_S_Knee",    # Left Stretch - Knee pad
+        # Right leg
+        "R_P_Heel",    # Right Pressure - Heel
+        "R_P_Ball",    # Right Pressure - Ball of foot
+        "R_S_Knee",    # Right Stretch - Knee pad
     ],
     
-    # Sensor zones per foot
-    'left_foot': ["L_Heel", "L_Arch", "L_MetaM", "L_MetaL", "L_Toe"],
-    'right_foot': ["R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"],
+    # Sensor zones per leg
+    'left_leg': ["L_P_Heel", "L_P_Ball", "L_S_Knee"],
+    'right_leg': ["R_P_Heel", "R_P_Ball", "R_S_Knee"],
+    
+    # Pressure sensors (for pressure-based features)
+    'pressure_sensors': ["L_P_Heel", "L_P_Ball", "R_P_Heel", "R_P_Ball"],
+    
+    # Stretch sensors (for stretch-based features)
+    'stretch_sensors': ["L_S_Knee", "R_S_Knee"],
     
     # Zone groupings for feature extraction
-    'heel_zones': ["L_Heel", "R_Heel"],
-    'arch_zones': ["L_Arch", "R_Arch"],
-    'metatarsal_zones': ["L_MetaM", "L_MetaL", "R_MetaM", "R_MetaL"],
-    'toe_zones': ["L_Toe", "R_Toe"],
-    'forefoot_zones': ["L_MetaM", "L_MetaL", "L_Toe", "R_MetaM", "R_MetaL", "R_Toe"],
-    'hindfoot_zones': ["L_Heel", "L_Arch", "R_Heel", "R_Arch"],
+    'heel_zones': ["L_P_Heel", "R_P_Heel"],
+    'ball_zones': ["L_P_Ball", "R_P_Ball"],
+    'knee_zones': ["L_S_Knee", "R_S_Knee"],
+    
+    # Left vs Right comparisons
+    'left_pressure': ["L_P_Heel", "L_P_Ball"],
+    'right_pressure': ["R_P_Heel", "R_P_Ball"],
 }
 
 
