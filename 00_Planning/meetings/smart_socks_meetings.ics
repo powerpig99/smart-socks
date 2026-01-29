@@ -1,0 +1,26 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Smart Socks//Team Meetings//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+
+BEGIN:VEVENT
+UID:smart-socks-meeting-2026-02-02@aalto.fi
+DTSTART:20260202T144500
+DTEND:20260202T164500
+SUMMARY:Smart Socks Team Meeting
+DESCRIPTION:Progress review and prototype planning\n\nAttendees: Saara\, Alex\, Jing\nLocation: Y163 - Interaction Zone
+LOCATION:Y163 - Interaction Zone
+STATUS:CONFIRMED
+END:VEVENT
+
+BEGIN:VEVENT
+UID:smart-socks-workshop-2026-02-04@aalto.fi
+DTSTART:20260204T140000
+DTEND:20260204T160000
+SUMMARY:Smart Socks - WiFi Data Collection Workshop
+DESCRIPTION:Learn WiFi data collection using Arduino IDE/VS Code + Python\n\nRequired items:\n- USB-C cable\n- Microcontrollers (ESP32S3 XIAO)\n- Breadboard\, jumper wires\, resistors\n- Sensors\n\nPre-workshop setup:\n- Python: https://realpython.com/installing-python/\n- Video: https://www.youtube.com/watch?v=QhukcScB9W0\n- IDE: VS Code or PyCharm
+STATUS:CONFIRMED
+END:VEVENT
+
+END:VCALENDAR
