@@ -46,3 +46,8 @@ build/
 
 # Model files
 *.joblib
+
+# Local-only project files
+CLAUDE.md
+AGENTS.md
+CODE_REVIEW.md
