@@ -37,7 +37,9 @@ Smart Socks/
 ├── 05_Analysis/          ← ML results, plots, confusion matrices
 ├── 06_Presentation/      ← Slides, final report, user testing materials
 ├── 07_References/        ← Papers from reading list
-└── Work_Diary.docx       ← Required deliverable - document as we go
+├── WORK_DIARY.md         ← Team meeting notes and progress
+├── PROJECT_STATUS.md     ← Current project status and recap
+└── INDEX.md              ← Documentation navigation hub
 ```
 
 ---
@@ -46,9 +48,10 @@ Smart Socks/
 
 | Resource | Location | Obsidian Link |
 |----------|----------|---------------|
+| **Project Status** | **PROJECT_STATUS.md** | [[PROJECT_STATUS]] |
+| **Work Diary** | **WORK_DIARY.md** | [[WORK_DIARY]] |
 | Course page | MyCourses | — |
 | Assignment PDF | 00_Planning/ | — |
-| Current plan | 00_Planning/Smart_Socks_Plan.pdf | — |
 | Project Timeline | 00_Planning/PROJECT_TIMELINE.md | [[PROJECT_TIMELINE]] |
 | **PlatformIO Setup** | **04_Code/PLATFORMIO_SETUP.md** | [[PLATFORMIO_SETUP]] |
 | **Python Setup** | **README_PYTHON_SETUP.md** | [[README_PYTHON_SETUP]] |
@@ -67,6 +70,8 @@ Jing has a Claude session tracking this project. To get Claude's help:
 3. **Ask your question**
 
 Claude can help with: code, data analysis, document drafts, troubleshooting, ML pipeline.
+
+See [[PROJECT_STATUS]] for complete project recap and setup history.
 
 ---
 
