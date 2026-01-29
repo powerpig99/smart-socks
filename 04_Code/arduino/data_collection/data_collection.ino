@@ -59,6 +59,7 @@ void setup() {
 
   // Configure ADC
   analogReadResolution(ADC_RESOLUTION);
+  analogSetAttenuation(ADC_11db);  // 0-3.3V range for 10kΩ voltage dividers
 
   // Configure sensor pins
   for (int i = 0; i < NUM_SENSORS; i++) {

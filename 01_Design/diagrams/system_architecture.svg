@@ -1,0 +1,91 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #2E3440; }
+      .box { fill: #3B4252; stroke: #4C566A; stroke-width: 2; }
+      .text { fill: #D8DEE9; font-family: -apple-system, sans-serif; font-size: 12px; }
+      .title { fill: #ECEFF4; font-size: 14px; font-weight: bold; }
+      .accent { fill: #88C0D0; }
+      .line { stroke: #88C0D0; stroke-width: 2; fill: none; }
+      .sensor { fill: #81A1C1; }
+    </style>
+  </defs>
+  
+  <rect class="bg" width="800" height="400"/>
+  
+  <text x="400" y="30" text-anchor="middle" class="title" font-size="18" fill="#ECEFF4">SMART SOCKS SYSTEM ARCHITECTURE</text>
+  
+  <g transform="translate(80, 80)">
+    <rect class="box" x="0" y="0" width="140" height="200" rx="8"/>
+    <text x="70" y="25" text-anchor="middle" class="title">LEFT SOCK</text>
+    <circle class="sensor" cx="70" cy="55" r="8"/>
+    <text x="70" y="60" text-anchor="middle" class="text" fill="#2E3440" font-size="10">H</text>
+    <text x="90" y="60" class="text">L_Heel</text>
+    <circle class="sensor" cx="70" cy="90" r="8"/>
+    <text x="70" y="95" text-anchor="middle" class="text" fill="#2E3440" font-size="10">A</text>
+    <text x="90" y="95" class="text">L_Arch</text>
+    <circle class="sensor" cx="70" cy="125" r="8"/>
+    <text x="70" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">M</text>
+    <text x="90" y="130" class="text">L_MetaM</text>
+    <circle class="sensor" cx="40" cy="125" r="8"/>
+    <text x="40" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">L</text>
+    <text x="20" y="130" class="text" text-anchor="end">L_MetaL</text>
+    <circle class="sensor" cx="70" cy="165" r="8"/>
+    <text x="70" y="170" text-anchor="middle" class="text" fill="#2E3440" font-size="10">T</text>
+    <text x="90" y="170" class="text">L_Toe</text>
+  </g>
+  
+  <g transform="translate(580, 80)">
+    <rect class="box" x="0" y="0" width="140" height="200" rx="8"/>
+    <text x="70" y="25" text-anchor="middle" class="title">RIGHT SOCK</text>
+    <circle class="sensor" cx="70" cy="55" r="8"/>
+    <text x="70" y="60" text-anchor="middle" class="text" fill="#2E3440" font-size="10">H</text>
+    <text x="50" y="60" class="text" text-anchor="end">R_Heel</text>
+    <circle class="sensor" cx="70" cy="90" r="8"/>
+    <text x="70" y="95" text-anchor="middle" class="text" fill="#2E3440" font-size="10">A</text>
+    <text x="50" y="95" class="text" text-anchor="end">R_Arch</text>
+    <circle class="sensor" cx="70" cy="125" r="8"/>
+    <text x="70" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">M</text>
+    <text x="50" y="130" class="text" text-anchor="end">R_MetaM</text>
+    <circle class="sensor" cx="100" cy="125" r="8"/>
+    <text x="100" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">L</text>
+    <text x="120" y="130" class="text">R_MetaL</text>
+    <circle class="sensor" cx="70" cy="165" r="8"/>
+    <text x="70" y="170" text-anchor="middle" class="text" fill="#2E3440" font-size="10">T</text>
+    <text x="50" y="170" class="text" text-anchor="end">R_Toe</text>
+  </g>
+  
+  <g transform="translate(300, 120)">
+    <rect class="box" x="0" y="0" width="200" height="160" rx="8"/>
+    <text x="100" y="25" text-anchor="middle" class="title">ESP32S3 XIAO</text>
+    <rect x="40" y="45" width="120" height="80" rx="4" fill="#434C5E" stroke="#4C566A"/>
+    <text x="100" y="70" text-anchor="middle" class="text">12-bit ADC</text>
+    <text x="100" y="90" text-anchor="middle" class="text">240 MHz</text>
+    <text x="100" y="110" text-anchor="middle" class="accent">50 Hz Sampling</text>
+  </g>
+  
+  <path class="line" d="M220 150 L300 180" stroke-dasharray="5,5"/>
+  <path class="line" d="M580 150 L500 180" stroke-dasharray="5,5"/>
+  
+  <g transform="translate(150, 320)">
+    <rect class="box" x="0" y="0" width="140" height="60" rx="8"/>
+    <text x="70" y="25" text-anchor="middle" class="title">USB SERIAL</text>
+    <text x="70" y="45" text-anchor="middle" class="text">Data Logging</text>
+  </g>
+  
+  <g transform="translate(330, 320)">
+    <rect class="box" x="0" y="0" width="140" height="60" rx="8"/>
+    <text x="70" y="25" text-anchor="middle" class="title">WIFI AP</text>
+    <text x="70" y="45" text-anchor="middle" class="text">192.168.4.1</text>
+  </g>
+  
+  <g transform="translate(510, 320)">
+    <rect class="box" x="0" y="0" width="140" height="60" rx="8"/>
+    <text x="70" y="25" text-anchor="middle" class="title">BLUETOOTH</text>
+    <text x="70" y="45" text-anchor="middle" class="text">BLE Streaming</text>
+  </g>
+  
+  <line class="line" x1="400" y1="280" x2="220" y2="320"/>
+  <line class="line" x1="400" y1="280" x2="400" y2="320"/>
+  <line class="line" x1="400" y1="280" x2="580" y2="320"/>
+</svg>

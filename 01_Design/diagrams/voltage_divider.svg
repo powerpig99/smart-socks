@@ -1,0 +1,46 @@
+<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #2E3440; }
+      .component { fill: none; stroke: #88C0D0; stroke-width: 2; }
+      .text { fill: #D8DEE9; font-family: -apple-system, sans-serif; font-size: 14px; }
+      .label { fill: #ECEFF4; font-size: 16px; font-weight: bold; }
+      .value { fill: #81A1C1; font-size: 12px; }
+      .dot { fill: #88C0D0; }
+    </style>
+  </defs>
+  
+  <rect class="bg" width="600" height="300"/>
+  
+  <text x="300" y="30" text-anchor="middle" class="label">VOLTAGE DIVIDER CIRCUIT</text>
+  
+  <text x="50" y="80" class="text">+3.3V</text>
+  <line class="component" x1="80" y1="80" x2="150" y2="80"/>
+  
+  <rect x="150" y="65" width="60" height="30" fill="#3B4252" stroke="#4C566A"/>
+  <text x="180" y="85" text-anchor="middle" class="text">10kΩ</text>
+  <text x="180" y="55" text-anchor="middle" class="value">R1 (Fixed)</text>
+  
+  <line class="component" x1="210" y1="80" x2="300" y2="80"/>
+  <circle class="dot" cx="300" cy="80" r="5"/>
+  <text x="300" y="70" text-anchor="middle" class="text">ADC Input</text>
+  <text x="300" y="110" text-anchor="middle" class="value">GPIO A0-A5, 7-10</text>
+  
+  <line class="component" x1="300" y1="80" x2="300" y2="150"/>
+  <rect x="270" y="150" width="60" height="40" fill="#3B4252" stroke="#4C566A"/>
+  <text x="300" y="175" text-anchor="middle" class="text">R(variable)</text>
+  <text x="300" y="215" text-anchor="middle" class="value">Piezoresistive Sensor</text>
+  <text x="300" y="235" text-anchor="middle" class="value">1kΩ - 100kΩ range</text>
+  
+  <line class="component" x1="300" y1="190" x2="300" y2="240"/>
+  <line x1="280" y1="240" x2="320" y2="240" stroke="#88C0D0" stroke-width="2"/>
+  <line x1="285" y1="248" x2="315" y2="248" stroke="#88C0D0" stroke-width="2"/>
+  <line x1="290" y1="256" x2="310" y2="256" stroke="#88C0D0" stroke-width="2"/>
+  <text x="340" y="250" class="text">GND</text>
+  
+  <rect x="380" y="120" width="180" height="100" rx="8" fill="#3B4252" stroke="#4C566A"/>
+  <text x="470" y="145" text-anchor="middle" class="label" font-size="14">ADC CALCULATION</text>
+  <text x="470" y="170" text-anchor="middle" class="text" font-size="12">V_adc = 3.3V × R_sensor</text>
+  <text x="470" y="190" text-anchor="middle" class="text" font-size="12">        (R1 + R_sensor)</text>
+  <text x="470" y="210" text-anchor="middle" class="value">Range: 0 - 4095 (12-bit)</text>
+</svg>

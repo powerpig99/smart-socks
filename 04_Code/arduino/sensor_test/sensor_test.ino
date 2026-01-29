@@ -9,19 +9,21 @@
  * Sensors: 5 zones per sock (Heel, Arch, Metatarsal medial/lateral, Toe)
  */
 
-// Sensor pin definitions - Left sock
-const int L_HEEL = A0;
-const int L_ARCH = A1;
-const int L_META_MED = A2;
-const int L_META_LAT = A3;
-const int L_TOE = A4;
+#include <Arduino.h>
 
-// Sensor pin definitions - Right sock
-const int R_HEEL = A5;
-const int R_ARCH = A6;
-const int R_META_MED = A7;
-const int R_META_LAT = A8;
-const int R_TOE = A9;
+// Sensor pin definitions - Left sock (A0-A4 = GPIO 1-5)
+const int L_HEEL = A0;      // GPIO 1
+const int L_ARCH = A1;      // GPIO 2
+const int L_META_MED = A2;  // GPIO 3
+const int L_META_LAT = A3;  // GPIO 4
+const int L_TOE = A4;       // GPIO 5
+
+// Sensor pin definitions - Right sock (A5 = GPIO 6, GPIO 7-10 for remainder)
+const int R_HEEL = A5;      // GPIO 6
+const int R_ARCH = 7;       // GPIO 7 (D8/SDA pin)
+const int R_META_MED = 8;   // GPIO 8 (D9/SCL pin)
+const int R_META_LAT = 9;   // GPIO 9 (D10/MOSI pin)
+const int R_TOE = 10;       // GPIO 10
 
 // All sensor pins in array for easy iteration
 const int SENSOR_PINS[] = {
@@ -51,6 +53,7 @@ void setup() {
 
   // Configure ADC
   analogReadResolution(ADC_RESOLUTION);
+  analogSetAttenuation(ADC_11db);  // 0-3.3V range for 10kΩ voltage dividers
 
   // Configure sensor pins as inputs
   for (int i = 0; i < NUM_SENSORS; i++) {
