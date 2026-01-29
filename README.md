@@ -84,10 +84,12 @@ Claude can help with: code, data analysis, document drafts, troubleshooting, ML 
 
 ## Technical Reference
 
-### Hardware Setup
+### Hardware Setup (Updated Jan 29, 2026)
 - **MCU:** ESP32S3 XIAO (Seeed Studio)
-- **Sensors:** 10 piezoresistive fabric sensors (5 per sock)
-- **Zones:** Heel, Arch, Metatarsal medial, Metatarsal lateral, Toe
+- **Sensors per leg:**
+  - **Sock:** 2 piezoresistive pressure sensors (heel + ball of foot)
+  - **Knee pad:** 1 stretch sensor (front of knee)
+- **Total:** 6 sensors (4 pressure + 2 stretch)
 - **Circuit:** Voltage dividers with 10kΩ resistors
 - **Sampling:** 50 Hz, 12-bit ADC (0-4095)
 - **Port:** `/dev/cu.usbmodem2101` (default). Use `pio device list` to find yours
