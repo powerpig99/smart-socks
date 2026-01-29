@@ -15,7 +15,7 @@
   
   <rect class="bg" width="700" height="500"/>
   
-  <text x="350" y="30" text-anchor="middle" class="title">SENSOR PLACEMENT & FOOT ANATOMY</text>
+  <text x="350" y="30" text-anchor="middle" class="title">SENSOR PLACEMENT &amp; FOOT ANATOMY</text>
   <line x1="250" y1="40" x2="450" y2="40" stroke="#88C0D0" stroke-width="2"/>
   
   <g transform="translate(100, 80)">

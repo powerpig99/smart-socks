@@ -6,6 +6,19 @@ Team: Saara, Alex, Jing
 
 ---
 
+> **⚠️ WORKSHOP PREPARATION (Wed 04-02)**
+> 
+> **Bring to workshop:** USB-C cable, microcontrollers, breadboard, jumper wires, resistors, sensors
+> 
+> **Install before class:**
+> - Python: https://realpython.com/installing-python/ | Video: https://www.youtube.com/watch?v=QhukcScB9W0
+> - IDE: [[Visual Studio Code]] (recommended) or PyCharm
+> - We'll learn WiFi data collection using Arduino IDE/VS Code + Python
+> 
+> See [[PLATFORMIO_SETUP]] for detailed IDE setup instructions.
+
+---
+
 > **Obsidian Links:** [[INDEX]] | [[CODE_REVIEW]] | [[PLATFORMIO_SETUP]] | [[Calibration Visualizer|calibration_visualizer]]
 > 
 > This project uses [[Obsidian]]-style wiki links for cross-referencing. Open in Obsidian for best experience. Start with [[INDEX]] for navigation.
