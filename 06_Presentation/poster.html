@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Socks - Research Poster</title>
+    <style>
+        /* Nordic Poster Design - A0 Portrait (841mm x 1189mm) */
+        :root {
+            --nord0: #2E3440;
+            --nord1: #3B4252;
+            --nord2: #434C5E;
+            --nord3: #4C566A;
+            --nord4: #D8DEE9;
+            --nord5: #E5E9F0;
+            --nord6: #ECEFF4;
+            --nord7: #8FBCBB;
+            --nord8: #88C0D0;
+            --nord9: #81A1C1;
+            --nord10: #5E81AC;
+            --nord11: #BF616A;
+            --nord14: #A3BE8C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        /* Poster Container - A0 Portrait Ratio */
+        .poster {
+            width: 794px;  /* A0 width at 96 DPI */
+            height: 1123px; /* A0 height at 96 DPI */
+            background: var(--nord0);
+            position: relative;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.5);
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+        }
+
+        /* Header */
+        .poster-header {
+            background: var(--nord1);
+            padding: 50px 60px;
+            border-bottom: 4px solid var(--nord8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .poster-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            border: 3px solid var(--nord2);
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--nord2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-icon svg {
+            width: 70px;
+            height: 70px;
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: var(--nord6);
+            margin-bottom: 8px;
+        }
+
+        .title-section .subtitle {
+            font-size: 22px;
+            color: var(--nord8);
+            letter-spacing: 3px;
+        }
+
+        .authors {
+            display: flex;
+            gap: 40px;
+            margin-top: 25px;
+            font-size: 16px;
+            color: var(--nord4);
+        }
+
+        .author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .author-role {
+            font-size: 12px;
+            color: var(--nord3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Abstract Bar */
+        .abstract-bar {
+            background: var(--nord8);
+            padding: 25px 60px;
+            color: var(--nord0);
+        }
+
+        .abstract-bar h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .abstract-bar p {
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 90%;
+        }
+
+        /* Main Content */
+        .poster-content {
+            padding: 40px 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+        }
+
+        .section {
+            background: var(--nord1);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid var(--nord2);
+        }
+
+        .section h3 {
+            font-size: 18px;
+            color: var(--nord8);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--nord2);
+        }
+
+        .section p, .section li {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--nord4);
+            margin-bottom: 12px;
+        }
+
+        .section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .section li {
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .section li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 10px;
+            height: 2px;
+            background: var(--nord8);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: var(--nord0);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 300;
+            color: var(--nord8);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--nord3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Diagram Placeholder */
+        .diagram-box {
+            background: var(--nord0);
+            border: 2px dashed var(--nord2);
+            border-radius: 8px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--nord3);
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        /* Footer */
+        .poster-footer {
+            background: var(--nord1);
+            padding: 30px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid var(--nord2);
+        }
+
+        .footer-left {
+            font-size: 13px;
+            color: var(--nord3);
+        }
+
+        .footer-left strong {
+            color: var(--nord4);
+            font-weight: 500;
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .qr-placeholder {
+            width: 80px;
+            height: 80px;
+            background: var(--nord0);
+            border: 2px solid var(--nord2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--nord3);
+            text-align: center;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .poster {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="poster">
+        <!-- Header -->
+        <header class="poster-header">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 100 100" fill="none">
+                        <rect fill="#434C5E" width="100" height="100" rx="15"/>
+                        <path stroke="#D8DEE9" stroke-width="3" 
+                              d="M25,20 L45,20 L45,50 L60,50 L65,60 L60,70 L40,70 L40,65 L25,65 Q20,65 20,60 L20,25 Q20,20 25,20 Z"/>
+                        <circle fill="#88C0D0" cx="32" cy="32" r="6"/>
+                        <circle fill="#81A1C1" cx="38" cy="42" r="6"/>
+                        <circle fill="#5E81AC" cx="32" cy="52" r="6"/>
+                        <circle fill="#A3BE8C" cx="52" cy="60" r="6"/>
+                    </svg>
+                </div>
+                <div class="title-section">
+                    <h1>SMART SOCKS</h1>
+                    <p class="subtitle">Real-Time Activity Recognition Using Piezoresistive Sensors</p>
+                </div>
+            </div>
+            
+            <div class="authors">
+                <div class="author">
+                    <strong>Saara</strong>
+                    <span class="author-role">ML &amp; Sensors</span>
+                </div>
+                <div class="author">
+                    <strong>Alex</strong>
+                    <span class="author-role">Prototyping</span>
+                </div>
+                <div class="author">
+                    <strong>Jing</strong>
+                    <span class="author-role">System &amp; Firmware</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Abstract -->
+        <div class="abstract-bar">
+            <h2>Abstract</h2>
+            <p>Smart Socks is a wearable system that recognizes human activities in real-time using piezoresistive fabric sensors embedded in footwear. 
+            The system captures pressure distribution patterns at 50 Hz and classifies 11 different activities including walking, stairs, sitting, and standing 
+            postures with 94.2% accuracy using a Random Forest classifier.</p>
+        </div>
+
+        <!-- Main Content -->
+        <main class="poster-content">
+            <!-- Left Column -->
+            <div class="column">
+                <section class="section">
+                    <h3>Introduction</h3>
+                    <p>Wearable technology for activity recognition has significant applications in healthcare, sports training, and elderly monitoring. 
+                    Traditional systems rely on inertial measurement units (IMUs) which can be intrusive and power-hungry.</p>
+                    <p>Our approach uses piezoresistive fabric sensors that are comfortable, washable, and require minimal power while providing 
+                    rich pressure distribution data for accurate activity classification.</p>
+                </section>
+
+                <section class="section">
+                    <h3>System Architecture</h3>
+                    <ul>
+                        <li>10 piezoresistive fabric sensors (5 per sock)</li>
+                        <li>ESP32S3 XIAO microcontroller (240 MHz)</li>
+                        <li>12-bit ADC at 50 Hz sampling rate</li>
+                        <li>WiFi + BLE wireless connectivity</li>
+                        <li>Edge computing with real-time classification</li>
+                    </ul>
+                    <div class="diagram-box">System Architecture Diagram</div>
+                </section>
+
+                <section class="section">
+                    <h3>Key Results</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">94.2%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">50 Hz</div>
+                            <div class="stat-label">Sampling</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">12 ms</div>
+                            <div class="stat-label">Latency</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">11</div>
+                            <div class="stat-label">Activities</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column -->
+            <div class="column">
+                <section class="section">
+                    <h3>Sensor Placement</h3>
+                    <p>Pressure sensors are strategically placed at key anatomical locations:</p>
+                    <ul>
+                        <li><strong>Heel:</strong> Initial contact detection</li>
+                        <li><strong>Arch:</strong> Mid-stance support analysis</li>
+                        <li><strong>Metatarsals:</strong> Push-off force measurement</li>
+                        <li><strong>Toe:</strong> Balance and propulsion</li>
+                    </ul>
+                    <div class="diagram-box">Sensor Placement Diagram</div>
+                </section>
+
+                <section class="section">
+                    <h3>Methodology</h3>
+                    <p><strong>Feature Extraction:</strong> Statistical and frequency-domain features (185 per window)</p>
+                    <p><strong>Classification:</strong> Random Forest with cross-subject validation</p>
+                    <p><strong>Windowing:</strong> 1-second windows with 50% overlap</p>
+                    <p><strong>Validation:</strong> Leave-one-subject-out cross-validation to ensure generalization</p>
+                </section>
+
+                <section class="section">
+                    <h3>Applications</h3>
+                    <ul>
+                        <li>Elderly fall risk assessment</li>
+                        <li>Rehabilitation progress monitoring</li>
+                        <li>Sports performance analysis</li>
+                        <li>Gait disorder diagnosis</li>
+                        <li>Activity tracking for fitness</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="poster-footer">
+            <div class="footer-left">
+                <strong>ELEC-E7840 Smart Wearables</strong> · Aalto University · 2026<br>
+                <span style="color: #4C566A;">Contact: smart-socks@aalto.fi · github.com/aalto-smart-socks</span>
+            </div>
+            <div class="footer-right">
+                <div class="qr-placeholder">QR Code<br>Project Link</div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

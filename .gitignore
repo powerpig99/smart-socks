@@ -37,3 +37,12 @@ build/
 
 # But track example/template CSVs
 !**/example_*.csv
+
+# Obsidian
+.obsidian/
+
+# PlatformIO
+.pio/
+
+# Model files
+*.joblib

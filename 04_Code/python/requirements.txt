@@ -2,6 +2,7 @@
 # ELEC-E7840 Smart Wearables (Aalto University)
 #
 # Install with: pip install -r requirements.txt
+# For development: pip install -r requirements.txt -r requirements-dev.txt
 
 # Data handling
 numpy>=1.21.0
@@ -9,6 +10,7 @@ pandas>=1.3.0
 
 # Machine learning
 scikit-learn>=1.0.0
+joblib>=1.1.0
 
 # Visualization
 matplotlib>=3.4.0
@@ -17,5 +19,23 @@ seaborn>=0.11.0
 # Serial communication with ESP32
 pyserial>=3.5
 
-# Signal processing (optional, for advanced filtering)
+# Signal processing
 scipy>=1.7.0
+
+# Progress bars
+tqdm>=4.62.0
+
+# Model management and tables
+tabulate>=0.8.0
+
+# Bluetooth Low Energy support (optional but recommended)
+bleak>=0.19.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Development tools
+black>=22.0.0          # Code formatting
+flake8>=5.0.0          # Linting
+mypy>=0.991            # Type checking
