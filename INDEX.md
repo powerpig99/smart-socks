@@ -32,10 +32,12 @@ Team: Saara, Alex, Jing
 | Document | Description | Link |
 |----------|-------------|------|
 | **Project Overview** | Main README with quick links | [[README]] |
+| **Project Status** | Current status, recap, setup history | [[PROJECT_STATUS]] |
+| **Work Diary** | Team meeting notes and decisions | [[WORK_DIARY]] |
 | **PlatformIO Setup** | Hardware setup, build instructions | [[PLATFORMIO_SETUP]] |
 | **Python Setup** | UV environment setup guide | [[README_PYTHON_SETUP]] |
 | **Code Review** | Bug fixes and issue tracking | [[CODE_REVIEW]] |
-| **Work Diary** | Project diary (DOCX) | `Work_Diary.docx` |
+| **Design Assets** | Nordic design system, logos, icons | [[DESIGN_ASSETS]] |
 
 ---
 
