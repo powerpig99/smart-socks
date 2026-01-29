@@ -4,90 +4,92 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Smart Socks for Physical Activity Recognition - an academic project for ELEC-E7840 Smart Wearables (Aalto University). The goal is to recognize 5 activity categories (walking, stair climbing, sitting, sit-to-stand, standing) using textile-based pressure sensors integrated into socks.
+Smart Socks for Physical Activity Recognition — ELEC-E7840 Smart Wearables (Aalto University). Recognizes 5 activity categories (walking, stair climbing, sitting, sit-to-stand, standing) using textile-based pressure sensors in socks. **No IMUs permitted** — textile sensors only.
 
-**Constraint:** Textile-based sensors only (pressure, bend, strain). No IMUs permitted.
+**Team:** Saara (ML, sensors, docs), Alex (Prototyping, user testing, design), Jing (Circuit, ESP32, coordination)
 
-## Technology Stack
-
-- **Embedded firmware:** Arduino/C for ESP32S3 XIAO microcontroller
-- **Data processing & ML:** Python with scikit-learn (Random Forest classifier)
-- **Sensors:** Piezoresistive fabric sensors (5 zones per sock, 10 total channels)
-- **Communication:** Serial/BLE from ESP32 to PC
-
-## Hardware Architecture
+## Architecture
 
 ```
-Piezoresistive fabric sensors (5 per sock)
-    → Voltage divider circuit (10kΩ resistors)
-    → ESP32S3 ADC (50+ Hz sampling)
-    → Serial/BLE
+Piezoresistive fabric sensors (5 per sock, 10 total)
+    → Voltage divider (10kΩ resistors)
+    → ESP32S3 XIAO ADC (50 Hz, 12-bit)
+    → Serial or BLE
     → Python receiver (PC)
-    → ML classification
+    → ML classification (Random Forest)
 ```
 
 **Sensor zones per sock:** Heel, Arch, Metatarsal medial, Metatarsal lateral, Toe
 
-## Directory Structure
+**Data flow:** Raw CSV → `data_preprocessing.py` → `feature_extraction.py` (200+ features, 1s windows, 50% overlap) → `train_model.py` (Random Forest, leave-subject-out validation) → `.joblib` model → `real_time_classifier.py`
 
-```
-00_Planning/       - Project plans, meeting notes
-01_Design/         - Sensor layouts, circuit diagrams
-02_Fabrication/    - Prototype photos, build docs
-03_Data/           - Sensor characterization, activity data (see README.md for naming)
-04_Code/
-  ├── arduino/
-  │   ├── sensor_test/       - Basic ADC reading for characterization
-  │   └── data_collection/   - Multi-channel recording with serial commands
-  └── python/
-      ├── requirements.txt
-      ├── serial_receiver.py          - Save serial data to CSV
-      └── sensor_characterization.py  - Calibration curve analysis
-05_Analysis/       - ML results, plots, confusion matrices
-06_Presentation/   - Slides, final report
-07_References/     - Research papers
-```
+**Centralized config:** All hardware constants, sensor mappings, ML parameters, feature toggles, and path conventions live in `04_Code/python/config.py`. Modify config values there rather than in individual scripts.
 
 ## Development Commands
 
-**Arduino (ESP32S3):**
-```bash
-# Compile and upload via Arduino IDE or arduino-cli
-arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
-arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
-```
+### Python Setup & Tests
 
-**Python:**
 ```bash
 pip install -r 04_Code/python/requirements.txt
-python 04_Code/python/serial_receiver.py --port /dev/ttyUSB0
-python 04_Code/python/sensor_characterization.py --data 03_Data/calibration/
+
+# Run tests
+cd 04_Code/python && python -m pytest tests/ -v
+
+# Run a single test
+cd 04_Code/python && python -m pytest tests/test_data_validation.py -v
+
+# Linting and formatting
+cd 04_Code/python && black . && flake8 . && mypy .
 ```
 
-**Arduino Serial Commands (data_collection sketch):**
+### Arduino / PlatformIO
+
+PlatformIO with VS Code is the recommended dev environment (see `04_Code/PLATFORMIO_SETUP.md`). Config is in `platformio.ini` at repo root.
+
+```bash
+# Alternative: arduino-cli
+arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
+arduino-cli upload -p /dev/cu.usbmodem2101 --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
 ```
-START S01 walking_forward   # Start recording for subject S01
-STOP                        # Stop recording
-STATUS                      # Check current status
-HELP                        # Show available commands
+
+**Note:** Serial port is `/dev/cu.usbmodem2101` on macOS (not `/dev/ttyUSB0`).
+
+### ML Pipeline
+
+```bash
+# Full pipeline (recommended)
+python 04_Code/python/run_full_pipeline.py --raw-data ../../03_Data/raw/ --output ../../05_Analysis/
+
+# Step-by-step: preprocess → extract features → train → report
+python 04_Code/python/data_preprocessing.py --input ../../03_Data/raw/ --output ../../03_Data/processed/
+python 04_Code/python/feature_extraction.py --input ../../03_Data/processed/ --output ../../03_Data/features/
+python 04_Code/python/train_model.py --features ../../03_Data/features/features_all.csv --output ../../05_Analysis/
+python 04_Code/python/train_model.py --features ../../03_Data/features/features_all.csv --output ../../05_Analysis/ --cross-subject
+python 04_Code/python/analysis_report.py --results-dir ../../05_Analysis/ --output ../../06_Presentation/report/
 ```
 
-**Activity Labels:** `walking_forward`, `walking_backward`, `stairs_up`, `stairs_down`, `sitting_floor`, `sitting_crossed`, `sit_to_stand`, `stand_to_sit`, `standing_upright`, `standing_lean_left`, `standing_lean_right`
+### Real-Time Demo
 
-## Key Technical Details
+```bash
+python 04_Code/python/real_time_classifier.py --model ../../05_Analysis/smart_socks_model.joblib --port /dev/cu.usbmodem2101
+python 04_Code/python/real_time_classifier.py --model ../../05_Analysis/smart_socks_model.joblib --ble
+```
 
-- **ADC sampling:** 50+ Hz across all 10 sensor channels
-- **Sensor characterization:** Test with known weights (100g-5kg), record ADC values, plot pressure vs. ADC curves
-- **Feature extraction:** Time-domain statistics, pressure ratios, temporal patterns
-- **Step counting:** Peak detection algorithm running in parallel with classification
-- **Data split:** 6 subjects for training, 3 for testing (leave-subject-out validation)
+## Arduino Serial Protocol
 
-## Activity Recognition Requirements
+115200 baud. Commands: `START <subject_id> <activity>`, `STOP`, `STATUS`, `HELP`. BLE version adds: `MODE SERIAL|BLE|BOTH`.
 
-| Activity | Sub-tasks |
-|----------|-----------|
-| Walking | Forward/backward detection + step counting |
-| Stair climbing | Up/down detection + step counting |
-| Sitting | Feet on floor vs. cross-legged |
-| Sit-to-stand | Detection + timing (seconds) |
-| Standing | Upright vs. leaning left/right |
+## Key Conventions
+
+- **Activity labels:** `walking_forward`, `walking_backward`, `stairs_up`, `stairs_down`, `sitting_floor`, `sitting_crossed`, `sit_to_stand`, `stand_to_sit`, `standing_upright`, `standing_lean_left`, `standing_lean_right`
+- **Data naming:** `<subject_id>_<activity>_<timestamp>.csv` (e.g., `S01_walking_forward_20260115_143022.csv`)
+- **Subject split:** S01-S06 training, S07-S09 testing (cross-subject validation is critical)
+- **CSV columns:** `time_ms,L_Heel,L_Arch,L_MetaM,L_MetaL,L_Toe,R_Heel,R_Arch,R_MetaM,R_MetaL,R_Toe`
+- **BLE UUIDs:** Service `4fafc201-1fb5-459e-8fcc-c5c9c331914b`, Characteristic `beb5483e-36e1-4688-b7f5-ea07361b26a8`, Device name `SmartSocks`
+- **Arduino LED:** XIAO ESP32S3 uses GPIO 21 (`#define LED_BUILTIN 21`)
+- **Git:** Local only, no remote. `.gitignore` excludes CSV data, Python cache, IDE settings.
+- **Python path:** Tests use `sys.path.insert` to add parent dir; run pytest from `04_Code/python/`.
+
+## Target Accuracy
+
+>85% average, >80% per activity on held-out test subjects. Key discriminating features: total pressure per foot, fore/hindfoot ratio, left/right balance, temporal gait patterns.
