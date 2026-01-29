@@ -2,6 +2,27 @@
 
 **ELEC-E7840 Smart Wearables — Aalto University**
 
+> **⚠️ WORKSHOP PREPARATION (Wednesday 04-02)**
+> 
+> **Before the WiFi Data Collection Workshop, install:**
+> 
+> 1. **Python** (3.8 or higher)
+>    - Guide: https://realpython.com/installing-python/
+>    - Video Tutorial: https://www.youtube.com/watch?v=QhukcScB9W0
+> 
+> 2. **IDE** (choose one)
+>    - Visual Studio Code (recommended): https://code.visualstudio.com/
+>    - PyCharm: https://www.jetbrains.com/pycharm/
+>    - Arduino IDE (alternative): https://www.arduino.cc/en/software
+> 
+> 3. **Required Hardware to Bring:**
+>    - USB-C cable
+>    - Microcontrollers (ESP32S3 XIAO)
+>    - Breadboard, jumper wires, resistors
+>    - Sensors
+> 
+> ---
+
 > **Quick Links:** [[README]] | [[README_PYTHON_SETUP]] | [[PLATFORMIO_SETUP]]
 
 This guide covers all software installation steps for the Smart Socks project using **UV** for Python environment management.

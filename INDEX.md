@@ -5,6 +5,21 @@ Team: Saara, Alex, Jing
 
 ---
 
+> **⚠️ WORKSHOP PREPARATION (Wednesday 04-02)**
+> 
+> **Next Tutorial:** WiFi Data Collection Workshop
+> 
+> **Bring:** USB-C cable, microcontrollers, breadboard, jumper wires, resistors, sensors
+> 
+> **Install Before Class:**
+> - Python: https://realpython.com/installing-python/
+> - Python Tutorial Video: https://www.youtube.com/watch?v=QhukcScB9W0
+> - IDE: Visual Studio Code (recommended) or PyCharm
+> 
+> **Workshop Goal:** Learn WiFi data collection using Arduino IDE/VS Code + Python
+> 
+> ---
+
 > **Welcome to the Smart Socks Obsidian Vault!**
 > 
 > This index provides quick navigation to all project documents and concepts.

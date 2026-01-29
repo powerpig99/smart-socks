@@ -1,5 +1,24 @@
 # PlatformIO Setup Guide - Smart Socks Project
 
+> **⚠️ WORKSHOP PREPARATION (Wednesday 04-02)**
+> 
+> **Tutorial:** WiFi Data Collection Workshop
+> 
+> **Required Items:**
+> - USB-C cable
+> - Microcontrollers (ESP32S3 XIAO)
+> - Breadboard, jumper wires, resistors
+> - Sensors
+> 
+> **Software to Install:**
+> - Python: https://realpython.com/installing-python/ | Video: https://www.youtube.com/watch?v=QhukcScB9W0
+> - IDE: Visual Studio Code (recommended) or PyCharm
+> - Arduino IDE (alternative option)
+> 
+> This guide below will help you set up everything before the workshop!
+
+---
+
 > **Related:** [[README]] | [[CODE_REVIEW]] | [[calibration_visualizer]]
 
 ## Overview
