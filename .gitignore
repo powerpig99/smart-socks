@@ -51,3 +51,6 @@ build/
 CLAUDE.md
 AGENTS.md
 CODE_REVIEW.md
+# Archives and backups
+*.zip
+*.tar.gz
