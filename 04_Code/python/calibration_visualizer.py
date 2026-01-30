@@ -37,10 +37,12 @@ Demo Recording:
 import argparse
 import sys
 import time
+import io
 import serial
 import numpy as np
 from collections import deque
 from datetime import datetime
+from PIL import Image
 
 # Nordic Design System
 try:
@@ -249,7 +251,7 @@ class CalibrationVisualizer:
             self._start_recording()
             
     def _start_recording(self):
-        """Start recording video."""
+        """Start recording video directly to MP4."""
         if self.recording:
             return
             
@@ -258,18 +260,32 @@ class CalibrationVisualizer:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             self.record_file = f"demo_recording_{timestamp}.mp4"
         
-        try:
-            # Try to use imageio for video writing
-            import imageio
-            self.imageio_available = True
-        except ImportError:
-            self.imageio_available = False
-            print("\n[WARNING] imageio not installed. Install with: pip install imageio imageio-ffmpeg")
-            print("[INFO] Recording will save frames as PNG images instead.")
+        # Ensure filename ends with .mp4
+        if not self.record_file.endswith('.mp4'):
+            self.record_file += '.mp4'
         
-        self.recording = True
-        self.frame_count = 0
-        print(f"\n[RECORDING STARTED] Saving to: {self.record_file}")
+        try:
+            import imageio
+            # Initialize video writer
+            self.video_writer = imageio.get_writer(
+                self.record_file, 
+                fps=20,  # 20 frames per second
+                quality=8,
+                codec='libx264',
+                pixelformat='yuv420p'
+            )
+            self.recording = True
+            self.frame_count = 0
+            print(f"\n[RECORDING STARTED] Saving to: {self.record_file}")
+            print("[INFO] Press 'C' again to stop recording")
+        except ImportError:
+            print("\n[ERROR] imageio not installed. Install with: pip install imageio imageio-ffmpeg")
+            self.video_writer = None
+            self.recording = False
+        except Exception as e:
+            print(f"\n[ERROR] Failed to start recording: {e}")
+            self.video_writer = None
+            self.recording = False
         
     def _stop_recording(self):
         """Stop recording video."""
@@ -281,21 +297,33 @@ class CalibrationVisualizer:
         if self.video_writer:
             try:
                 self.video_writer.close()
-            except:
-                pass
-            self.video_writer = None
-            
-        print(f"\n[RECORDING STOPPED] Saved {self.frame_count} frames to: {self.record_file}")
+                print(f"\n[RECORDING STOPPED] Saved {self.frame_count} frames to: {self.record_file}")
+                print(f"[INFO] Video duration: {self.frame_count / 20:.1f} seconds")
+            except Exception as e:
+                print(f"\n[ERROR] Failed to save video: {e}")
+            finally:
+                self.video_writer = None
         
     def _save_frame(self):
-        """Save current frame to video or image."""
-        if not self.recording:
+        """Save current frame to video."""
+        if not self.recording or not self.video_writer:
             return
             
         try:
-            # Save frame as image
-            filename = f"{self.record_file.replace('.mp4', '')}_frame_{self.frame_count:05d}.png"
-            self.fig.savefig(filename, dpi=100, facecolor=self.fig.get_facecolor())
+            # Capture frame from figure
+            import io
+            buf = io.BytesIO()
+            self.fig.savefig(buf, format='rgba', dpi=100, facecolor=self.fig.get_facecolor())
+            buf.seek(0)
+            
+            # Convert to numpy array
+            import numpy as np
+            from PIL import Image
+            img = Image.open(buf)
+            frame = np.array(img)
+            
+            # Write to video (RGB only, no alpha)
+            self.video_writer.append_data(frame[:, :, :3])
             self.frame_count += 1
         except Exception as e:
             print(f"[WARNING] Failed to save frame: {e}")
