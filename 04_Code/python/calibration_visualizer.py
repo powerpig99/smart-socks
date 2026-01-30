@@ -10,12 +10,15 @@ Usage:
     python calibration_visualizer.py --port /dev/cu.usbmodem2101
     python calibration_visualizer.py --port /dev/cu.usbmodem2101 --save-calibration
     
+    # Record demo video (for mid-term presentation)
+    python calibration_visualizer.py --port /dev/cu.usbmodem2101 --record demo_video.mp4
+    
 Interactive Controls (press key while window is focused):
     Q - Quit the application
     R - Reset min/max tracking values for all sensors
     S - Save current calibration data to CSV file
     P - Pause/Resume the display (data continues collecting when paused)
-    H - Show help message in console
+    C - Toggle video recording (press C to start/stop recording)
 
 The visualization shows:
     - Left Leg sensors (top-left): L_P_Heel, L_P_Ball, L_S_Knee
@@ -23,7 +26,12 @@ The visualization shows:
     - Statistics panel (top-right): Current, Min, Max, Range values
     - Time series plot (bottom-left): Historical data
     - Heatmap (bottom-right): Current values visualization
-    - Status bar (bottom): Connection status and sample count
+    - Status bar (bottom): Connection status, sample count, recording indicator
+
+Demo Recording:
+    Press 'C' during visualization to start/stop recording frames.
+    Frames are saved as PNG images that can be combined into a video.
+    Recording indicator (🔴 REC) appears in status bar when active.
 """
 
 import argparse
@@ -72,7 +80,7 @@ NUM_RIGHT = len(RIGHT_SENSORS)
 class CalibrationVisualizer:
     """Real-time calibration visualization with Nordic design."""
     
-    def __init__(self, port, baudrate=115200, history_seconds=5):
+    def __init__(self, port, baudrate=115200, history_seconds=5, record_file=None):
         self.port = port
         self.baudrate = baudrate
         self.history_seconds = history_seconds
@@ -93,6 +101,12 @@ class CalibrationVisualizer:
         self.paused = False
         self.save_calibration = False
         self.sample_count = 0
+        
+        # Video recording
+        self.record_file = record_file
+        self.recording = False
+        self.video_writer = None
+        self.frame_count = 0
         
         # Setup plot
         self._setup_plot()
@@ -205,10 +219,12 @@ class CalibrationVisualizer:
             R - Reset min/max tracking
             S - Save calibration data to file
             P - Pause/Resume display
+            C - Toggle video recording (for demo)
         """
         key = event.key.lower()
         if key == 'q':
             self.running = False
+            self._stop_recording()  # Stop recording if active
             plt.close(self.fig)
         elif key == 'r':
             self._reset_minmax()
@@ -216,12 +232,73 @@ class CalibrationVisualizer:
             self.save_calibration = True
         elif key == 'p':
             self.paused = not self.paused
+        elif key == 'c':
+            self._toggle_recording()
             
     def _reset_minmax(self):
         """Reset min/max tracking."""
         self.min_values = {name: 4095 for name in SENSOR_NAMES}
         self.max_values = {name: 0 for name in SENSOR_NAMES}
         print("\n[RESET] Min/max tracking reset")
+        
+    def _toggle_recording(self):
+        """Toggle video recording on/off."""
+        if self.recording:
+            self._stop_recording()
+        else:
+            self._start_recording()
+            
+    def _start_recording(self):
+        """Start recording video."""
+        if self.recording:
+            return
+            
+        # Generate filename if not provided
+        if not self.record_file:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.record_file = f"demo_recording_{timestamp}.mp4"
+        
+        try:
+            # Try to use imageio for video writing
+            import imageio
+            self.imageio_available = True
+        except ImportError:
+            self.imageio_available = False
+            print("\n[WARNING] imageio not installed. Install with: pip install imageio imageio-ffmpeg")
+            print("[INFO] Recording will save frames as PNG images instead.")
+        
+        self.recording = True
+        self.frame_count = 0
+        print(f"\n[RECORDING STARTED] Saving to: {self.record_file}")
+        
+    def _stop_recording(self):
+        """Stop recording video."""
+        if not self.recording:
+            return
+            
+        self.recording = False
+        
+        if self.video_writer:
+            try:
+                self.video_writer.close()
+            except:
+                pass
+            self.video_writer = None
+            
+        print(f"\n[RECORDING STOPPED] Saved {self.frame_count} frames to: {self.record_file}")
+        
+    def _save_frame(self):
+        """Save current frame to video or image."""
+        if not self.recording:
+            return
+            
+        try:
+            # Save frame as image
+            filename = f"{self.record_file.replace('.mp4', '')}_frame_{self.frame_count:05d}.png"
+            self.fig.savefig(filename, dpi=100, facecolor=self.fig.get_facecolor())
+            self.frame_count += 1
+        except Exception as e:
+            print(f"[WARNING] Failed to save frame: {e}")
         
     def connect(self):
         """Connect to serial port."""
@@ -429,9 +506,14 @@ class CalibrationVisualizer:
         if NORDIC_STYLE:
             self.status_ax.clear()
             state = 'PAUSED' if self.paused else 'RUNNING'
-            controls = "|  Q=Quit R=Reset S=Save P=Pause"
-            status = f"PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
+            rec_indicator = "🔴 REC | " if self.recording else ""
+            controls = "|  Q=Quit R=Reset S=Save P=Pause C=Record"
+            status = f"{rec_indicator}PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
             create_status_bar(self.status_ax, status, is_recording=not self.paused)
+        
+        # Save frame if recording
+        if self.recording:
+            self._save_frame()
         
         return []
         
@@ -446,7 +528,7 @@ class CalibrationVisualizer:
         print(f"Port: {self.port}")
         print(f"Sensors: {len(SENSOR_NAMES)}")
         print(f"History: {self.history_seconds}s")
-        print("\nControls: Q=Quit  R=Reset  S=Save  P=Pause")
+        print("\nControls: Q=Quit  R=Reset  S=Save  P=Pause  C=Record")
         print("="*60 + "\n")
         
         # Start animation
@@ -489,14 +571,21 @@ Examples:
                         help='Baud rate (default: 115200)')
     parser.add_argument('--history', type=int, default=5,
                         help='History window in seconds (default: 5)')
+    parser.add_argument('--record', '-r', metavar='FILENAME',
+                        help='Record demo video (specify output file, e.g., demo.mp4)')
     
     args = parser.parse_args()
     
     visualizer = CalibrationVisualizer(
         port=args.port,
         baudrate=args.baud,
-        history_seconds=args.history
+        history_seconds=args.history,
+        record_file=args.record
     )
+    
+    # Auto-start recording if filename provided
+    if args.record:
+        visualizer._start_recording()
     
     visualizer.run()
 
