@@ -202,9 +202,12 @@ HELP / ?       # Show commands
 
 ## Change Log
 
-### Jan 30, 2026: WiFi Verified + Calibration Visualizer Enhanced
+### Jan 30, 2026: WiFi + BLE Verified, Calibration Visualizer Enhanced
 
-- **WiFi tested successfully:** Phone hotspot (Maximize Compatibility) and home WiFi (TP-Link)
+- **WiFi tested:** Phone hotspot (Maximize Compatibility), home WiFi (TP-Link), AP mode — all working
+- **BLE tested:** Discoverable from iPhone (nRF Connect), works concurrently with WiFi hotspot
+- BLE initialized before WiFi to avoid shared-antenna conflicts on XIAO ESP32S3
+- Note: BLE signal is weak on XIAO ESP32S3 (tiny PCB antenna shared with WiFi); not discoverable from macOS
 - Web dashboard accessible over WiFi at device IP (e.g., `http://192.168.8.167`)
 - WiFi mode selectable via `#define` in firmware: `USE_PHONE_HOTSPOT`, `USE_EXISTING_WIFI`, or AP mode
 - Station mode falls back to AP mode if WiFi connection fails
