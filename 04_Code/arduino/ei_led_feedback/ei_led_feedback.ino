@@ -108,6 +108,9 @@ void setup() {
 // ============== MAIN LOOP ==============
 
 void loop() {
+  // Handle serial commands
+  handleSerialCommands();
+  
   // Simulate activity detection (replace with actual Edge Impulse inference)
   simulateActivityDetection();
   

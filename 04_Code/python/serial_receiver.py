@@ -11,17 +11,19 @@ Usage:
 """
 
 import argparse
+import os
+import sys
 import serial
 import time
-import os
 from datetime import datetime
 
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Sensor channel names (must match Arduino sketch)
-SENSOR_NAMES = [
-    "L_Heel", "L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-    "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"
-]
+from config import SENSORS
+
+# Sensor channel names from config
+SENSOR_NAMES = SENSORS['names']
 
 
 class SerialReceiver:
