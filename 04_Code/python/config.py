@@ -42,37 +42,27 @@ HARDWARE = {
 # =============================================================================
 # SENSOR CONFIGURATION
 # Updated Jan 29, 2026: New design with pressure + stretch sensors
-# Updated Feb 2026: 2 ESP32 setup (one per leg)
+# Updated Jan 2026: 1 ESP32 with all 6 sensors (A0-A5)
 # =============================================================================
 
-# MCU Configuration - 2 ESP32S3 XIAO (one per leg)
+# MCU Configuration - 1 ESP32S3 XIAO with all 6 sensors
 MCU = {
-    'left_leg': {
-        'name': 'ESP32S3-Left',
-        'port': '/dev/cu.usbmodem2101',  # Left leg ESP32
-        'sensors': ["L_P_Heel", "L_P_Ball", "L_S_Knee"],
-        'pins': {
-            'L_P_Heel': 'A0',    # GPIO 1
-            'L_P_Ball': 'A1',    # GPIO 2
-            'L_S_Knee': 'A2',    # GPIO 3
-        }
-    },
-    'right_leg': {
-        'name': 'ESP32S3-Right',
-        'port': '/dev/cu.usbmodem2102',  # Right leg ESP32 (different port)
-        'sensors': ["R_P_Heel", "R_P_Ball", "R_S_Knee"],
-        'pins': {
-            'R_P_Heel': 'A0',    # GPIO 1
-            'R_P_Ball': 'A1',    # GPIO 2
-            'R_S_Knee': 'A2',    # GPIO 3
-        }
+    'name': 'ESP32S3-SmartSocks',
+    'port': '/dev/cu.usbmodem2101',
+    'sensors': [
+        "L_P_Heel", "L_P_Ball", "L_S_Knee",
+        "R_P_Heel", "R_P_Ball", "R_S_Knee",
+    ],
+    'pins': {
+        'L_P_Heel': 'A0', 'L_P_Ball': 'A1', 'L_S_Knee': 'A2',
+        'R_P_Heel': 'A3', 'R_P_Ball': 'A4', 'R_S_Knee': 'A5',
     }
 }
 
 SENSORS = {
     # New design: 2 pressure sensors per sock + 1 stretch sensor per knee pad
     # Per leg: 3 sensors
-    # Total system: 6 sensors (4 pressure + 2 stretch) across 2 ESP32s
+    # Total system: 6 sensors (4 pressure + 2 stretch) on 1 ESP32
     'count_per_leg': 3,
     'total_count': 6,
     

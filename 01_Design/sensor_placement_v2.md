@@ -2,7 +2,7 @@
 
 **ELEC-E7840 Smart Wearables — Aalto University**
 
-> **Updated Design (Feb 2026):** 6 sensors total, dual ESP32 configuration
+> **Updated Design (Jan 2026):** 6 sensors total on single ESP32 (A0-A5)
 > 
 > **Related:** [[circuit_diagram_v2]] | [[calibration_guide]] | [[PROJECT_STATUS]]
 
@@ -81,19 +81,13 @@ After team discussion (Jan 29, 2026), we simplified from 10 sensors to **6 senso
 
 ## Sensor Layout - Right Leg (Mirror)
 
-Identical physical placement to left leg, but different pins in production:
+Identical physical placement to left leg, using pins A3-A5 on the same ESP32:
 
-**Calibration Mode (1 ESP32):**
 - **A3:** Heel pressure
-- **A4:** Ball pressure  
+- **A4:** Ball pressure
 - **A5:** Knee stretch
 
-**Production Mode (separate ESP32):**
-- **A3:** Heel pressure (maps to A0 if using per-leg firmware)
-- **A4:** Ball pressure (maps to A1 if using per-leg firmware)
-- **A5:** Knee stretch (maps to A2 if using per-leg firmware)
-
-> **Unified Pin Mapping:** A0-A2 = Left, A3-A5 = Right across all modes
+> **Pin Mapping:** A0-A2 = Left, A3-A5 = Right, all on one ESP32
 
 ---
 

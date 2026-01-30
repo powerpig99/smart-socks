@@ -24,14 +24,11 @@ See [[README_PYTHON_SETUP]] for UV installation and detailed instructions.
 ### PlatformIO Setup
 
 ```bash
-# Upload firmware to left leg ESP32
-pio run -e left_leg -t upload
-
-# Upload firmware to right leg ESP32
-pio run -e right_leg -t upload
+# Upload firmware
+pio run -e xiao_esp32s3 -t upload
 
 # Serial monitor
-pio device monitor -e left_leg
+pio device monitor -e xiao_esp32s3
 ```
 
 See [[PLATFORMIO_SETUP]] for VS Code integration and board setup.
@@ -40,17 +37,20 @@ See [[PLATFORMIO_SETUP]] for VS Code integration and board setup.
 
 ## Architecture
 
-6-sensor configuration with dual ESP32S3 (one per leg):
+6-sensor configuration on a single ESP32S3 (pins A0-A5):
 
 ```
-Left Leg ESP32S3:                     Right Leg ESP32S3:
-  L_P_Heel (A0) - Heel pressure        R_P_Heel (A0) - Heel pressure
-  L_P_Ball (A1) - Ball pressure         R_P_Ball (A1) - Ball pressure
-  L_S_Knee (A2) - Knee stretch          R_S_Knee (A2) - Knee stretch
+ESP32S3 XIAO (all 6 sensors):
+  A0: L_P_Heel  - Left heel pressure
+  A1: L_P_Ball  - Left ball pressure
+  A2: L_S_Knee  - Left knee stretch
+  A3: R_P_Heel  - Right heel pressure
+  A4: R_P_Ball  - Right ball pressure
+  A5: R_S_Knee  - Right knee stretch
 
               ↓ Serial / WiFi / BLE ↓
 
-         Python dual_collector.py (merges streams)
+         Python collector.py (reads 6-column CSV)
                       ↓
     CSV: time_ms,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee
                       ↓
@@ -78,20 +78,21 @@ Smart Socks/
 ├── 03_Data/               Raw and processed sensor data
 ├── 04_Code/
 │   ├── arduino/
-│   │   ├── data_collection_leg/       Dual ESP32 firmware (recommended)
+│   │   ├── data_collection_leg/       Data collection firmware (WiFi+BLE+serial)
 │   │   ├── calibration_all_sensors/   All 6 sensors on one ESP32
 │   │   ├── ei_data_forwarder/         Edge Impulse data collection
 │   │   └── ei_led_feedback/           LED feedback demo
 │   ├── python/
 │   │   ├── config.py                  Centralized configuration
 │   │   ├── calibration_visualizer.py  Real-time sensor visualization
-│   │   ├── dual_collector.py          Dual ESP32 data collection
+│   │   ├── collector.py                Data collection tool
 │   │   ├── data_preprocessing.py      Data cleaning
 │   │   ├── feature_extraction.py      ML feature extraction
 │   │   ├── train_model.py             Random Forest training
 │   │   ├── real_time_classifier.py    Live activity classification
 │   │   ├── run_full_pipeline.py       End-to-end ML automation
 │   │   └── ...
+│   ├── QUICKSTART.md                Quick start for single ESP32
 │   └── WIFI_CONFIGURATION.md         WiFi/BLE/Hotspot setup
 ├── 05_Analysis/           ML results, confusion matrices
 ├── 06_Presentation/       Poster, slides, user testing materials
@@ -110,17 +111,14 @@ Smart Socks/
 ### Build & Upload Firmware
 
 ```bash
-# Left leg
-pio run -e left_leg -t upload
+# Data collection firmware (WiFi + BLE + serial)
+pio run -e xiao_esp32s3 -t upload
 
-# Right leg
-pio run -e right_leg -t upload
-
-# Calibration (all 6 sensors on one ESP32)
+# Calibration firmware (simple serial-only)
 pio run -e calibration -t upload
 
 # Serial monitor (115200 baud)
-pio device monitor -e left_leg
+pio device monitor -e xiao_esp32s3
 ```
 
 Serial port on macOS: `/dev/cu.usbmodem2101` (find yours with `pio device list`).
@@ -130,10 +128,10 @@ Serial port on macOS: `/dev/cu.usbmodem2101` (find yours with `pio device list`)
 ```bash
 cd 04_Code/python
 
-# Dual ESP32 collection (recommended)
-python dual_collector.py --left /dev/cu.usbmodem2101 --right /dev/cu.usbmodem2102
+# Record activity data
+python collector.py --activity walking_forward --port /dev/cu.usbmodem2101
 
-# Single ESP32 calibration visualization
+# Calibration visualization
 python calibration_visualizer.py --port /dev/cu.usbmodem2101
 # Controls: Q=quit, R=reset, S=save CSV, P=pause, C=record GIF
 ```
@@ -187,13 +185,14 @@ uv run black . && uv run flake8 . && uv run mypy .
 
 **Serial protocol (115200 baud):**
 ```
-START S01 walking_forward   # Start recording
-STOP                        # Stop recording
-STATUS                      # Check status
-HELP                        # Show commands
+START / S      # Start recording
+STOP / X       # Stop recording
+CAL ON/OFF     # Calibration mode
+STATUS         # Check status
+HELP / ?       # Show commands
 ```
 
-**BLE:** Service `4fafc201-...914b`, Characteristic `beb5483e-...26a8`. Devices: `SmartSocks-Left`, `SmartSocks-Right`.
+**BLE:** Service `4fafc201-...914b`, Characteristic `beb5483e-...26a8`. Device: `SmartSocks`.
 
 **Target accuracy:** >85% average, >80% per activity on held-out test subjects.
 
@@ -201,16 +200,27 @@ HELP                        # Show commands
 
 ## Change Log
 
+### Jan 30, 2026: Single-ESP32 Firmware Unification
+
+- **Unified firmware:** Single `data_collection_leg.ino` reads all 6 sensors (A0-A5) on one ESP32
+- Removed dual-ESP32 sync system (UDP, TRIGGER/MASTER/SLAVE commands)
+- Removed LEG_ID build flag system and conditional compilation
+- Replaced `dual_collector.py` with `collector.py` (single-port data collection)
+- Simplified `platformio.ini` to 2 environments (`xiao_esp32s3`, `calibration`)
+- Web dashboard shows all 6 sensors in 2×3 grid
+- Updated all documentation for single-ESP32 architecture
+- Added `QUICKSTART.md`, removed `DUAL_ESP32_QUICKSTART.md`
+
 ### Jan 29-30, 2026: Sensor Migration + Audit
 
-- **Migrated from 10-sensor to 6-sensor design** (2 pressure + 1 stretch per leg, dual ESP32)
+- **Migrated from 10-sensor to 6-sensor design** (2 pressure + 1 stretch per leg)
 - Fixed 25 audit issues across Python, Arduino, docs, and build system (see [[AUDIT_GAPS_AND_FIXES]])
 - Consolidated documentation: removed redundant files, merged wireless guides into [[WIFI_CONFIGURATION]]
 - Removed deprecated v1 10-sensor code and designs
 - Restored Obsidian wiki-links throughout documentation
 - Updated SVG diagrams to match 6-sensor configuration
 - All sensor names standardized: `L_P_Heel`, `L_P_Ball`, `L_S_Knee`, `R_P_Heel`, `R_P_Ball`, `R_S_Knee`
-- PlatformIO build uses `-D LEG_ID_LEFT=1` / `-D LEG_ID_RIGHT=1` flags
+- Single ESP32 reads all 6 sensors (A0-A5)
 - GIF recording in calibration_visualizer.py fully implemented
 
 ---

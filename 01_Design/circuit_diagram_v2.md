@@ -1,8 +1,8 @@
-# Smart Socks - Circuit Diagram V2 (Dual ESP32)
+# Smart Socks - Circuit Diagram V2
 
 **ELEC-E7840 Smart Wearables — Aalto University**
 
-> **Updated Design (Feb 2026):** 2 ESP32S3 XIAO (one per leg) + 6 sensors total
+> **Updated Design (Jan 2026):** 1 ESP32S3 XIAO reading all 6 sensors (A0-A5)
 > 
 > **Related:** [[sensor_placement_v2]] | [[PLATFORMIO_SETUP]] | [[PROJECT_STATUS]]
 
@@ -14,7 +14,7 @@
 >
 > ```bash
 > open 01_Design/diagrams/system_architecture.svg
-> open 01_Design/diagrams/dual_esp32_wiring.svg  # Wiring schematic
+> open 01_Design/diagrams/dual_esp32_wiring.svg  # Wiring schematic (legacy name)
 > ```
 
 ![System Architecture](diagrams/system_architecture.svg)
@@ -23,25 +23,18 @@
 
 ![Wiring Diagram](diagrams/dual_esp32_wiring.svg)
 
-### Dual ESP32 Configuration
+### Single ESP32 Configuration
 
-| Component | Left Leg | Right Leg |
-|-----------|----------|-----------|
-| **MCU** | ESP32S3 XIAO #1 | ESP32S3 XIAO #2 |
-| **USB Port** | `/dev/cu.usbmodem2101` | `/dev/cu.usbmodem2102` |
-| **WiFi IP** | 192.168.4.1 | 192.168.4.2 |
-| **Sensors** | 3 (2P + 1S) | 3 (2P + 1S) |
+| Component | Value |
+|-----------|-------|
+| **MCU** | ESP32S3 XIAO |
+| **USB Port** | `/dev/cu.usbmodem2101` |
+| **Sensors** | 6 (4 pressure + 2 stretch) |
+| **Pins** | A0-A5 |
 
-**Per Leg:**
-- **Pressure Sensors:** 2 (heel + ball of foot)
-- **Stretch Sensor:** 1 (front of knee)
-
-**Benefits of Dual ESP32:**
-- Shorter wire runs (no cable between legs)
-- Independent processing per leg
-- Better noise isolation
-- Easier debugging
-- Simpler wiring harness
+**Sensor Layout:**
+- **Left Leg (A0-A2):** 2 pressure (heel + ball) + 1 stretch (knee)
+- **Right Leg (A3-A5):** 2 pressure (heel + ball) + 1 stretch (knee)
 
 ---
 
@@ -51,8 +44,8 @@
 
 | Component | Per Leg | Total Needed | Spare (2x) | Order Qty | Est. Cost |
 |-----------|---------|--------------|------------|-----------|-----------|
-| **ESP32S3 XIAO** | 1 | 2 | 2 | **4** | €32 |
-| **USB-C Cables** | 1 | 2 | 2 | **4** | €20 |
+| **ESP32S3 XIAO** | — | 1 | 1 | **2** | €16 |
+| **USB-C Cables** | — | 1 | 1 | **2** | €10 |
 
 ### Sensors (with 100% spare for prototyping)
 
@@ -100,16 +93,16 @@
 
 | Category | Cost |
 |----------|------|
-| **Microcontrollers** | €32 |
+| **Microcontrollers** | €16 |
 | **Sensors** | €50 |
 | **Materials** | €30 |
 | **Prototyping** | €12 |
 | **Wearables** | €50 |
-| **Total** | **~€174** |
+| **Total** | **~€148** |
 
 ---
 
-## Circuit - Per Leg (3 Sensors)
+## Circuit - All 6 Sensors on One ESP32
 
 ```svg
 <svg viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg">
@@ -246,26 +239,6 @@ For wireless operation, each leg can use:
 
 ---
 
-## Synchronization Between Legs
-
-Since each leg has its own ESP32, data synchronization options:
-
-### Option 1: Independent Streaming (Recommended)
-- Each ESP32 streams to laptop independently
-- Laptop synchronizes by timestamp
-- Simplest implementation
-
-### Option 2: Master-Slave
-- One ESP32 as master (sends sync signal)
-- Other ESP32 as slave (waits for trigger)
-- More complex but better synchronization
-
-### Option 3: External Trigger
-- Both ESP32s wait for external start signal
-- Could be a button, BLE command, or WiFi broadcast
-
----
-
 ## Navigation
 
 | ← Previous | ↑ Up | Next → |
@@ -274,4 +247,4 @@ Since each leg has its own ESP32, data synchronization options:
 
 ---
 
-*Last updated: February 2026 · Dual ESP32 Edition*
+*Last updated: January 2026 · Single ESP32 Edition*
