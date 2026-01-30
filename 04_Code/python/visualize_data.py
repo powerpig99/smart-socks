@@ -19,7 +19,10 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import seaborn as sns
 
-from config import SENSOR_NAMES, ACTIVITIES
+from config import SENSORS, ACTIVITIES
+
+# Backwards compatibility
+SENSOR_NAMES = SENSORS['names']
 
 
 def extract_activity_from_filename(filename):

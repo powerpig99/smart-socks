@@ -191,6 +191,15 @@
 
 ## How to Access Full Papers
 
+### Downloaded Papers (see `papers/` folder)
+| # | Paper | Filename | Status |
+|---|-------|----------|--------|
+| 7 | Resistive Sensors with Smart Textiles | `07_Resistive_Sensors_Smart_Textiles.pdf` | ✅ Downloaded |
+| 8 | Fabrication of Wearable Sensors (Aalto) | `08_Wearable_Sensors_Aalto.pdf` | ✅ Downloaded |
+| 10 | HAR using ML Techniques | `10_HAR_ML_Techniques.pdf` | ✅ Downloaded |
+
+**For remaining papers:** See `papers/README.md` for download instructions.
+
 ### Open Access (Free)
 - MDPI journals (Sensors, Applied Sciences, Polymers)
 - ResearchGate (author-uploaded versions)

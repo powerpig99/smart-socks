@@ -337,7 +337,15 @@ pytest tests/ --cov=. --cov-report=html
 
 ## Grading Readiness
 
-### Mid-Term Review (Week 7)
+### Course Structure: 3 Parts
+
+| Part | Weeks | Focus | Team |
+|------|-------|-------|------|
+| **Part 1** | 1-7 | Hardware & Sensor Characterization (**NO ML**) | Saara, Alex, Jing |
+| **Part 2** | 8-15 | Machine Learning & Classification | Jing only |
+
+### Mid-Term Review (Week 7) — Part 1 Only
+**All Team Members — NO ML Required**
 
 | Criteria | Implementation | Status |
 |----------|---------------|--------|
@@ -351,7 +359,8 @@ pytest tests/ --cov=. --cov-report=html
 - [x] BLE transmission capability
 - [x] Sensor characterization tools
 
-### Final Review (Week 15)
+### Final Review (Week 15) — Part 2 Only
+**⚠️ Jing Only — ML Required**
 
 | Criteria | Implementation | Status |
 |----------|---------------|--------|
@@ -380,9 +389,9 @@ pytest tests/ --cov=. --cov-report=html
 1. **Hardware Fabrication**
    ```
    Priority: CRITICAL
-   - Fabricate 10 piezoresistive sensors
-   - Integrate into socks
-   - Test all connections
+   - Fabricate 6 sensors (4 pressure + 2 stretch)
+   - Integrate into socks and knee pads
+   - Test all connections (2 ESP32, 3 sensors each)
    ```
 
 2. **Sensor Characterization**
@@ -464,7 +473,7 @@ pytest tests/ --cov=. --cov-report=html
 ### Feature Count
 - **Core ML Features:** ~200 per window
 - **Activities Supported:** 11
-- **Sensors:** 10 (5 per foot)
+- **Sensors:** 6 (3 per leg: 2 pressure + 1 stretch)
 - **Sampling Rate:** 50 Hz
 
 ---

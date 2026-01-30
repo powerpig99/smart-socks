@@ -125,6 +125,10 @@ pio --version
 The ESP32 platform will be installed automatically when you first build the project.
 
 #### Using Arduino IDE (Alternative)
+
+**Note:** Arduino IDE is supported as an alternative to PlatformIO. See [[ARDUINO_ESP32_INSTALLATION_FAQ]] for detailed troubleshooting.
+
+**Standard Installation:**
 1. Open Arduino IDE
 2. File → Preferences
 3. Add to "Additional Board Manager URLs":
@@ -133,6 +137,35 @@ The ESP32 platform will be installed automatically when you first build the proj
    ```
 4. Tools → Board → Board Manager
 5. Search "ESP32" and install "ESP32 by Espressif Systems"
+
+**Common Issue: Timeout Error (DEADLINE_EXCEEDED)**
+
+If you get this error during ESP32 package installation:
+```
+Failed to install platform: 'esp32:esp32:3.3.5'.
+Error: 4 DEADLINE_EXCEEDED: net/http: request canceled
+```
+
+**Quick Fix - Manual Installation:**
+```bash
+# 1. Download package directly (~500MB)
+# https://github.com/espressif/arduino-esp32/releases/download/3.3.5/esp32-3.3.5.zip
+
+# 2. Extract to Arduino packages folder (macOS example)
+mkdir -p ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5
+unzip ~/Downloads/esp32-3.3.5.zip -d ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5
+mv ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5/esp32-3.3.5/* \
+   ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5/
+rmdir ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5/esp32-3.3.5
+
+# 3. Restart Arduino IDE
+```
+
+**Alternative: Use Older Version (Smaller)**
+- Version 2.0.17 = ~200MB (vs 3.3.5 = ~500MB)
+- Select from version dropdown in Board Manager
+
+See [[ARDUINO_ESP32_INSTALLATION_FAQ]] for complete troubleshooting guide.
 
 ---
 

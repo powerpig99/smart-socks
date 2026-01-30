@@ -6,16 +6,32 @@ Team: Saara, Alex, Jing
 
 ---
 
-> **⚠️ WORKSHOP PREPARATION (Wed 04-02)**
+> **🎯 COURSE STRUCTURE: 3 Parts**
 > 
-> **Bring to workshop:** USB-C cable, microcontrollers, breadboard, jumper wires, resistors, sensors
+> **ELEC-E7840 Smart Wearables** has 3 sequential parts:
 > 
-> **Install before class:**
-> - Python: https://realpython.com/installing-python/ | Video: https://www.youtube.com/watch?v=QhukcScB9W0
-> - IDE: [[Visual Studio Code]] (recommended) or PyCharm
-> - We'll learn WiFi data collection using Arduino IDE/VS Code + Python
+> | Part | Focus | Duration | Team |
+> |------|-------|----------|------|
+> | **Part 1** | Hardware & Sensor Characterization (**NO ML**) | Weeks 1-7 | Saara, Alex, Jing |
+> | **Part 2** | Machine Learning & Classification | Weeks 8-15 | Jing only |
+> | **Part 3** | Edge ML / TinyML Extension | Personal | Jing only |
 > 
-> See [[PLATFORMIO_SETUP]] for detailed IDE setup instructions.
+> **Current Focus:** Part 1 - Sensor fabrication, circuit design, calibration
+> 
+> See [[PROJECT_TIMELINE]] for week-by-week schedule.
+> 
+> ---
+> 
+> > **⚠️ WORKSHOP PREPARATION (Wed 04-02)**
+> > 
+> > **Bring to workshop:** USB-C cable, microcontrollers, breadboard, jumper wires, resistors, sensors
+> > 
+> > **Install before class:**
+> > - Python: https://realpython.com/installing-python/ | Video: https://www.youtube.com/watch?v=QhukcScB9W0
+> > - IDE: [[Visual Studio Code]] (recommended) or PyCharm
+> > - We'll learn WiFi data collection using Arduino IDE/VS Code + Python
+> > 
+> > See [[PLATFORMIO_SETUP]] for detailed IDE setup instructions.
 
 ---
 
@@ -124,14 +140,17 @@ arduino-cli upload -p /dev/cu.usbmodem2101 --fqbn esp32:esp32:XIAO_ESP32S3 04_Co
 ```
 04_Code/
 ├── arduino/
-│   ├── sensor_test/                 # Basic ADC reading for characterization
-│   ├── data_collection/             # Multi-channel recording with serial commands
-│   ├── data_collection_ble/         # BLE-enabled version for wireless demo
-│   └── data_collection_wireless/    # WiFi+BLE+Web dashboard (recommended)
+│   ├── data_collection_leg/         # 6-sensor dual ESP32 (recommended)
+│   ├── calibration_all_sensors/     # All 6 sensors on one ESP32 for calibration
+│   ├── ei_data_forwarder/           # Edge Impulse data collection (Part 2)
+│   ├── ei_led_feedback/             # LED feedback demo (Part 2)
+│   └── deprecated_10_sensor/        # OLD 10-sensor sketches (deprecated)
 └── python/
     ├── requirements.txt
-    ├── feature_utils.py             # Shared feature extraction (training + real-time)
+    ├── config.py                    # Centralized configuration (6 sensors)
+    ├── feature_utils.py             # Shared feature extraction
     ├── calibration_visualizer.py    # Real-time calibration visualization ⭐
+    ├── dual_collector.py            # Collect from 2 ESP32s simultaneously
     ├── serial_receiver.py           # Save serial data to CSV
     ├── sensor_characterization.py   # Calibration curve analysis
     ├── data_preprocessing.py        # Data cleaning and normalization
@@ -145,6 +164,33 @@ arduino-cli upload -p /dev/cu.usbmodem2101 --fqbn esp32:esp32:XIAO_ESP32S3 04_Co
 ```
 
 **Recommended for calibration:** `calibration_visualizer.py` with `data_collection_wireless.ino`
+
+---
+
+## 🧠 Edge Impulse / TinyML (Part 2 Extension)
+
+> **⚠️ NOTE:** Edge Impulse / TinyML is **Part 3** (extension) for Jing only.
+> Saara and Alex are only taking Part 1 (no ML), so Part 2 and Part 3 are NOT required for them.
+
+Based on analysis of XIAO Big Power Small Board Chapter 4, Smart Socks is an ideal candidate for Edge Impulse Studio conversion.
+
+### Why Edge Impulse? (Future Work)
+| Feature | Benefit |
+|---------|---------|
+| **Real-time inference** | 5-10ms latency on ESP32 |
+| **Standalone operation** | No PC needed for classification |
+| **Sensor fusion** | Optimized for multiple analog inputs |
+| **One-click deploy** | Arduino library auto-generation |
+| **Tiny model size** | ~20KB quantized models |
+
+### Documentation (For Reference)
+- [[EDGE_IMPULSE_ANALYSIS]] - Feasibility study
+- [[EDGE_IMPULSE_QUICKSTART]] - Deployment guide
+
+### Expected Performance
+- **Inference latency:** 5-10ms
+- **Model size:** 15-30KB
+- **Accuracy:** 90-95% (4-6 activity classes)
 
 ### Installation
 
@@ -173,11 +219,11 @@ HELP                        # Show available commands
 
 ### Sensor Test Output
 
-Raw ADC values from 10 sensors (CSV format):
+Raw ADC values from 6 sensors (CSV format):
 ```
-time_ms,L_Heel,L_Arch,L_MetaM,L_MetaL,L_Toe,R_Heel,R_Arch,R_MetaM,R_MetaL,R_Toe
-181556,712,694,672,831,734,720,820,855,829,143
-181576,703,699,678,839,745,729,821,855,839,137
+time_ms,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee
+181556,712,694,1203,720,820,1156
+181576,703,699,1198,729,821,1160
 ```
 
 ### Data Collection Workflow
@@ -216,7 +262,7 @@ python real_time_classifier.py --model ../../05_Analysis/smart_socks_model.jobli
 ### Real-Time Calibration Visualizer
 
 ```bash
-# Connect ESP32 and visualize all 10 sensors in real-time
+# Connect ESP32 and visualize all 6 sensors in real-time
 python calibration_visualizer.py --port /dev/cu.usbmodem2101
 # Replace with your port (find with: pio device list)
 

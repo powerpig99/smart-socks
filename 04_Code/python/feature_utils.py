@@ -11,7 +11,11 @@ import numpy as np
 from scipy import stats
 from scipy.fft import fft
 
-from config import SENSOR_NAMES, SAMPLING
+from config import SENSORS, HARDWARE
+
+# Backwards compatibility
+SENSOR_NAMES = SENSORS['names']
+SAMPLING = {'rate_hz': HARDWARE['sample_rate_hz']}
 
 
 def extract_statistical_features(data, sensor_names=SENSOR_NAMES):

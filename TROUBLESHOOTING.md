@@ -118,6 +118,53 @@ python your_script.py
 
 ---
 
+### Arduino IDE ESP32 Installation Timeout
+
+**Symptom:** `Error: 4 DEADLINE_EXCEEDED` when installing ESP32 board package
+
+**Root Cause:** The ESP32 package is ~500MB and downloads slowly from GitHub. Arduino IDE's default timeout is too short.
+
+**Solutions:**
+
+**Option 1: Manual Installation (Foolproof)**
+```bash
+# 1. Download directly from GitHub releases
+# https://github.com/espressif/arduino-esp32/releases/download/3.3.5/esp32-3.3.5.zip
+
+# 2. Extract to Arduino packages folder (macOS example)
+mkdir -p ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5
+unzip ~/Downloads/esp32-3.3.5.zip -d ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5
+
+# 3. Fix nested folder structure
+mv ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5/esp32-3.3.5/* \
+   ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5/
+rmdir ~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5/esp32-3.3.5
+
+# 4. Restart Arduino IDE
+```
+
+**Option 2: Use Older Version (Smaller Download)**
+- Version 2.0.17 = ~200MB (vs 3.3.5 = ~500MB)
+- Install via Board Manager → Select version 2.0.17 from dropdown
+
+**Option 3: Arduino CLI**
+```bash
+arduino-cli config set network.timeout 600
+arduino-cli core update-index
+arduino-cli core install esp32:esp32@3.3.5
+```
+
+**Package Paths by Platform:**
+| Platform | Path |
+|----------|------|
+| macOS | `~/Library/Arduino15/packages/esp32/hardware/esp32/3.3.5/` |
+| Windows | `%LOCALAPPDATA%\Arduino15\packages\esp32\hardware\esp32\3.3.5\` |
+| Linux | `~/.arduino15/packages/esp32/hardware/esp32/3.3.5/` |
+
+See [[ARDUINO_ESP32_INSTALLATION_FAQ]] for complete troubleshooting guide.
+
+---
+
 ### Feature Extraction Fails
 
 **Symptom:** `KeyError: 'L_Heel'` or missing columns

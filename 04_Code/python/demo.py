@@ -35,7 +35,10 @@ try:
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
-from config import SENSORS, HARDWARE, REALTIME, WINDOWING, SENSOR_NAMES
+from config import SENSORS, HARDWARE, REALTIME, WINDOWING
+
+# Backwards compatibility
+SENSOR_NAMES = SENSORS['names']
 from logging_utils import setup_logging, get_logger
 from data_validation import validate_sensor_data
 from feature_utils import extract_all_features, features_to_array
@@ -47,7 +50,7 @@ logger = get_logger(__name__)
 class LivePlotter:
     """Real-time matplotlib visualization."""
     
-    def __init__(self, n_sensors=10, history_length=200):
+    def __init__(self, n_sensors=6, history_length=200):
         if not MATPLOTLIB_AVAILABLE:
             raise ImportError("matplotlib required for visualization")
         
@@ -297,7 +300,7 @@ class SmartSocksDemo:
                             line = ser.readline().decode('utf-8').strip()
                             if line and not line.startswith('#') and ',' in line:
                                 parts = line.split(',')
-                                if len(parts) >= 11:
+                                if len(parts) >= SENSORS['total_count'] + 1:
                                     timestamp = int(parts[0])
                                     values = {SENSORS['names'][i]: int(parts[i+1]) 
                                              for i in range(10)}
@@ -316,7 +319,7 @@ class SmartSocksDemo:
                         line = ser.readline().decode('utf-8').strip()
                         if line and not line.startswith('#') and ',' in line:
                             parts = line.split(',')
-                            if len(parts) >= 11:
+                            if len(parts) >= SENSORS['total_count'] + 1:
                                 timestamp = int(parts[0])
                                 values = {SENSORS['names'][i]: int(parts[i+1]) 
                                          for i in range(10)}

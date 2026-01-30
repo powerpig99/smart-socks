@@ -19,7 +19,11 @@ from scipy import stats
 from scipy.fft import fft
 from tqdm import tqdm
 
-from config import SENSOR_NAMES, SAMPLING, WINDOWING, ACTIVITIES
+from config import SENSORS, HARDWARE, WINDOWING, ACTIVITIES
+
+# Backwards compatibility
+SENSOR_NAMES = SENSORS['names']
+SAMPLING = {'rate_hz': HARDWARE['sample_rate_hz']}
 
 # Window configuration (from config)
 WINDOW_SIZE_MS = WINDOWING['window_size_ms']
@@ -118,9 +122,15 @@ def extract_cross_sensor_features(data):
     """
     features = {}
     
-    # Calculate total pressure per foot
-    left_total = np.sum(data[:, 0:5], axis=1)  # Left sensors
-    right_total = np.sum(data[:, 5:10], axis=1)  # Right sensors
+    # Get sensor indices from config
+    left_indices = [SENSOR_NAMES.index(s) for s in SENSORS['left_leg']]
+    right_indices = [SENSOR_NAMES.index(s) for s in SENSORS['right_leg']]
+    pressure_indices = [SENSOR_NAMES.index(s) for s in SENSORS['pressure_sensors']]
+    stretch_indices = [SENSOR_NAMES.index(s) for s in SENSORS['stretch_sensors']]
+    
+    # Calculate total per leg (pressure + stretch)
+    left_total = np.sum(data[:, left_indices], axis=1)
+    right_total = np.sum(data[:, right_indices], axis=1)
     
     features['left_total_mean'] = np.mean(left_total)
     features['left_total_std'] = np.std(left_total)
@@ -128,23 +138,31 @@ def extract_cross_sensor_features(data):
     features['right_total_std'] = np.std(right_total)
     features['left_right_ratio'] = np.mean(left_total) / (np.mean(right_total) + 1e-6)
     
-    # Forefoot vs hindfoot pressure ratio
-    left_forefoot = np.sum(data[:, 2:5], axis=1)  # MetaM, MetaL, Toe
-    left_hindfoot = np.sum(data[:, 0:2], axis=1)  # Heel, Arch
-    right_forefoot = np.sum(data[:, 7:10], axis=1)
-    right_hindfoot = np.sum(data[:, 5:7], axis=1)
+    # Pressure sensors only (for pressure-based ratios)
+    left_pressure_data = data[:, [SENSOR_NAMES.index(s) for s in SENSORS['left_pressure']]]
+    right_pressure_data = data[:, [SENSOR_NAMES.index(s) for s in SENSORS['right_pressure']]]
     
-    features['left_fore_hind_ratio'] = np.mean(left_forefoot) / (np.mean(left_hindfoot) + 1e-6)
-    features['right_fore_hind_ratio'] = np.mean(right_forefoot) / (np.mean(right_hindfoot) + 1e-6)
+    # Heel vs Ball pressure ratio
+    left_heel = left_pressure_data[:, 0]  # L_P_Heel
+    left_ball = left_pressure_data[:, 1]  # L_P_Ball
+    right_heel = right_pressure_data[:, 0]  # R_P_Heel
+    right_ball = right_pressure_data[:, 1]  # R_P_Ball
     
-    # Medial vs lateral pressure (for metatarsals)
-    left_medial = data[:, 2]  # MetaM
-    left_lateral = data[:, 3]  # MetaL
-    right_medial = data[:, 7]  # MetaM
-    right_lateral = data[:, 8]  # MetaL
+    # Heel vs Ball pressure ratio
+    features['left_heel_ball_ratio'] = np.mean(left_heel) / (np.mean(left_ball) + 1e-6)
+    features['right_heel_ball_ratio'] = np.mean(right_heel) / (np.mean(right_ball) + 1e-6)
     
-    features['left_medial_lateral_ratio'] = np.mean(left_medial) / (np.mean(left_lateral) + 1e-6)
-    features['right_medial_lateral_ratio'] = np.mean(right_medial) / (np.mean(right_lateral) + 1e-6)
+    # Knee stretch sensors
+    left_knee_idx = SENSOR_NAMES.index('L_S_Knee')
+    right_knee_idx = SENSOR_NAMES.index('R_S_Knee')
+    left_knee = data[:, left_knee_idx]
+    right_knee = data[:, right_knee_idx]
+    
+    features['left_knee_mean'] = np.mean(left_knee)
+    features['left_knee_std'] = np.std(left_knee)
+    features['right_knee_mean'] = np.mean(right_knee)
+    features['right_knee_std'] = np.std(right_knee)
+    features['left_right_knee_ratio'] = np.mean(left_knee) / (np.mean(right_knee) + 1e-6)
     
     # Balance between feet (correlation)
     if len(left_total) > 1 and np.std(left_total) > 0 and np.std(right_total) > 0:

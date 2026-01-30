@@ -179,7 +179,7 @@ class BLESmartSocksClient:
             
             # Parse CSV
             parts = line.split(',')
-            if len(parts) < 11:
+            if len(parts) < SENSORS['total_count'] + 1:  # timestamp + sensors
                 return None
             
             result = {
@@ -359,8 +359,11 @@ class BLEClassifier(BLESmartSocksClient):
             features.append(np.sqrt(np.mean(sensor_data**2)))  # RMS
         
         # Cross-sensor features
-        left_total = np.sum(data[:, 0:5], axis=1)
-        right_total = np.sum(data[:, 5:10], axis=1)
+        SENSOR_NAMES = SENSORS['names']
+        left_indices = [SENSOR_NAMES.index(s) for s in SENSORS['left_leg']]
+        right_indices = [SENSOR_NAMES.index(s) for s in SENSORS['right_leg']]
+        left_total = np.sum(data[:, left_indices], axis=1)
+        right_total = np.sum(data[:, right_indices], axis=1)
         features.append(np.mean(left_total))
         features.append(np.mean(right_total))
         features.append(np.mean(left_total) / (np.mean(right_total) + 1e-6))

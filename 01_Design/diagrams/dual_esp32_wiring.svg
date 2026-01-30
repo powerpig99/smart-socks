@@ -1,0 +1,131 @@
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #2E3440; }
+      .box { fill: #3B4252; stroke: #4C566A; stroke-width: 2; }
+      .esp32 { fill: #434C5E; stroke: #88C0D0; stroke-width: 3; }
+      .sensor-p { fill: #81A1C1; }
+      .sensor-s { fill: #A3BE8C; }
+      .resistor { fill: #434C5E; stroke: #4C566A; }
+      .text { fill: #D8DEE9; font-family: -apple-system, sans-serif; font-size: 11px; }
+      .title { fill: #ECEFF4; font-size: 13px; font-weight: bold; }
+      .accent { fill: #88C0D0; }
+      .wire { stroke: #4C566A; stroke-width: 2; }
+      .vcc { stroke: #BF616A; stroke-width: 2; }
+      .gnd { stroke: #5E81AC; stroke-width: 2; }
+      .signal { stroke: #A3BE8C; stroke-width: 2; }
+    </style>
+  </defs>
+  
+  <rect class="bg" width="800" height="450"/>
+  
+  <text x="400" y="30" text-anchor="middle" class="title" font-size="18">DUAL ESP32 WIRING DIAGRAM</text>
+  <text x="400" y="55" text-anchor="middle" class="accent">One ESP32 per leg — 3 sensors each</text>
+  
+  <!-- Left Leg Circuit -->
+  <g transform="translate(50, 80)">
+    <rect class="box" x="0" y="0" width="340" height="340" rx="8"/>
+    <text x="170" y="25" text-anchor="middle" class="title" fill="#88C0D0">LEFT LEG CIRCUIT</text>
+    
+    <!-- ESP32 -->
+    <g transform="translate(90, 210)">
+      <rect class="esp32" x="0" y="0" width="160" height="100" rx="6"/>
+      <text x="80" y="30" text-anchor="middle" class="title">ESP32S3-XIAO #1</text>
+      <text x="80" y="55" text-anchor="middle" class="text">Port: 2101</text>
+      <text x="80" y="75" text-anchor="middle" class="text">IP: 192.168.4.1</text>
+    </g>
+    
+    <!-- Sensors -->
+    <g transform="translate(20, 50)">
+      <!-- Heel -->
+      <circle class="sensor-p" cx="40" cy="40" r="18"/>
+      <text x="40" y="45" text-anchor="middle" class="text" fill="#2E3440" font-size="10">P</text>
+      <text x="65" y="45" class="text">Heel</text>
+      <text x="40" y="70" text-anchor="middle" class="accent">A0</text>
+      
+      <!-- Ball -->
+      <circle class="sensor-p" cx="40" cy="110" r="18"/>
+      <text x="40" y="115" text-anchor="middle" class="text" fill="#2E3440" font-size="10">P</text>
+      <text x="65" y="115" class="text">Ball</text>
+      <text x="40" y="140" text-anchor="middle" class="accent">A1</text>
+      
+      <!-- Knee -->
+      <circle class="sensor-s" cx="220" cy="75" r="18"/>
+      <text x="220" y="80" text-anchor="middle" class="text" fill="#2E3440" font-size="10">S</text>
+      <text x="245" y="80" class="text">Knee</text>
+      <text x="220" y="105" text-anchor="middle" class="accent">A2</text>
+    </g>
+    
+    <!-- Resistors -->
+    <g transform="translate(20, 160)">
+      <rect class="resistor" x="28" y="0" width="24" height="15"/>
+      <rect class="resistor" x="28" y="70" width="24" height="15"/>
+      <rect class="resistor" x="208" y="35" width="24" height="15"/>
+      <text x="55" y="12" class="text">10kΩ</text>
+      <text x="55" y="82" class="text">10kΩ</text>
+      <text x="235" y="47" class="text">10kΩ</text>
+    </g>
+    
+    <!-- Legend -->
+    <g transform="translate(20, 190)">
+      <line class="vcc" x1="0" y1="0" x2="20" y2="0"/>
+      <text x="25" y="4" class="text">3.3V</text>
+      <line class="gnd" x1="0" y1="20" x2="20" y2="20"/>
+      <text x="25" y="24" class="text">GND</text>
+      <line class="signal" x1="0" y1="40" x2="20" y2="40"/>
+      <text x="25" y="44" class="text">Signal</text>
+    </g>
+  </g>
+  
+  <!-- Right Leg Circuit (mirrored) -->
+  <g transform="translate(410, 80)">
+    <rect class="box" x="0" y="0" width="340" height="340" rx="8"/>
+    <text x="170" y="25" text-anchor="middle" class="title" fill="#88C0D0">RIGHT LEG CIRCUIT</text>
+    
+    <!-- ESP32 -->
+    <g transform="translate(90, 210)">
+      <rect class="esp32" x="0" y="0" width="160" height="100" rx="6"/>
+      <text x="80" y="30" text-anchor="middle" class="title">ESP32S3-XIAO #2</text>
+      <text x="80" y="55" text-anchor="middle" class="text">Port: 2102</text>
+      <text x="80" y="75" text-anchor="middle" class="text">IP: 192.168.4.2</text>
+    </g>
+    
+    <!-- Sensors -->
+    <g transform="translate(20, 50)">
+      <!-- Heel -->
+      <circle class="sensor-p" cx="40" cy="40" r="18"/>
+      <text x="40" y="45" text-anchor="middle" class="text" fill="#2E3440" font-size="10">P</text>
+      <text x="65" y="45" class="text">Heel</text>
+      <text x="40" y="70" text-anchor="middle" class="accent">A0</text>
+      
+      <!-- Ball -->
+      <circle class="sensor-p" cx="40" cy="110" r="18"/>
+      <text x="40" y="115" text-anchor="middle" class="text" fill="#2E3440" font-size="10">P</text>
+      <text x="65" y="115" class="text">Ball</text>
+      <text x="40" y="140" text-anchor="middle" class="accent">A1</text>
+      
+      <!-- Knee -->
+      <circle class="sensor-s" cx="220" cy="75" r="18"/>
+      <text x="220" y="80" text-anchor="middle" class="text" fill="#2E3440" font-size="10">S</text>
+      <text x="245" y="80" class="text">Knee</text>
+      <text x="220" y="105" text-anchor="middle" class="accent">A2</text>
+    </g>
+    
+    <!-- Resistors -->
+    <g transform="translate(20, 160)">
+      <rect class="resistor" x="28" y="0" width="24" height="15"/>
+      <rect class="resistor" x="28" y="70" width="24" height="15"/>
+      <rect class="resistor" x="208" y="35" width="24" height="15"/>
+      <text x="55" y="12" class="text">10kΩ</text>
+      <text x="55" y="82" class="text">10kΩ</text>
+      <text x="235" y="47" class="text">10kΩ</text>
+    </g>
+  </g>
+  
+  <!-- Laptop Center -->
+  <g transform="translate(350, 210)">
+    <circle class="box" cx="50" cy="40" r="35"/>
+    <text x="50" y="35" text-anchor="middle" class="title" font-size="11">LAPTOP</text>
+    <text x="50" y="50" text-anchor="middle" class="text" font-size="9">2x Serial</text>
+  </g>
+</svg>

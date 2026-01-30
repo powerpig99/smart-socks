@@ -47,7 +47,17 @@ except ImportError:
     print("ERROR: matplotlib required. Install with: pip install matplotlib")
     sys.exit(1)
 
-from config import SENSOR_NAMES, SAMPLING
+from config import SENSORS, HARDWARE
+
+# Backwards compatibility with old config structure
+SENSOR_NAMES = SENSORS['names']
+SAMPLING = {'rate_hz': HARDWARE['sample_rate_hz']}
+
+# Sensor configuration for dual leg setup
+LEFT_SENSORS = SENSORS['left_leg']  # ['L_P_Heel', 'L_P_Ball', 'L_S_Knee']
+RIGHT_SENSORS = SENSORS['right_leg']  # ['R_P_Heel', 'R_P_Ball', 'R_S_Knee']
+NUM_LEFT = len(LEFT_SENSORS)
+NUM_RIGHT = len(RIGHT_SENSORS)
 
 
 class CalibrationVisualizer:
@@ -110,19 +120,23 @@ class CalibrationVisualizer:
                               ha='center', va='center', fontsize=16)
             self.header_ax.axis('off')
         
-        # Left Foot Sensors (5 cards in 1 column)
+        # Left Leg Sensors (3 cards in 1 column)
         self.left_cards = []
-        left_gs = gs[1, 0].subgridspec(5, 1, hspace=0.1)
-        for i in range(5):
+        left_gs = gs[1, 0].subgridspec(NUM_LEFT, 1, hspace=0.1)
+        for i in range(NUM_LEFT):
             ax = self.fig.add_subplot(left_gs[i, 0])
-            self.left_cards.append((ax, SENSOR_NAMES[i], SENSOR_COLORS[i]))
+            sensor_name = LEFT_SENSORS[i]
+            color_idx = SENSOR_NAMES.index(sensor_name)
+            self.left_cards.append((ax, sensor_name, SENSOR_COLORS[color_idx]))
         
-        # Right Foot Sensors (5 cards in 1 column)
+        # Right Leg Sensors (3 cards in 1 column)
         self.right_cards = []
-        right_gs = gs[1, 1].subgridspec(5, 1, hspace=0.1)
-        for i in range(5):
+        right_gs = gs[1, 1].subgridspec(NUM_RIGHT, 1, hspace=0.1)
+        for i in range(NUM_RIGHT):
             ax = self.fig.add_subplot(right_gs[i, 0])
-            self.right_cards.append((ax, SENSOR_NAMES[i+5], SENSOR_COLORS[i+5]))
+            sensor_name = RIGHT_SENSORS[i]
+            color_idx = SENSOR_NAMES.index(sensor_name)
+            self.right_cards.append((ax, sensor_name, SENSOR_COLORS[color_idx]))
         
         # Statistics Panel
         self.stats_ax = self.fig.add_subplot(gs[1, 2])
@@ -154,12 +168,13 @@ class CalibrationVisualizer:
         # Mini heatmap
         self.heatmap_ax = self.fig.add_subplot(gs[2, 2])
         self.heatmap_ax.set_facecolor(COLORS.get('nord1', '#3B4252'))
-        self.heatmap_bars = self.heatmap_ax.barh(range(10), [0]*10, 
-                                                  color=SENSOR_COLORS,
+        num_sensors = len(SENSOR_NAMES)
+        self.heatmap_bars = self.heatmap_ax.barh(range(num_sensors), [0]*num_sensors, 
+                                                  color=SENSOR_COLORS[:num_sensors],
                                                   edgecolor=COLORS.get('nord3', '#4C566A'),
                                                   linewidth=0.5)
         self.heatmap_ax.set_xlim(0, 4095)
-        self.heatmap_ax.set_yticks(range(10))
+        self.heatmap_ax.set_yticks(range(num_sensors))
         self.heatmap_ax.set_yticklabels([n.replace('_', '\n') for n in SENSOR_NAMES],
                                        fontsize=7)
         self.heatmap_ax.set_xlabel('Current Value', fontsize=8,
@@ -223,20 +238,57 @@ class CalibrationVisualizer:
             print("Disconnected")
             
     def _parse_line(self, line):
-        """Parse a CSV line of sensor data."""
+        """Parse a CSV line of sensor data.
+        
+        Supports multiple formats:
+        - Calibration mode (6 sensors): timestamp,val1,val2,val3,val4,val5,val6
+        - Single leg mode: timestamp,leg,val1,val2,val3
+        - Legacy 10-sensor: timestamp,val1,...,val10
+        """
         try:
             line = line.decode('utf-8').strip()
             if not line or line.startswith('Smart') or line.startswith('==='):
                 return None
-            if 'time_ms' in line or 'L_Heel' in line:
+            if 'time_ms' in line or 'L_Heel' in line or 'L_P_Heel' in line:
                 return None  # Header line
                 
             parts = line.split(',')
-            if len(parts) >= 11:  # timestamp + 10 sensors
-                timestamp = int(parts[0])
-                values = [int(v) for v in parts[1:11]]
+            num_sensors = len(SENSOR_NAMES)  # 6 sensors
+            
+            if len(parts) < 2:
+                return None
+                
+            timestamp = int(parts[0])
+            
+            # Format 1: Calibration mode - timestamp + 6 values (A0-A5)
+            # Example: 12345,100,200,300,400,500,600
+            if len(parts) == num_sensors + 1:  # 7 parts = timestamp + 6 sensors
+                values = [int(v) for v in parts[1:]]
                 return timestamp, dict(zip(SENSOR_NAMES, values))
-        except:
+            
+            # Format 2: Single leg format - timestamp,leg,3values
+            # Example: 12345,L,100,200,300
+            elif len(parts) == 5 and parts[1] in ['L', 'R']:
+                values = [int(v) for v in parts[2:5]]
+                leg = parts[1]
+                if leg == 'L':
+                    sensor_dict = dict(zip(LEFT_SENSORS, values))
+                    for s in RIGHT_SENSORS:
+                        sensor_dict[s] = 0
+                else:  # 'R'
+                    sensor_dict = dict(zip(RIGHT_SENSORS, values))
+                    for s in LEFT_SENSORS:
+                        sensor_dict[s] = 0
+                return timestamp, sensor_dict
+            
+            # Format 3: Legacy 10-sensor format (for backwards compatibility)
+            # Example: 12345,100,200,300,400,500,600,700,800,900,1000
+            elif len(parts) == 11:
+                # Only use first 6 values, map to new sensor names
+                values = [int(v) for v in parts[1:7]]
+                return timestamp, dict(zip(SENSOR_NAMES, values))
+                
+        except Exception as e:
             pass
         return None
         
