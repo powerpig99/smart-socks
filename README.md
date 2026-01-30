@@ -132,9 +132,10 @@ cd 04_Code/python
 # Record activity data
 python collector.py --activity walking_forward --port /dev/cu.usbmodem2101
 
-# Calibration visualization
+# Calibration visualization (upload calibration firmware first)
 python calibration_visualizer.py --port /dev/cu.usbmodem2101
 # Controls: Q=quit, R=reset, S=save CSV, P=pause, C=record GIF
+#           1=toggle CAL, Enter=toggle START/STOP, I=STATUS
 ```
 
 ### ML Pipeline
@@ -201,6 +202,17 @@ HELP / ?       # Show commands
 
 ## Change Log
 
+### Jan 30, 2026: WiFi Verified + Calibration Visualizer Enhanced
+
+- **WiFi tested successfully:** Phone hotspot (Maximize Compatibility) and home WiFi (TP-Link)
+- Web dashboard accessible over WiFi at device IP (e.g., `http://192.168.8.167`)
+- WiFi mode selectable via `#define` in firmware: `USE_PHONE_HOTSPOT`, `USE_EXISTING_WIFI`, or AP mode
+- Station mode falls back to AP mode if WiFi connection fails
+- Non-blocking serial command processing in firmware
+- Calibration visualizer: added serial command sending (1=toggle CAL, Enter=START/STOP, I=STATUS)
+- Calibration visualizer: device info panel shows WiFi IP, BLE status, recording state
+- Firmware workflow: swap `src/main.ino` between calibration and data collection firmware
+
 ### Jan 30, 2026: Single-ESP32 Firmware Unification
 
 - **Unified firmware:** Single `data_collection_leg.ino` reads all 6 sensors (A0-A5) on one ESP32
@@ -208,7 +220,7 @@ HELP / ?       # Show commands
 - Removed LEG_ID build flag system and conditional compilation
 - Replaced `dual_collector.py` with `collector.py` (single-port data collection)
 - Simplified `platformio.ini` to 2 environments (`xiao_esp32s3`, `calibration`)
-- Web dashboard shows all 6 sensors in 2×3 grid
+- Web dashboard shows all 6 sensors in 2x3 grid
 - Updated all documentation for single-ESP32 architecture
 - Added `QUICKSTART.md`, removed `DUAL_ESP32_QUICKSTART.md`
 

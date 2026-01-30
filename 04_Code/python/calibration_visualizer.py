@@ -20,6 +20,9 @@ Interactive Controls (press key while window is focused):
     S - Save current calibration data to CSV file
     P - Pause/Resume the display (data continues collecting when paused)
     C - Toggle GIF recording (press C to start/stop)
+    1 - Toggle CAL ON/OFF (calibration mode)
+    Enter - Toggle START/STOP recording on ESP32
+    I - Request device STATUS (WiFi, BLE, recording info)
 
 The visualization shows:
     - Left Leg sensors (top-left): L_P_Heel, L_P_Ball, L_S_Knee
@@ -104,6 +107,16 @@ class CalibrationVisualizer:
         self.paused = False
         self.save_calibration = False
         self.sample_count = 0
+        self.esp_recording = False  # ESP32 recording state
+        self.calibration_mode = False  # ESP32 calibration mode
+
+        # Device info (populated by STATUS command)
+        self.device_info = {
+            'wifi_ip': '—',
+            'ble_connected': '—',
+            'esp_recording': '—',
+            'esp_samples': '—',
+        }
         
         # GIF recording (streaming to disk for O(1) memory usage)
         self.record_file = None
@@ -214,17 +227,48 @@ class CalibrationVisualizer:
         # Connect keyboard events
         self.fig.canvas.mpl_connect('key_press_event', self._on_key)
         
+    def _send_command(self, cmd):
+        """Send a serial command to the ESP32."""
+        if not self.serial_conn:
+            print(f"[ERROR] Not connected")
+            return
+        try:
+            self.serial_conn.write(f"{cmd}\n".encode())
+            self.serial_conn.flush()
+            print(f"[SENT] {cmd}")
+        except Exception as e:
+            print(f"[ERROR] Failed to send command: {e}")
+
+    def _request_status(self):
+        """Send STATUS command and parse response lines."""
+        if not self.serial_conn:
+            return
+        self._send_command("STATUS")
+        # Response is parsed in _parse_line via _read_data
+
+    def _toggle_esp_recording(self):
+        """Toggle START/STOP recording on the ESP32."""
+        if self.esp_recording:
+            self._send_command("STOP")
+            self.esp_recording = False
+        else:
+            self._send_command("START")
+            self.esp_recording = True
+
     def _on_key(self, event):
         """Handle keyboard events.
-        
+
         Controls:
             Q - Quit the application
             R - Reset min/max tracking
             S - Save calibration data to file
             P - Pause/Resume display
             C - Toggle GIF recording (for demo)
+            1 - Toggle CAL ON/OFF
+            Enter - Toggle START/STOP on ESP32
+            I - Request STATUS info
         """
-        key = event.key.lower()
+        key = event.key.lower() if event.key else ''
         if key == 'q':
             self.running = False
             self._stop_recording()  # Stop recording if active
@@ -237,6 +281,13 @@ class CalibrationVisualizer:
             self.paused = not self.paused
         elif key == 'c':
             self._toggle_recording()
+        elif key == '1':
+            self.calibration_mode = not self.calibration_mode
+            self._send_command("CAL ON" if self.calibration_mode else "CAL OFF")
+        elif key in ('enter', 'return'):
+            self._toggle_esp_recording()
+        elif key == 'i':
+            self._request_status()
             
     def _reset_minmax(self):
         """Reset min/max tracking."""
@@ -355,8 +406,16 @@ class CalibrationVisualizer:
             
             # Flush any startup messages
             while self.serial_conn.in_waiting:
-                self.serial_conn.readline()
-                
+                line = self.serial_conn.readline()
+                self._parse_line(line)  # Parse startup output for device info
+
+            # Request initial status
+            self._send_command("STATUS")
+            time.sleep(0.5)
+            while self.serial_conn.in_waiting:
+                line = self.serial_conn.readline()
+                self._parse_line(line)
+
             return True
         except Exception as e:
             print(f"Failed to connect: {e}")
@@ -369,16 +428,49 @@ class CalibrationVisualizer:
             print("Disconnected")
             
     def _parse_line(self, line):
-        """Parse a CSV line of sensor data.
-        
+        """Parse a CSV line of sensor data or STATUS response.
+
         Supports multiple formats:
         - Calibration mode (6 sensors): timestamp,val1,val2,val3,val4,val5,val6
         - Single leg mode: timestamp,leg,val1,val2,val3
         - Legacy 10-sensor: timestamp,val1,...,val10
+        - STATUS response lines (WiFi, BLE, Recording, Samples)
         """
         try:
             line = line.decode('utf-8').strip()
-            if not line or line.startswith('Smart') or line.startswith('==='):
+            if not line:
+                return None
+
+            # Parse STATUS response lines
+            if line.startswith('WiFi:'):
+                self.device_info['wifi_ip'] = line.split(':', 1)[1].strip()
+                return None
+            elif line.startswith('BLE Connected:'):
+                self.device_info['ble_connected'] = line.split(':', 1)[1].strip()
+                return None
+            elif line.startswith('Recording:'):
+                val = line.split(':', 1)[1].strip()
+                self.device_info['esp_recording'] = val
+                self.esp_recording = val.lower().startswith('yes')
+                return None
+            elif line.startswith('Samples:'):
+                self.device_info['esp_samples'] = line.split(':', 1)[1].strip()
+                return None
+            elif line.startswith('Calibration mode'):
+                self.calibration_mode = 'ON' in line.upper()
+                mode = 'ON' if self.calibration_mode else 'OFF'
+                print(f"[ESP32] Calibration mode {mode}")
+                return None
+            elif line == 'Recording started':
+                self.esp_recording = True
+                print("[ESP32] Recording started")
+                return None
+            elif line == 'Recording stopped':
+                self.esp_recording = False
+                print("[ESP32] Recording stopped")
+                return None
+
+            if line.startswith('Smart') or line.startswith('==='):
                 return None
             if 'time_ms' in line or 'L_P_Heel' in line:
                 return None  # Header line
@@ -517,6 +609,21 @@ class CalibrationVisualizer:
         
         # Update statistics
         stats_lines = []
+
+        # Device info section
+        di = self.device_info
+        cal_str = "ON" if self.calibration_mode else "OFF"
+        esp_rec_str = "ON" if self.esp_recording else "OFF"
+        stats_lines.append("DEVICE INFO")
+        stats_lines.append("─" * 45)
+        stats_lines.append(f"  WiFi IP:     {di['wifi_ip']}")
+        stats_lines.append(f"  BLE:         {di['ble_connected']}")
+        stats_lines.append(f"  Calibration: {cal_str}")
+        stats_lines.append(f"  Recording:   {esp_rec_str}")
+        stats_lines.append(f"  ESP Samples: {di['esp_samples']}")
+        stats_lines.append("")
+
+        # Sensor table
         stats_lines.append("SENSOR          CURR   MIN    MAX    RANGE")
         stats_lines.append("─" * 45)
         for name in SENSOR_NAMES:
@@ -525,7 +632,7 @@ class CalibrationVisualizer:
             max_v = self.max_values[name]
             range_v = max_v - min_v if max_v > min_v else 0
             stats_lines.append(f"{name:<14} {curr:>5} {min_v:>5} {max_v:>5} {range_v:>5}")
-        
+
         stats_lines.append("")
         status = "PAUSED" if self.paused else "ACTIVE"
         stats_lines.append(f"Status: {status}  |  Samples: {self.sample_count}")
@@ -554,7 +661,10 @@ class CalibrationVisualizer:
             self.status_ax.set_facecolor(COLORS['nord0'])  # Prevent white background showing
             state = 'PAUSED' if self.paused else 'RUNNING'
             # Show recording indicator by changing C=Record to C=*REC* when recording
-            controls = "|  Q=Quit R=Reset S=Save P=Pause C=*REC*" if self.recording else "|  Q=Quit R=Reset S=Save P=Pause C=Record"
+            rec_label = "C=*REC*" if self.recording else "C=Record"
+            cal_label = "1=Cal:ON" if self.calibration_mode else "1=Cal:OFF"
+            esp_label = "Enter=STOP" if self.esp_recording else "Enter=START"
+            controls = f"|  Q=Quit R=Reset S=Save P=Pause {rec_label} {cal_label} {esp_label} I=Info"
             status = f"PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
             create_status_bar(self.status_ax, status, is_recording=self.recording)
         
@@ -575,7 +685,9 @@ class CalibrationVisualizer:
         print(f"Port: {self.port}")
         print(f"Sensors: {len(SENSOR_NAMES)}")
         print(f"History: {self.history_seconds}s")
-        print("\nControls: Q=Quit  R=Reset  S=Save  P=Pause  C=Record")
+        print("\nControls:")
+        print("  Q=Quit  R=Reset  S=Save  P=Pause  C=Record")
+        print("  1=CAL ON/OFF  Enter=START/STOP  I=Status")
         print("="*60 + "\n")
         
         # Start animation
