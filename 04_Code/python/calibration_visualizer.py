@@ -10,15 +10,16 @@ Usage:
     python calibration_visualizer.py --port /dev/cu.usbmodem2101
     python calibration_visualizer.py --port /dev/cu.usbmodem2101 --save-calibration
     
-    # Record demo video (for mid-term presentation)
-    python calibration_visualizer.py --port /dev/cu.usbmodem2101 --record demo_video.mp4
+    # Record demo GIF (for mid-term presentation)
+    python calibration_visualizer.py --port /dev/cu.usbmodem2101
+    # Then press 'C' to start/stop recording
     
 Interactive Controls (press key while window is focused):
     Q - Quit the application
     R - Reset min/max tracking values for all sensors
     S - Save current calibration data to CSV file
     P - Pause/Resume the display (data continues collecting when paused)
-    C - Toggle video recording (press C to start/stop recording)
+    C - Toggle GIF recording (press C to start/stop)
 
 The visualization shows:
     - Left Leg sensors (top-left): L_P_Heel, L_P_Ball, L_S_Knee
@@ -29,9 +30,9 @@ The visualization shows:
     - Status bar (bottom): Connection status, sample count, recording indicator
 
 Demo Recording:
-    Press 'C' during visualization to start/stop recording frames.
-    Frames are saved as PNG images that can be combined into a video.
-    Recording indicator (🔴 REC) appears in status bar when active.
+    Press 'C' during visualization to start/stop recording GIF.
+    GIF is saved automatically when you stop recording.
+    Recording indicator (*REC*) appears next to C in status bar.
 """
 
 import argparse
@@ -82,7 +83,7 @@ NUM_RIGHT = len(RIGHT_SENSORS)
 class CalibrationVisualizer:
     """Real-time calibration visualization with Nordic design."""
     
-    def __init__(self, port, baudrate=115200, history_seconds=5, record_file=None):
+    def __init__(self, port, baudrate=115200, history_seconds=5):
         self.port = port
         self.baudrate = baudrate
         self.history_seconds = history_seconds
@@ -104,10 +105,10 @@ class CalibrationVisualizer:
         self.save_calibration = False
         self.sample_count = 0
         
-        # Video recording
-        self.record_file = record_file
+        # GIF recording
+        self.record_file = None
         self.recording = False
-        self.video_writer = None
+        self.frames = []
         self.frame_count = 0
         
         # Setup plot
@@ -221,7 +222,7 @@ class CalibrationVisualizer:
             R - Reset min/max tracking
             S - Save calibration data to file
             P - Pause/Resume display
-            C - Toggle video recording (for demo)
+            C - Toggle GIF recording (for demo)
         """
         key = event.key.lower()
         if key == 'q':
@@ -251,84 +252,58 @@ class CalibrationVisualizer:
             self._start_recording()
             
     def _start_recording(self):
-        """Start recording video directly to MP4."""
+        """Start recording GIF."""
         if self.recording:
             return
             
-        # Generate filename if not provided
-        if not self.record_file:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            self.record_file = f"demo_recording_{timestamp}.mp4"
+        # Generate filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.record_file = f"demo_recording_{timestamp}.gif"
         
-        # Ensure filename ends with .mp4
-        if not self.record_file.endswith('.mp4'):
-            self.record_file += '.mp4'
-        
-        try:
-            import imageio
-            # Initialize video writer
-            self.video_writer = imageio.get_writer(
-                self.record_file, 
-                fps=20,  # 20 frames per second
-                quality=8,
-                codec='libx264',
-                pixelformat='yuv420p'
-            )
-            self.recording = True
-            self.frame_count = 0
-            print(f"\n[RECORDING STARTED] Saving to: {self.record_file}")
-            print("[INFO] Press 'C' again to stop recording")
-        except ImportError:
-            print("\n[ERROR] imageio not installed. Install with: pip install imageio imageio-ffmpeg")
-            self.video_writer = None
-            self.recording = False
-        except Exception as e:
-            print(f"\n[ERROR] Failed to start recording: {e}")
-            self.video_writer = None
-            self.recording = False
+        self.recording = True
+        self.frames = []
+        self.frame_count = 0
+        print(f"\n[RECORDING STARTED] Saving to: {self.record_file}")
+        print("[INFO] Press 'C' again to stop and save GIF")
         
     def _stop_recording(self):
-        """Stop recording video."""
+        """Stop recording and save GIF."""
         if not self.recording:
             return
             
         self.recording = False
         
-        if self.video_writer:
+        if self.frames:
             try:
-                self.video_writer.close()
+                import imageio
+                # Save GIF with 20fps (50ms interval)
+                imageio.mimsave(self.record_file, self.frames, fps=20)
                 print(f"\n[RECORDING STOPPED] Saved {self.frame_count} frames to: {self.record_file}")
-                print(f"[INFO] Video duration: {self.frame_count / 20:.1f} seconds")
+                print(f"[INFO] GIF duration: {self.frame_count / 20:.1f} seconds")
             except Exception as e:
-                print(f"\n[ERROR] Failed to save video: {e}")
-            finally:
-                self.video_writer = None
+                print(f"\n[ERROR] Failed to save GIF: {e}")
+        else:
+            print("\n[WARNING] No frames captured")
+        
+        self.frames = []
         
     def _save_frame(self):
-        """Save current frame to video."""
-        if not self.recording or not self.video_writer:
+        """Capture frame for GIF."""
+        if not self.recording:
             return
             
         try:
             import numpy as np
-            # Draw the canvas
+            # Draw and capture
             self.fig.canvas.draw()
-            
-            # Get the RGBA buffer from the figure
-            w, h = self.fig.canvas.get_width_height()
-            buf = np.frombuffer(self.fig.canvas.tostring_argb(), dtype=np.uint8)
-            
-            # Reshape and convert ARGB to RGB
-            # buf shape is (h, w, 4) in ARGB format
-            buf.shape = (h, w, 4)
-            # Convert ARGB to RGB (skip alpha channel, reorder)
-            rgb_frame = buf[:, :, 1:]  # Take R, G, B (skip A)
-            
-            # Write to video
-            self.video_writer.append_data(rgb_frame)
+            buf = self.fig.canvas.buffer_rgba()
+            ncols, nrows = self.fig.canvas.get_width_height()
+            # Convert to numpy array
+            img = np.frombuffer(buf, np.uint8).reshape(nrows, ncols, 4)
+            self.frames.append(img)
             self.frame_count += 1
         except Exception as e:
-            print(f"[WARNING] Failed to save frame: {e}")
+            print(f"[WARNING] Failed to capture frame: {e}")
         
     def connect(self):
         """Connect to serial port."""
@@ -536,9 +511,9 @@ class CalibrationVisualizer:
         if NORDIC_STYLE:
             self.status_ax.clear()
             state = 'PAUSED' if self.paused else 'RUNNING'
-            rec_indicator = "[REC] " if self.recording else ""
-            controls = "|  Q=Quit R=Reset S=Save P=Pause C=Record"
-            status = f"{rec_indicator}PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
+            # Show recording indicator by changing C=Record to C=*REC* when recording
+            controls = "|  Q=Quit R=Reset S=Save P=Pause C=*REC*" if self.recording else "|  Q=Quit R=Reset S=Save P=Pause C=Record"
+            status = f"PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
             create_status_bar(self.status_ax, status, is_recording=not self.paused)
         
         # Save frame if recording
@@ -601,21 +576,14 @@ Examples:
                         help='Baud rate (default: 115200)')
     parser.add_argument('--history', type=int, default=5,
                         help='History window in seconds (default: 5)')
-    parser.add_argument('--record', '-r', metavar='FILENAME',
-                        help='Record demo video (specify output file, e.g., demo.mp4)')
     
     args = parser.parse_args()
     
     visualizer = CalibrationVisualizer(
         port=args.port,
         baudrate=args.baud,
-        history_seconds=args.history,
-        record_file=args.record
+        history_seconds=args.history
     )
-    
-    # Auto-start recording if filename provided
-    if args.record:
-        visualizer._start_recording()
     
     visualizer.run()
 
