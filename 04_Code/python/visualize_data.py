@@ -49,19 +49,17 @@ def extract_activity_from_filename(filename):
     
     return 'unknown'
 
-# Color scheme for sensors
+# Color scheme for sensors (auto-generated from config)
 SENSOR_COLORS = {
-    "L_Heel": "#e41a1c", "L_Arch": "#377eb8", "L_MetaM": "#4daf4a",
-    "L_MetaL": "#984ea3", "L_Toe": "#ff7f00",
-    "R_Heel": "#e41a1c", "R_Arch": "#377eb8", "R_MetaM": "#4daf4a",
-    "R_MetaL": "#984ea3", "R_Toe": "#ff7f00"
+    name: color for name, color in zip(
+        SENSORS['names'],
+        ["#e41a1c", "#4daf4a", "#ff7f00", "#377eb8", "#984ea3", "#ffff33"]
+    )
 }
 
 LINE_STYLES = {
-    "L_Heel": "-", "L_Arch": "-", "L_MetaM": "-",
-    "L_MetaL": "-", "L_Toe": "-",
-    "R_Heel": "--", "R_Arch": "--", "R_MetaM": "--",
-    "R_MetaL": "--", "R_Toe": "--"
+    name: "-" if name.startswith("L_") else "--"
+    for name in SENSORS['names']
 }
 
 
@@ -162,8 +160,8 @@ def plot_average_pressure(df, save_path=None):
     """
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
     
-    # Left foot
-    left_sensors = ["L_Heel", "L_Arch", "L_MetaM", "L_MetaL", "L_Toe"]
+    # Left foot (pressure sensors only)
+    left_sensors = SENSORS['left_pressure']
     left_means = [df[s].mean() if s in df.columns else 0 for s in left_sensors]
     left_stds = [df[s].std() if s in df.columns else 0 for s in left_sensors]
     
@@ -176,8 +174,8 @@ def plot_average_pressure(df, save_path=None):
     axes[0].set_title('Left Foot - Average Pressure')
     axes[0].grid(True, alpha=0.3, axis='y')
     
-    # Right foot
-    right_sensors = ["R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"]
+    # Right foot (pressure sensors only)
+    right_sensors = SENSORS['right_pressure']
     right_means = [df[s].mean() if s in df.columns else 0 for s in right_sensors]
     right_stds = [df[s].std() if s in df.columns else 0 for s in right_sensors]
     
@@ -305,7 +303,7 @@ def compare_activities(data_dict, save_path=None):
     axes = axes.flatten()
     
     # Select a representative sensor for each zone
-    plot_sensors = ["L_Heel", "L_Arch", "L_MetaM", "R_Heel", "R_Arch", "R_MetaM"]
+    plot_sensors = SENSORS['pressure_sensors']  # Plot pressure sensors by default
     
     for idx, sensor in enumerate(plot_sensors):
         ax = axes[idx]

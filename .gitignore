@@ -58,3 +58,7 @@ ARDUINO_ESP32_INSTALLATION_FAQ.md
 # Archives and backups
 *.zip
 *.tar.gz
+
+# WiFi Credentials (sensitive - do not commit)
+credentials.h
+04_Code/arduino/**/credentials.h

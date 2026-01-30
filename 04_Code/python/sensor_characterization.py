@@ -17,12 +17,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 
+from config import SENSORS
 
-# Sensor channel names
-SENSOR_NAMES = [
-    "L_Heel", "L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-    "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"
-]
+
+# Sensor channel names (from config)
+SENSOR_NAMES = SENSORS['names']
 
 # Reference weights for calibration (in grams)
 CALIBRATION_WEIGHTS = [0, 100, 200, 500, 1000, 2000, 5000]

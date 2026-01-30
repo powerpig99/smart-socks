@@ -33,7 +33,7 @@ from config import SENSORS, WINDOWING, HARDWARE
 # Backwards compatibility
 SENSOR_NAMES = SENSORS['names']
 SAMPLING = {'rate_hz': HARDWARE['sample_rate_hz']}
-from feature_utils import extract_all_features, features_to_array, get_feature_names
+from feature_extraction import extract_all_features, features_to_array, get_feature_names
 
 # Window configuration (from config)
 WINDOW_SIZE_MS = WINDOWING['window_size_ms']

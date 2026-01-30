@@ -18,6 +18,8 @@ import argparse
 import os
 import json
 import numpy as np
+
+from config import SENSORS
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -181,8 +183,7 @@ def plot_feature_importance_detailed(fi_df, output_dir, top_n=30):
         
         # Extract sensor name from feature
         sensor = None
-        for s in ['L_Heel', 'L_Arch', 'L_MetaM', 'L_MetaL', 'L_Toe',
-                  'R_Heel', 'R_Arch', 'R_MetaM', 'R_MetaL', 'R_Toe']:
+        for s in SENSORS['names']:
             if feature.startswith(s):
                 sensor = s
                 break

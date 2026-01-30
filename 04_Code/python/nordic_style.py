@@ -38,18 +38,15 @@ COLORS = {
     'nord15': '#B48EAD',  # Purple
 }
 
-# Sensor Colors (Nordic palette)
+# Sensor Colors (Nordic palette) - auto-generated from config
+# Order matches SENSORS['names']: L_P_Heel, L_P_Ball, L_S_Knee, R_P_Heel, R_P_Ball, R_S_Knee
 SENSOR_COLORS = [
-    COLORS['nord8'],   # L_Heel - Light blue
-    COLORS['nord9'],   # L_Arch - Blue
-    COLORS['nord10'],  # L_MetaM - Dark blue
-    COLORS['nord7'],   # L_MetaL - Teal
-    COLORS['nord14'],  # L_Toe - Green
-    COLORS['nord12'],  # R_Heel - Orange
-    COLORS['nord13'],  # R_Arch - Yellow
-    COLORS['nord15'],  # R_MetaM - Purple
-    COLORS['nord11'],  # R_MetaL - Red
-    COLORS['nord4'],   # R_Toe - Light gray
+    COLORS['nord8'],   # L_P_Heel - Light blue
+    COLORS['nord9'],   # L_P_Ball - Blue
+    COLORS['nord14'],  # L_S_Knee - Green
+    COLORS['nord12'],  # R_P_Heel - Orange
+    COLORS['nord13'],  # R_P_Ball - Yellow
+    COLORS['nord15'],  # R_S_Knee - Purple
 ]
 
 

@@ -10,11 +10,20 @@ Usage:
     python calibration_visualizer.py --port /dev/cu.usbmodem2101
     python calibration_visualizer.py --port /dev/cu.usbmodem2101 --save-calibration
     
-Controls:
-    'q' - Quit
-    'r' - Reset min/max tracking
-    's' - Save current readings to calibration file
-    'p' - Pause/Resume display
+Interactive Controls (press key while window is focused):
+    Q - Quit the application
+    R - Reset min/max tracking values for all sensors
+    S - Save current calibration data to CSV file
+    P - Pause/Resume the display (data continues collecting when paused)
+    H - Show help message in console
+
+The visualization shows:
+    - Left Leg sensors (top-left): L_P_Heel, L_P_Ball, L_S_Knee
+    - Right Leg sensors (top-center): R_P_Heel, R_P_Ball, R_S_Knee
+    - Statistics panel (top-right): Current, Min, Max, Range values
+    - Time series plot (bottom-left): Historical data
+    - Heatmap (bottom-right): Current values visualization
+    - Status bar (bottom): Connection status and sample count
 """
 
 import argparse
@@ -185,23 +194,22 @@ class CalibrationVisualizer:
         self.status_ax = self.fig.add_subplot(gs[3, :])
         self.status_text = "Initializing..."
         
-        # Footer with controls
-        controls_text = "[Q]uit  [R]eset  [S]ave  [P]ause"
-        self.fig.text(0.5, 0.01, controls_text,
-                     ha='center', fontsize=9,
-                     color=COLORS.get('nord4', '#D8DEE9'),
-                     fontfamily='monospace',
-                     bbox=dict(boxstyle='round', facecolor=COLORS.get('nord2', '#434C5E'),
-                              edgecolor=COLORS.get('nord3', '#4C566A'), pad=0.5))
-        
         # Connect keyboard events
         self.fig.canvas.mpl_connect('key_press_event', self._on_key)
         
     def _on_key(self, event):
-        """Handle keyboard events."""
+        """Handle keyboard events.
+        
+        Controls:
+            Q - Quit the application
+            R - Reset min/max tracking
+            S - Save calibration data to file
+            P - Pause/Resume display
+        """
         key = event.key.lower()
         if key == 'q':
             self.running = False
+            plt.close(self.fig)
         elif key == 'r':
             self._reset_minmax()
         elif key == 's':
@@ -249,7 +257,7 @@ class CalibrationVisualizer:
             line = line.decode('utf-8').strip()
             if not line or line.startswith('Smart') or line.startswith('==='):
                 return None
-            if 'time_ms' in line or 'L_Heel' in line or 'L_P_Heel' in line:
+            if 'time_ms' in line or 'L_P_Heel' in line:
                 return None  # Header line
                 
             parts = line.split(',')
@@ -420,7 +428,9 @@ class CalibrationVisualizer:
         # Update status bar
         if NORDIC_STYLE:
             self.status_ax.clear()
-            status = f"PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {'PAUSED' if self.paused else 'RUNNING'}"
+            state = 'PAUSED' if self.paused else 'RUNNING'
+            controls = "|  Q=Quit R=Reset S=Save P=Pause"
+            status = f"PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
             create_status_bar(self.status_ax, status, is_recording=not self.paused)
         
         return []

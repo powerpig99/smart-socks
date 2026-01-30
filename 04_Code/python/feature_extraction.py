@@ -305,6 +305,62 @@ def process_file(filepath, label=None):
     return pd.DataFrame(feature_list)
 
 
+def extract_all_features(data, sample_rate=SAMPLING['rate_hz'], sensor_names=SENSOR_NAMES):
+    """
+    Extract all features from a window of data.
+    
+    Args:
+        data: numpy array of shape (n_samples, n_sensors) or list of dicts
+        sample_rate: Sampling rate in Hz (default from config)
+        sensor_names: List of sensor names (default from config)
+    
+    Returns:
+        Dictionary of all features
+    """
+    # Convert list of dicts to array if needed
+    if isinstance(data, list):
+        data = np.array([[s[sensor] for sensor in sensor_names] for s in data])
+    
+    features = {}
+    features.update(extract_statistical_features(data))
+    features.update(extract_cross_sensor_features(data))
+    features.update(extract_frequency_features(data, sample_rate))
+    return features
+
+
+def features_to_array(features_dict, feature_order=None):
+    """
+    Convert feature dictionary to numpy array.
+    
+    Args:
+        features_dict: Dictionary of features
+        feature_order: Optional list to enforce specific feature order
+    
+    Returns:
+        numpy array of shape (1, n_features)
+    """
+    if feature_order is None:
+        feature_order = sorted(features_dict.keys())
+    
+    return np.array([[features_dict[f] for f in feature_order]])
+
+
+def get_feature_names(sensor_names=SENSOR_NAMES):
+    """
+    Get the list of feature names in consistent order.
+    
+    Args:
+        sensor_names: List of sensor names
+    
+    Returns:
+        List of feature names
+    """
+    # Create dummy data to get feature names
+    dummy_data = np.zeros((50, len(sensor_names)))
+    features = extract_all_features(dummy_data, sensor_names=sensor_names)
+    return sorted(features.keys())
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Smart Socks Feature Extraction'
