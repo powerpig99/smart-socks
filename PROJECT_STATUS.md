@@ -6,21 +6,42 @@
 
 ---
 
-## ⚠️ Critical Issues (Fix Before Data Collection)
+## 🎯 Mid-Term Review Preparation (Week 7)
+
+**Teacher Feedback Session:** January 30, 2026 — See [`TEACHER_FEEDBACK_JAN30.md`](TEACHER_FEEDBACK_JAN30.md) for full details.
+
+### Mid-Term Requirements (from teacher)
+- ✅ Working sensors integrated into socks and knee pads
+- ✅ Real-time data collection from all 6 sensors simultaneously
+- ✅ Sensor characterization (sensitivity, sensing range)
+- ✅ Explain sensor layout choice
+- ❌ **NO machine learning required for mid-term**
+
+### Demo Format Options
+- **Live demo** OR **pre-recorded video** showing sensor readings varying in real-time
+
+### 🚨 Critical: 'Unknown' Class Required
+Per teacher feedback, we MUST handle non-target activities:
+- Activities NOT in our list (jumping, running, random movements) should NOT be misclassified
+- Add 'unknown' class to model for Part 2 (ML phase)
+- During final review, prototypes will be tested with random movements
+
+---
+
+## ✅ Critical Issues Resolved
 
 See [`AUDIT_GAPS_AND_FIXES.md`](AUDIT_GAPS_AND_FIXES.md) for detailed tracking.
 
-| Issue | File | Problem | Fix |
-|-------|------|---------|-----|
-| C3 | `demo.py` | `range(10)` crashes with 6 sensors | Change to `range(SENSORS['total_count'])` |
-| C4 | `quick_test.py` | Rejects 6-sensor data (expects 10) | Change `>= 11` to `>= SENSORS['total_count'] + 1` |
-| C5 | `dual_collector.py` | Imports non-existent `CONFIG` | Remove `CONFIG` from import |
-| C1-C2 | `feature_utils.py` | Wrong index math for cross-sensor features | Rewrite to use config-based groupings |
-| H1 | `demo.py`, `ble_client.py` | Old sensor names (`L_Heel` vs `L_P_Heel`) | Update to `SENSORS['names']` from config |
+| Issue | Status | Description |
+|-------|--------|-------------|
+| C3, C4, C5 | ✅ Fixed | Crash bugs in demo.py, quick_test.py, dual_collector.py |
+| C1, C2 | ✅ Fixed | Feature pipeline consolidated |
+| H1, H3 | ✅ Fixed | Old sensor names updated in all files |
+| H2 | ✅ Verified | Data flow from per-leg to merged CSV |
+| H4 | ✅ Fixed | WiFi credentials moved to gitignored file |
+| H5 | ✅ Fixed | PlatformIO environments added |
 
-**Phase 1 (Crash Fixes):** 3 lines → fixes C3, C4, C5  
-**Phase 2 (Features):** Consolidate `feature_utils.py` with `feature_extraction.py`  
-**Phase 3 (Names):** Update old sensor name references
+**All critical issues resolved — ready for data collection and mid-term review.**
 
 ---
 
@@ -100,6 +121,49 @@ uv pip install -r 04_Code/python/requirements.txt
 | Sit | Equal heels | Equal minimal |
 | Stand | Equal heels+balls | Minimal |
 | Lean | Asymmetric | Minimal |
+
+---
+
+## Mid-Term Checklist (Week 7)
+
+### Hardware (Priority 1)
+- [ ] Fabricate 4 pressure sensors (heel + ball for both socks)
+- [ ] Fabricate 2 stretch sensors (knee pads)
+- [ ] Integrate sensors into socks and knee pads
+- [ ] Build voltage divider circuits (10kΩ resistors)
+- [ ] Wire sensors to ESP32s
+- [ ] Test all 6 sensors working simultaneously
+
+### Sensor Characterization (Priority 2)
+- [ ] Calibrate pressure sensors with known weights (100g - 5kg)
+- [ ] Test stretch sensor range (knee bend 0-90 degrees)
+- [ ] Document sensitivity and sensing range
+- [ ] Verify ADC readings are stable
+
+### Data Collection (Priority 3)
+- [ ] Collect sample data for each target activity:
+  - [ ] Walking forward/backward
+  - [ ] Stairs up/down
+  - [ ] Sitting (feet on floor/crossed)
+  - [ ] Standing (upright/lean left/lean right)
+  - [ ] Sit-to-stand transitions
+- [ ] Collect "unknown" activity samples (for Part 2):
+  - [ ] Jumping
+  - [ ] Running
+  - [ ] Random leg movements
+  - [ ] Stretching
+
+### Demo Preparation (Priority 4)
+- [ ] Record demo video OR prepare live demo
+- [ ] Show real-time sensor readings varying with activities
+- [ ] Demonstrate `calibration_visualizer.py` with all 6 sensors
+- [ ] Prepare explanation of sensor layout choice
+
+### Post Mid-Term (Part 2 - ML Phase)
+- [ ] Switch from USB to battery power
+- [ ] Implement machine learning pipeline
+- [ ] Train model with 'unknown' class
+- [ ] Validate with extensive testing
 
 ---
 
