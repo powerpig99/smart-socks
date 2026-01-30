@@ -62,7 +62,9 @@ class LivePlotter:
         self.data = {sensor: deque(maxlen=history_length) for sensor in SENSORS['names']}
         
         # Setup figure
-        self.fig, self.axes = plt.subplots(5, 2, figsize=(12, 14))
+        ncols = 2
+        nrows = (n_sensors + ncols - 1) // ncols
+        self.fig, self.axes = plt.subplots(nrows, ncols, figsize=(12, nrows * 2.8))
         self.axes = self.axes.flatten()
         
         # Setup subplots

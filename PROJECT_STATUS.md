@@ -200,7 +200,7 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 3. **Feature Extraction:** Config-aware with correct sensor groupings
 4. **Config Bug:** Fixed `samples_per_window` calculation (2→50)
 5. **Missing Imports:** Added `scipy.stats` and `sys` imports
-6. **GIF Recording:** Full implementation with background threading (see [[GIF_RECORDING_FIX]])
+6. **GIF Recording:** Full implementation with background threading
 
 ---
 
@@ -208,10 +208,6 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 
 ### Complete
 - ✅ PLATFORMIO_SETUP.md
-- ✅ SOFTWARE_INSTALLATION.md
-- ✅ CODE_REVIEW.md
-- ✅ INDEX.md (Obsidian navigation)
-- ✅ DESIGN_ASSETS.md (Nordic design system)
 - ✅ WORK_DIARY.md (consolidated meeting notes)
 - ✅ sensor_placement_v2.md (new 6-sensor design)
 - ✅ circuit_diagram_v2.md (dual ESP32)

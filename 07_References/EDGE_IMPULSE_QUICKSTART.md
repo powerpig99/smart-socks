@@ -52,7 +52,7 @@ void setup() {
     analogReadResolution(12);
     
     Serial.println("Edge Impulse Data Forwarder");
-    Serial.println("Format: L_Heel,L_Ball,L_Knee,R_Heel,R_Ball,R_Knee,label");
+    Serial.println("Format: L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee,label");
 }
 
 void loop() {

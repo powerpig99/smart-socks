@@ -58,16 +58,12 @@ Examples:
 | Column | Description | Unit |
 |--------|-------------|------|
 | `time_ms` | Timestamp from recording start | milliseconds |
-| `L_Heel` | Left heel sensor | ADC (0-4095) |
-| `L_Arch` | Left arch sensor | ADC (0-4095) |
-| `L_MetaM` | Left metatarsal medial | ADC (0-4095) |
-| `L_MetaL` | Left metatarsal lateral | ADC (0-4095) |
-| `L_Toe` | Left toe sensor | ADC (0-4095) |
-| `R_Heel` | Right heel sensor | ADC (0-4095) |
-| `R_Arch` | Right arch sensor | ADC (0-4095) |
-| `R_MetaM` | Right metatarsal medial | ADC (0-4095) |
-| `R_MetaL` | Right metatarsal lateral | ADC (0-4095) |
-| `R_Toe` | Right toe sensor | ADC (0-4095) |
+| `L_P_Heel` | Left heel pressure sensor | ADC (0-4095) |
+| `L_P_Ball` | Left ball pressure sensor | ADC (0-4095) |
+| `L_S_Knee` | Left knee stretch sensor | ADC (0-4095) |
+| `R_P_Heel` | Right heel pressure sensor | ADC (0-4095) |
+| `R_P_Ball` | Right ball pressure sensor | ADC (0-4095) |
+| `R_S_Knee` | Right knee stretch sensor | ADC (0-4095) |
 
 ### Sample Rate
 
@@ -85,7 +81,7 @@ Examples:
 
 Before using data for training:
 
-- [ ] Verify all 10 sensor channels have valid readings
+- [ ] Verify all 6 sensor channels have valid readings
 - [ ] Check for dropped samples (timestamp gaps > 25ms)
 - [ ] Confirm activity labels match actual recorded activity
 - [ ] Remove corrupted or incomplete recordings

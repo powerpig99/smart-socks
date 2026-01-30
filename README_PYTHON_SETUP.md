@@ -197,14 +197,6 @@ uv run flake8
 uv run mypy .
 ```
 
-## Legacy: requirements.txt
-
-For backward compatibility, `requirements.txt` is maintained but **UV with pyproject.toml is preferred**.
-
-If you must use pip:
-```bash
-cd ./04_Code/python
-pip install -r requirements.txt
-```
+## Further Reading
 
 See [UV documentation](https://docs.astral.sh/uv/) for more details.

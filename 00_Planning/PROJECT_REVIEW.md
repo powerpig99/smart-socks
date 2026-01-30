@@ -69,10 +69,10 @@ SAMPLE_RATE_HZ = 50  # Duplicated 6 times
 
 **Implementation:**
 ```python
-# config.py
+# config.py (OLD — now centralized in 04_Code/python/config.py)
 SENSOR_CONFIG = {
-    'names': ["L_Heel", "L_Arch", ...],
-    'count': 10,
+    'names': ["L_P_Heel", "L_P_Ball", "L_S_Knee", "R_P_Heel", "R_P_Ball", "R_S_Knee"],
+    'total_count': 6,
     'sample_rate_hz': 50,
     'adc_resolution': 12,
 }

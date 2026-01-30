@@ -105,8 +105,10 @@ def plot_calibration_curves(fits, output_dir):
     """
     Generate calibration curve plots for all sensors.
     """
-    fig, axes = plt.subplots(2, 5, figsize=(15, 6))
-    axes = axes.flatten()
+    ncols = min(len(SENSOR_NAMES), 3)
+    nrows = (len(SENSOR_NAMES) + ncols - 1) // ncols
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3))
+    axes = axes.flatten() if nrows * ncols > 1 else [axes]
 
     for idx, sensor in enumerate(SENSOR_NAMES):
         ax = axes[idx]

@@ -253,7 +253,9 @@ def plot_quality_check(df, quality, output_path=None):
         quality: Quality metrics dictionary
         output_path: Path to save plot
     """
-    fig, axes = plt.subplots(5, 2, figsize=(15, 20))
+    ncols = 2
+    nrows = (len(SENSOR_NAMES) + ncols - 1) // ncols
+    fig, axes = plt.subplots(nrows, ncols, figsize=(15, nrows * 4))
     axes = axes.flatten()
     
     time_sec = df['time_ms'] / 1000

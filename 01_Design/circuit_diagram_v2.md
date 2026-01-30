@@ -10,14 +10,14 @@
 
 ## System Architecture
 
-> **View Diagram:** Open `diagrams/system_architecture_v2.svg` in your browser
-> 
+> **View Diagram:** Open `diagrams/system_architecture.svg` in your browser
+>
 > ```bash
-> open 01_Design/diagrams/system_architecture_v2.svg
+> open 01_Design/diagrams/system_architecture.svg
 > open 01_Design/diagrams/dual_esp32_wiring.svg  # Wiring schematic
 > ```
 
-![System Architecture V2](diagrams/system_architecture_v2.svg)
+![System Architecture](diagrams/system_architecture.svg)
 
 ### Wiring Schematic
 
@@ -270,7 +270,7 @@ Since each leg has its own ESP32, data synchronization options:
 
 | ← Previous | ↑ Up | Next → |
 |------------|------|--------|
-| — | [[INDEX]] | [[sensor_placement_v2]] |
+| — | [[README]] | [[sensor_placement_v2]] |
 
 ---
 

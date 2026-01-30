@@ -161,7 +161,7 @@ class BLESmartSocksClient:
         """
         Parse incoming BLE data packet.
         
-        Expected format: "timestamp,sensor1,sensor2,...,sensor10\n"
+        Expected format: "timestamp,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee\n"
         
         Args:
             data: Raw bytes from BLE

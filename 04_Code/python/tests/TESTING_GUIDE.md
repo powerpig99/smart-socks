@@ -18,12 +18,7 @@ tests/
 ├── conftest.py                  # Pytest configuration and fixtures
 ├── TESTING_GUIDE.md            # This file
 ├── test_data_validation.py     # Data quality validation tests
-├── test_feature_extraction.py  # Feature extraction tests (TODO)
-├── test_train_model.py         # Model training tests (TODO)
-├── test_preprocessing.py       # Data preprocessing tests (TODO)
-└── fixtures/                   # Test data files
-    ├── sample_sensor_data.csv
-    └── expected_features.csv
+└── fixtures/                   # Test data files (created dynamically by conftest.py)
 ```
 
 ---
@@ -250,7 +245,7 @@ jobs:
 
 Before each major milestone:
 
-- [ ] All 10 sensors respond to pressure
+- [ ] All 6 sensors respond to pressure
 - [ ] No stuck or saturated sensors
 - [ ] Timestamps are consistent
 - [ ] Dropout rate < 20%

@@ -167,7 +167,7 @@ See [[ARDUINO_ESP32_INSTALLATION_FAQ]] for complete troubleshooting guide.
 
 ### Feature Extraction Fails
 
-**Symptom:** `KeyError: 'L_Heel'` or missing columns
+**Symptom:** `KeyError: 'L_P_Heel'` or missing columns
 
 **Solutions:**
 1. Verify CSV has all required columns:
@@ -273,7 +273,7 @@ See [[ARDUINO_ESP32_INSTALLATION_FAQ]] for complete troubleshooting guide.
 
 **Diagnosis:**
 ```
-Warning: L_Heel has only 2 unique values
+Warning: L_P_Heel has only 2 unique values
 ```
 
 **Causes:**

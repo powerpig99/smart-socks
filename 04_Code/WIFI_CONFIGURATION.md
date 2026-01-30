@@ -1,10 +1,10 @@
-# Smart Socks - WiFi Configuration Guide
+# Smart Socks - Wireless Configuration Guide
 
-**Two modes: Access Point (AP) vs Station (existing WiFi)**
+**WiFi (AP / Station / Phone Hotspot) and BLE setup for dual ESP32**
 
 ---
 
-## Mode 1: Station Mode (RECOMMENDED for Lab)
+## WiFi Mode 1: Station Mode (RECOMMENDED for Lab)
 
 Connect ESP32s to your existing WiFi network (like `aalto` or lab WiFi).
 
@@ -32,10 +32,9 @@ const char* RIGHT_IP_STR = "192.168.1.102";  // Right leg ESP32
    - Right leg: http://192.168.1.102
 
 ### Advantages
-- ✅ Your laptop stays connected to normal WiFi
-- ✅ Can access both ESP32s simultaneously
-- ✅ Internet access while collecting data
-- ✅ No network switching needed
+- Your laptop stays connected to normal WiFi
+- Can access both ESP32s simultaneously
+- Internet access while collecting data
 
 ### Requirements
 - Need 2 available static IPs on your network
@@ -44,7 +43,7 @@ const char* RIGHT_IP_STR = "192.168.1.102";  // Right leg ESP32
 
 ---
 
-## Mode 2: Access Point Mode (Default)
+## WiFi Mode 2: Access Point Mode (Default)
 
 Each ESP32 creates its own WiFi network.
 
@@ -70,64 +69,55 @@ Leave `USE_EXISTING_WIFI` commented out (default):
 2. Access left leg: http://192.168.4.1
 3. Access right leg: http://192.168.4.2
 
-### Advantages
-- ✅ Works anywhere, no existing WiFi needed
-- ✅ No IT configuration required
-- ✅ Deterministic IPs (always 192.168.4.1 and .2)
-
 ### Limitations
-- ❌ Laptop must disconnect from normal WiFi
-- ❌ No internet access while connected
-- ❌ Can be confusing if both ESP32s use same SSID
+- Laptop must disconnect from normal WiFi
+- No internet access while connected
 
 ---
 
-## Quick Start: Lab Setup (Station Mode)
+## WiFi Mode 3: Phone Hotspot (Mobile Demos)
 
-### Step 1: Find Available IPs
+Use your phone's hotspot for portable demos anywhere.
 
-Ask your network administrator for 2 available static IPs, or check yourself:
+### Setup
 
-```bash
-# Scan network to find available IPs
-nmap -sn 192.168.1.0/24 | grep "Nmap scan"
-```
-
-### Step 2: Configure Credentials
+Edit `data_collection_leg.ino`:
 
 ```cpp
-#define USE_EXISTING_WIFI
-const char* EXISTING_WIFI_SSID = "aalto";
-const char* EXISTING_WIFI_PASSWORD = "your_wifi_password";
-const char* LEFT_IP_STR = "192.168.1.101";
-const char* RIGHT_IP_STR = "192.168.1.102";
+#define USE_PHONE_HOTSPOT
+
+const char* HOTSPOT_SSID = "YourPhoneName";      // e.g., "iPhone-Jing"
+const char* HOTSPOT_PASSWORD = "yourpassword";
 ```
 
-### Step 3: Upload
+### Enable Hotspot
 
-```bash
-# Left leg
-pio run -e left_leg -t upload
+**iPhone:** Settings > Personal Hotspot > Turn On. Enable "Maximize Compatibility" (forces 2.4GHz).
 
-# Right leg
-pio run -e right_leg -t upload
-```
+**Android:** Settings > Network & Internet > Hotspot & Tethering > WiFi Hotspot > Turn On.
 
-### Step 4: Test
+### Access Methods
 
-```bash
-# From your laptop (connected to same WiFi):
-ping 192.168.1.101
-curl http://192.168.1.101/api/sensors
+- **IP Address:** Check serial output for assigned IP (e.g., http://172.20.10.4)
+- **mDNS (recommended):** http://smartsocks-left.local / http://smartsocks-right.local
+  - macOS: works out of the box
+  - Windows: install Bonjour
+  - Linux: `sudo apt install avahi-daemon`
 
-curl http://192.168.1.102/api/sensors
-```
+### Hotspot Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Connection failed | Check password, ensure hotspot is on |
+| Phone locked | Some phones disable hotspot when locked |
+| 5GHz only | ESP32 only supports 2.4GHz - enable "Maximize Compatibility" on iPhone |
+| IP keeps changing | Use mDNS hostnames instead (smartsocks-left.local) |
 
 ---
 
 ## Hybrid Mode (Fallback)
 
-If you enable `USE_EXISTING_WIFI` but the ESP32 fails to connect, it automatically falls back to AP mode. You'll see this in serial output:
+If `USE_EXISTING_WIFI` is enabled but the ESP32 fails to connect, it automatically falls back to AP mode:
 
 ```
 Connecting to WiFi: aalto
@@ -138,77 +128,107 @@ AP Mode IP: 192.168.4.1
 
 ---
 
-## Troubleshooting
+## BLE Configuration
 
-### Station Mode Issues
+Both ESP32s also advertise via Bluetooth Low Energy for parallel or alternative data access.
+
+| ESP32 | BLE Name | Service UUID |
+|-------|----------|--------------|
+| Left Leg | `SmartSocks-Left` | `4fafc201-1fb5-459e-8fcc-c5c9c331914b` |
+| Right Leg | `SmartSocks-Right` | `4fafc201-1fb5-459e-8fcc-c5c9c331914b` |
+
+**Characteristic UUID:** `beb5483e-36e1-4688-b7f5-ea07361b26a8`
+
+### BLE Testing
+
+1. Install a BLE scanner app (nRF Connect for iOS/Android)
+2. Scan for `SmartSocks-Left` / `SmartSocks-Right`
+3. Connect and enable notifications on the characteristic
+4. Data streams as JSON:
+   ```json
+   {"t":12345,"leg":"left","sync":false,"s":{"L_P_Heel":1234,"L_P_Ball":567,"L_S_Knee":890}}
+   ```
+
+### BLE Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| "WiFi connection failed" | Check SSID/password, check if WiFi is 2.4GHz (ESP32 doesn't support 5GHz) |
-| Can't access IP | Check if IP is already in use, try different IPs |
-| Intermittent connection | Check WiFi signal strength, move ESP32 closer to router |
+| Can't see BLE devices | Check ESP32 power, check serial output |
+| Connection drops | Reduce distance, check for interference |
+| No data received | Enable notifications in BLE app |
 
-### AP Mode Issues
+---
 
-| Problem | Solution |
-|---------|----------|
-| Can't see "SmartSocks" | ESP32 not powered, check USB connection |
-| Wrong IP (not 192.168.4.x) | Another device may have conflicting IP, try resetting ESP32 |
+## WiFi Testing Procedure
+
+### Quick Checklist
+
+- [ ] WiFi network visible (AP mode) or ESP32s connected to existing WiFi (Station mode)
+- [ ] Left leg web dashboard loads
+- [ ] Right leg web dashboard loads
+- [ ] `curl http://[IP]/api/sensors` returns JSON with 3 sensor values
+- [ ] Serial output at 115200 baud shows CSV data at 50Hz
+
+### Data Streaming Test
+
+```bash
+# WiFi HTTP
+curl http://192.168.4.1/api/sensors
+# Expected: {"L_P_Heel":1234,"L_P_Ball":567,"L_S_Knee":890}
+
+# Serial monitor
+pio device monitor --port /dev/cu.usbmodem2101
+```
+
+### Performance Expectations
+
+| Metric | Expected |
+|--------|----------|
+| WiFi Range | ~30m line-of-sight |
+| BLE Range | ~10m |
+| Data Rate | 50 samples/sec |
+| Latency | <20ms |
 
 ---
 
 ## Upload Methods
 
-### Option 1: PlatformIO (Recommended)
+### PlatformIO (Recommended)
 
 ```bash
-# Setup
-pip install platformio
-
-# Upload left leg
 pio run -e left_leg -t upload --upload-port /dev/cu.usbmodem2101
-
-# Upload right leg
 pio run -e right_leg -t upload --upload-port /dev/cu.usbmodem2102
 ```
 
-### Option 2: Arduino IDE
+### Arduino IDE
 
-1. Install ESP32 board support:
-   - Boards Manager → Add URL: `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
-   - Install "esp32" by Espressif Systems
-
+1. Install ESP32 board support (Boards Manager URL: `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`)
 2. Select board: **XIAO_ESP32S3**
-
-3. Select port: `/dev/cu.usbmodem2101` (or your port)
-
-4. Configure `LEG_ID` in code:
-   ```cpp
-   const LegID LEG_ID = LEFT_LEG;  // For left leg
-   // const LegID LEG_ID = RIGHT_LEG;  // For right leg
-   ```
-
-5. Click Upload
-
-6. Repeat for right leg (change `LEG_ID` to `RIGHT_LEG`)
+3. Select port: `/dev/cu.usbmodem2101`
+4. Set `LEG_ID` in code, then upload
 
 ---
 
 ## Python Data Collection
 
-Regardless of WiFi mode, use the same Python commands:
-
 ```bash
-# If using Station Mode (existing WiFi):
+# Station Mode or Phone Hotspot (all on same network):
 python dual_collector.py --calibrate
-# Then connect to http://192.168.1.101 and http://192.168.1.102
 
-# If using AP Mode:
+# AP Mode:
 # 1. Connect laptop to "SmartSocks" WiFi
-# 2. Run:
 python dual_collector.py --calibrate --left-port auto --right-port auto
 ```
 
 ---
 
-*Last updated: February 2026*
+## Tips for Mobile Demos
+
+1. Power both ESP32s from USB battery packs
+2. Use mDNS hostnames to avoid IP confusion
+3. Label each ESP32 with its MAC address
+4. Test hotspot connection at demo location beforehand
+
+---
+
+*Last updated: January 2026*

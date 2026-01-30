@@ -125,7 +125,7 @@ Required: USB-C cable, microcontrollers, breadboard, jumper wires, resistors, se
 ## Quick Links
 
 - [GitHub Repository](https://github.com/powerpig99/smart-socks)
-- [Project Documentation](../../INDEX.md)
+- [[README|Project Documentation]]
 - [Design Sketches](../../02_Fabrication/)
 
 ---
