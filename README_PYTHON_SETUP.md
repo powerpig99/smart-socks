@@ -25,8 +25,8 @@ uv --version  # Should show uv version
 ## Quick Setup
 
 ```bash
-# 1. Navigate to Python code directory
-cd 04_Code/python
+# 1. Navigate to Python code directory (from project root)
+cd ./04_Code/python
 
 # 2. Create virtual environment and install dependencies
 uv sync
@@ -42,7 +42,7 @@ python -c "import serial; import numpy; import matplotlib; import imageio; print
 
 ```bash
 # Run any Python script directly with UV (no activation needed)
-cd 04_Code/python
+cd ./04_Code/python
 
 # Run with UV
 uv run calibration_visualizer.py --port /dev/cu.usbmodem2101
@@ -56,7 +56,7 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 ### Option 1: With activated environment (traditional)
 
 ```bash
-cd 04_Code/python
+cd ./04_Code/python
 source .venv/bin/activate
 
 # Run with your port (find with: pio device list)
@@ -66,7 +66,7 @@ python calibration_visualizer.py --port /dev/cu.usbmodem2101
 ### Option 2: With UV run (recommended)
 
 ```bash
-cd 04_Code/python
+cd ./04_Code/python
 
 # No activation needed - UV handles it
 uv run calibration_visualizer.py --port /dev/cu.usbmodem2101
@@ -79,10 +79,10 @@ uv run calibration_visualizer.py --port /dev/cu.usbmodem2101
 
 ### Working Directory
 
-**Always work from `04_Code/python/` directory for Python tasks:**
+**Always work from `./04_Code/python/` directory (from project root):**
 
 ```bash
-cd ~/Projects/Smart-Socks/04_Code/python
+cd ./04_Code/python
 
 # Then use UV commands
 uv sync
@@ -95,9 +95,9 @@ This keeps the Python environment co-located with the code.
 
 | Location | Purpose |
 |----------|---------|
-| `Smart Socks/04_Code/python/pyproject.toml` | UV project configuration |
-| `Smart Socks/04_Code/python/.venv/` | Virtual environment (auto-created by UV) |
-| `Smart Socks/04_Code/python/` | Python source code |
+| `./04_Code/python/pyproject.toml` | UV project configuration |
+| `./04_Code/python/.venv/` | Virtual environment (auto-created by UV) |
+| `./04_Code/python/` | Python source code |
 
 ## UV Commands Reference
 
@@ -140,7 +140,7 @@ uv remove package_name
 
 ```bash
 # Re-sync dependencies
-cd 04_Code/python
+cd ./04_Code/python
 uv sync
 
 # Or install specific package
@@ -181,7 +181,7 @@ uv self update
 Install development tools (formatters, linters):
 
 ```bash
-cd 04_Code/python
+cd ./04_Code/python
 uv sync --extra dev
 ```
 
@@ -203,7 +203,7 @@ For backward compatibility, `requirements.txt` is maintained but **UV with pypro
 
 If you must use pip:
 ```bash
-cd 04_Code/python
+cd ./04_Code/python
 pip install -r requirements.txt
 ```
 
