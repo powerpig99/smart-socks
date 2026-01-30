@@ -74,6 +74,7 @@ Smart Socks/
 | Code Review Report | CODE_REVIEW.md | [[CODE_REVIEW]] |
 | BLE Arduino Code | 04_Code/arduino/data_collection_ble/ | — |
 | Calibration Visualizer | 04_Code/python/calibration_visualizer.py | [[calibration_visualizer]] |
+| **GIF Recording Fix** | **04_Code/python/GIF_RECORDING_FIX.md** | [[GIF_RECORDING_FIX]] |
 
 ---
 
@@ -280,7 +281,12 @@ python calibration_visualizer.py --port /dev/cu.usbmodem2101
 #   R - Reset min/max tracking
 #   S - Save calibration data to CSV
 #   P - Pause/Resume
+#   C - Start/stop GIF recording (for demo/documentation)
 ```
+
+**GIF Recording:** Press `C` to record a demo video of the visualization. The recording indicator (red dot) appears in the status bar. Press `C` again to save. Output: `demo_recording_YYYYMMDD_HHMMSS.gif`
+
+See [[GIF_RECORDING_FIX]] for technical details on the implementation (background threading, Retina display support, etc.).
 
 ### Wireless Data Collection (Web Dashboard)
 
@@ -360,4 +366,4 @@ Key concepts in this project:
 
 ---
 
-*Last updated: 2026-01-29 — All code review issues fixed, calibration tools ready*
+*Last updated: 2026-01-30 — All 13 audit issues fixed, GIF recording fully implemented, documentation cleaned*

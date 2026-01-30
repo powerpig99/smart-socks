@@ -27,7 +27,7 @@ This document describes the standardized protocol for testing the Smart Socks we
 - [ ] ESP32S3 powered on and connected
 - [ ] BLE connection established with display device
 - [ ] Real-time classification display visible
-- [ ] All 10 sensors responding to pressure
+- [ ] All 6 sensors responding to pressure
 - [ ] Step counter reset to zero
 
 ### 2. Participant Briefing

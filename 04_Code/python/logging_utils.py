@@ -146,7 +146,7 @@ def log_config_summary(logger: logging.Logger):
     logger.info("=" * 50)
     logger.info(f"Sample Rate: {HARDWARE['sample_rate_hz']} Hz")
     logger.info(f"ADC Resolution: {HARDWARE['adc_resolution_bits']}-bit")
-    logger.info(f"Sensors: {SENSORS['count']}")
+    logger.info(f"Sensors: {SENSORS['total_count']}")
     logger.info(f"Model: Random Forest ({MODEL['random_forest']['n_estimators']} trees)")
     logger.info("=" * 50)
 

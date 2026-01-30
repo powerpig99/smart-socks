@@ -185,7 +185,7 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 
 | Tool | Status | Purpose |
 |------|--------|---------|
-| `calibration_visualizer.py` | ✅ Ready | Real-time sensor visualization |
+| `calibration_visualizer.py` | ✅ Ready | Real-time sensor visualization + GIF recording |
 | `feature_extraction.py` | ✅ Ready | Config-aware feature extraction |
 | `train_model.py` | ✅ Ready | ML pipeline |
 | `real_time_classifier.py` | ⚠️ Needs Fix | Uses `feature_utils.py` (wrong features) |
@@ -200,6 +200,7 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 3. **Feature Extraction:** Config-aware with correct sensor groupings
 4. **Config Bug:** Fixed `samples_per_window` calculation (2→50)
 5. **Missing Imports:** Added `scipy.stats` and `sys` imports
+6. **GIF Recording:** Full implementation with background threading (see [[GIF_RECORDING_FIX]])
 
 ---
 

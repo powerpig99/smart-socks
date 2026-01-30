@@ -260,7 +260,7 @@ def create_virtual_env():
     """Create virtual environment."""
     print_header("Virtual Environment")
     
-    venv_path = Path(__file__).parent.parent.parent / ".venv"
+    venv_path = Path(__file__).parent / ".venv"
     
     if venv_path.exists():
         print_success("Virtual environment already exists")

@@ -1,5 +1,18 @@
 # PlatformIO Setup Guide - Smart Socks Project
 
+> **⚠️ DEPRECATION NOTICE (Jan 30, 2026)**
+> 
+> This document contains outdated 10-sensor design references in the pin mapping section (lines 124-253).
+> 
+> **Current Design:** 6 sensors (4 pressure + 2 stretch) across 2 ESP32S3 units
+> - See: `01_Design/circuit_diagram_v2.md` for current circuit diagram
+> - See: `01_Design/sensor_placement_v2.md` for current sensor layout
+> - See: `PIN_MAPPING.md` for current pin assignments
+> 
+> The PlatformIO setup instructions below remain valid, but ignore the 10-sensor pin references.
+
+---
+
 > **⚠️ WORKSHOP PREPARATION (Wednesday 04-02)**
 > 
 > **Tutorial:** WiFi Data Collection Workshop

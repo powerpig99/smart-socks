@@ -195,13 +195,10 @@ def create_status_bar(ax, status_text, is_recording=False):
             transform=ax.transAxes,
             family='monospace')
     
-    # Recording indicator
+    # Red dot recording indicator (only when recording)
     if is_recording:
-        circle = Circle((0.05, 0.5), 0.15, 
-                        facecolor=COLORS['nord6'],
-                        edgecolor='none',
-                        transform=ax.transAxes)
-        ax.add_patch(circle)
+        ax.plot(0.015, 0.5, 'o', color='#FF0000', markersize=8,
+                transform=ax.transAxes)
 
 
 # Apply style on import
