@@ -72,7 +72,7 @@ monitor_speed = 115200
 
 ```bash
 # Setup commands (recommended)
-cd ~/Projects/Smart-Socks/04_Code/python
+cd ./04_Code/python
 uv sync                    # Creates venv and installs all dependencies
 
 # Run scripts with UV (no activation needed)

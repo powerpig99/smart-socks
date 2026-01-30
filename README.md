@@ -200,8 +200,8 @@ This project uses [UV](https://docs.astral.sh/uv/) for fast, reliable Python dep
 # Install UV (one-time)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Setup environment
-cd 04_Code/python/
+# Setup environment (from project root)
+cd ./04_Code/python
 uv sync                    # Creates venv and installs all dependencies
 
 # Run quick test to verify setup
