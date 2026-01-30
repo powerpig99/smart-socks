@@ -52,15 +52,14 @@ enum LegID { LEFT_LEG, RIGHT_LEG };
 
 // MODE 2: Station Mode - Connect to existing WiFi/lab network
 // Best for: Lab use with known network
-// #define USE_EXISTING_WIFI
-// const char* EXISTING_WIFI_SSID = "aalto";
-// const char* EXISTING_WIFI_PASSWORD = "password";
-
 // MODE 3: Phone Hotspot (RECOMMENDED for demos)
 // Best for: Mobile demos, full control over network
 #define USE_PHONE_HOTSPOT
-const char* HOTSPOT_SSID = "SmartSocks-Hotspot";  // Your phone's hotspot name
-const char* HOTSPOT_PASSWORD = "smartsocks123";   // Your phone's hotspot password
+// Credentials are in credentials.h (not committed to git)
+
+// Include WiFi credentials from separate file (not committed to git)
+// See credentials.h.template for setup instructions
+#include "credentials.h"
 
 // Device identification (works in all modes)
 // The ESP32 will display its MAC address on startup
@@ -68,9 +67,7 @@ const char* HOTSPOT_PASSWORD = "smartsocks123";   // Your phone's hotspot passwo
 String deviceMAC;
 String deviceHostname;
 
-// Fallback settings
-const char* AP_SSID = "SmartSocks";
-const char* AP_PASSWORD = "smartwearables";
+// AP channel (not sensitive)
 const int AP_CHANNEL = 6;
 
 // BLE Configuration

@@ -8,6 +8,9 @@ import pytest
 import numpy as np
 import pandas as pd
 
+# Import config for sensor names
+from config import SENSORS
+
 from data_validation import (
     validate_sensor_data,
     check_adc_range,
@@ -36,30 +39,30 @@ class TestDataValidation:
         
         # First sensor should be detected as stuck
         stuck_names = [s.split()[0] for s in report.stuck_sensors]
-        assert "L_Heel" in stuck_names
+        assert SENSORS['names'][0] in stuck_names
     
     def test_saturated_sensor_detection(self, invalid_sensor_data):
         """Test detection of saturated sensors."""
         report = validate_sensor_data(invalid_sensor_data, "test.csv")
         
-        assert "L_Arch" in report.saturated_sensors
+        assert SENSORS['names'][1] in report.saturated_sensors
     
     def test_disconnected_sensor_detection(self, invalid_sensor_data):
         """Test detection of disconnected sensors."""
         report = validate_sensor_data(invalid_sensor_data, "test.csv")
         
-        assert "L_MetaM" in report.disconnected_sensors
+        assert SENSORS['names'][2] in report.disconnected_sensors
     
     def test_missing_columns_detected(self, sample_sensor_data):
         """Test detection of missing required columns."""
         # Drop some sensor columns
-        df_missing = sample_sensor_data.drop(columns=["L_Heel", "R_Heel"])
+        df_missing = sample_sensor_data.drop(columns=[SENSORS['names'][0], SENSORS['names'][3]])
         
         report = validate_sensor_data(df_missing, "test.csv")
         
         assert not report.is_valid
-        assert "L_Heel" in report.missing_columns
-        assert "R_Heel" in report.missing_columns
+        assert SENSORS['names'][0] in report.missing_columns
+        assert SENSORS['names'][3] in report.missing_columns
     
     def test_missing_timestamp_detected(self, sample_sensor_data):
         """Test detection of missing timestamp column."""
@@ -82,12 +85,11 @@ class TestDataValidation:
         # Create data with many missing samples
         df = pd.DataFrame({
             'time_ms': [0, 100, 200, 3000, 3100],  # Big gap
-            'L_Heel': [100, 200, 300, 400, 500],
+            SENSORS['names'][0]: [100, 200, 300, 400, 500],
         })
         
         # Add remaining sensor columns
-        for sensor in ["L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-                       "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"]:
+        for sensor in SENSORS['names'][1:]:
             df[sensor] = [100, 200, 300, 400, 500]
         
         report = validate_sensor_data(df, "test.csv")
@@ -115,7 +117,7 @@ class TestDataQualityReport:
             total_samples=100,
             dropout_rate=0.05,
             is_valid=True,
-            stuck_sensors=["L_Heel"],
+            stuck_sensors=[SENSORS['names'][0]],
             issues=["Stuck sensor detected"],
         )
         
@@ -124,7 +126,7 @@ class TestDataQualityReport:
         assert "test.csv" in summary
         assert "100" in summary
         assert "5.00%" in summary or "0.05" in summary
-        assert "L_Heel" in summary
+        assert SENSORS['names'][0] in summary
     
     def test_report_to_dict(self):
         """Test conversion to dictionary."""
@@ -148,11 +150,10 @@ class TestTimestampValidation:
         """Test detection of non-monotonic timestamps."""
         df = pd.DataFrame({
             'time_ms': [0, 20, 40, 30, 60],  # Decrease at index 3
-            'L_Heel': [100, 200, 300, 400, 500],
+            SENSORS['names'][0]: [100, 200, 300, 400, 500],
         })
         # Add other sensors
-        for sensor in ["L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-                       "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"]:
+        for sensor in SENSORS['names'][1:]:
             df[sensor] = [100, 200, 300, 400, 500]
         
         is_valid, issues, _ = check_timestamps(df)
@@ -164,11 +165,10 @@ class TestTimestampValidation:
         """Test detection of duplicate timestamps."""
         df = pd.DataFrame({
             'time_ms': [0, 20, 20, 40, 60],  # Duplicate at index 1,2
-            'L_Heel': [100, 200, 300, 400, 500],
+            SENSORS['names'][0]: [100, 200, 300, 400, 500],
         })
         # Add other sensors
-        for sensor in ["L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-                       "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"]:
+        for sensor in SENSORS['names'][1:]:
             df[sensor] = [100, 200, 300, 400, 500]
         
         is_valid, issues, _ = check_timestamps(df)

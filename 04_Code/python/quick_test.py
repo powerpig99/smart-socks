@@ -167,10 +167,10 @@ def test_data_quality(port, baudrate=115200, duration=10):
                 line = ser.readline().decode('utf-8').strip()
                 if line and not line.startswith('#') and ',' in line:
                     parts = line.split(',')
-                    if len(parts) >= 11:
+                    if len(parts) >= SENSORS['total_count'] + 1:
                         try:
                             timestamp = int(parts[0])
-                            values = [int(p) for p in parts[1:11]]
+                            values = [int(p) for p in parts[1:SENSORS['total_count'] + 1]]
                             timestamps.append(timestamp)
                             readings.append(values)
                         except ValueError:
@@ -232,7 +232,7 @@ def test_pressure_response(port, baudrate=115200):
                 line = ser.readline().decode('utf-8').strip()
                 if line and ',' in line and not line.startswith('#'):
                     parts = line.split(',')
-                    if len(parts) >= 11:
+                    if len(parts) >= SENSORS['total_count'] + 1:
                         try:
                             values = [int(p) for p in parts[1:11]]
                             baseline_readings.append(values)
@@ -248,7 +248,7 @@ def test_pressure_response(port, baudrate=115200):
                 line = ser.readline().decode('utf-8').strip()
                 if line and ',' in line and not line.startswith('#'):
                     parts = line.split(',')
-                    if len(parts) >= 11:
+                    if len(parts) >= SENSORS['total_count'] + 1:
                         try:
                             values = [int(p) for p in parts[1:11]]
                             pressure_readings.append(values)

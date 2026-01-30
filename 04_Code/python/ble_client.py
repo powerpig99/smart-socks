@@ -409,8 +409,8 @@ class BLEClassifier(BLESmartSocksClient):
             sensor_data: Dictionary of sensor values
         """
         # Simple threshold-based step detection
-        left_heel = sensor_data.get('L_Heel', 0)
-        right_heel = sensor_data.get('R_Heel', 0)
+        left_heel = sensor_data.get('L_P_Heel', 0)
+        right_heel = sensor_data.get('R_P_Heel', 0)
         total_pressure = left_heel + right_heel
         
         threshold = REALTIME['step_counting']['threshold']

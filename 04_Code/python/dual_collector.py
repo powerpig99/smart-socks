@@ -55,7 +55,7 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
     print("Warning: matplotlib not installed. Visualization unavailable.")
 
-from config import CONFIG, SENSORS, ACTIVITIES
+from config import SENSORS, ACTIVITIES, HARDWARE, PATHS
 
 
 class LegDataCollector:
@@ -307,7 +307,7 @@ class DualDataCollector:
         """Save merged data to CSV file."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{activity}_{subject}_{timestamp}_dual.csv"
-        output_path = Path(CONFIG['paths']['data_collection']) / filename
+        output_path = Path(PATHS['data_raw']) / filename
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
         if not data:
@@ -467,7 +467,7 @@ def merge_csv_files(left_path: str, right_path: str, output_path: str):
     
     # Save merged data
     with open(output_path, 'w', newline='') as f:
-        fieldnames = ['time_ms', 'L_P_Heel', 'L_P_Ball', 'L_S_Knee', 'R_P_Heel', 'R_P_Ball', 'R_S_Knee']
+        fieldnames = ['time_ms'] + SENSORS['names']
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(merged)

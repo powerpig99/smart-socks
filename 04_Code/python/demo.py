@@ -241,7 +241,7 @@ class SmartSocksDemo:
     
     def _count_steps(self, sensor_values):
         """Simple step counting."""
-        heel_pressure = sensor_values.get('L_Heel', 0) + sensor_values.get('R_Heel', 0)
+        heel_pressure = sensor_values.get('L_P_Heel', 0) + sensor_values.get('R_P_Heel', 0)
         
         if heel_pressure > 2000:
             current_time = time.time()
@@ -303,7 +303,7 @@ class SmartSocksDemo:
                                 if len(parts) >= SENSORS['total_count'] + 1:
                                     timestamp = int(parts[0])
                                     values = {SENSORS['names'][i]: int(parts[i+1]) 
-                                             for i in range(10)}
+                                             for i in range(SENSORS['total_count'])}
                                     self._process_sample(timestamp, values)
                         except (UnicodeDecodeError, ValueError):
                             pass
@@ -322,7 +322,7 @@ class SmartSocksDemo:
                             if len(parts) >= SENSORS['total_count'] + 1:
                                 timestamp = int(parts[0])
                                 values = {SENSORS['names'][i]: int(parts[i+1]) 
-                                         for i in range(10)}
+                                         for i in range(SENSORS['total_count'])}
                                 self._process_sample(timestamp, values)
                 except KeyboardInterrupt:
                     pass
