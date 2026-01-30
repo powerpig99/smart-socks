@@ -28,20 +28,9 @@
 // WiFi Configuration
 // Choose ONE mode by uncommenting the appropriate section:
 
-// MODE 1: AP Mode (default) - ESP32 creates its own network
-// Best for: Quick testing, no existing WiFi available
-// #define USE_AP_MODE
-
-// MODE 2: Station Mode - Connect to existing WiFi/lab network
-// Best for: Lab use with known network
-// #define USE_EXISTING_WIFI
-// MODE 3: Phone Hotspot (RECOMMENDED for demos)
-// Best for: Mobile demos, full control over network
-#define USE_PHONE_HOTSPOT
-// Credentials are in credentials.h (not committed to git)
-
-// Include WiFi credentials from separate file (not committed to git)
-// See credentials.h.template for setup instructions
+// WiFi: Auto-connect to saved networks, fallback to AP mode
+// Edit credentials.h to add/remove networks (file is gitignored)
+// On boot: scan → match saved networks → connect to strongest → fallback to AP
 #include "credentials.h"
 
 // Device identification (works in all modes)
@@ -165,20 +154,13 @@ String getDeviceInfoJSON() {
   doc["mac"] = deviceMAC;
   doc["hostname"] = deviceHostname;
 
-#if defined(USE_PHONE_HOTSPOT)
-  doc["mode"] = "hotspot";
-  doc["ssid"] = HOTSPOT_SSID;
-#elif defined(USE_EXISTING_WIFI)
-  doc["mode"] = "station";
-  doc["ssid"] = EXISTING_WIFI_SSID;
-#else
-  doc["mode"] = "ap";
-  doc["ssid"] = AP_SSID;
-#endif
-
   if (WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP_STA) {
+    doc["mode"] = "station";
+    doc["ssid"] = WiFi.SSID();
     doc["ip"] = WiFi.localIP().toString();
   } else {
+    doc["mode"] = "ap";
+    doc["ssid"] = AP_SSID;
     doc["ip"] = WiFi.softAPIP().toString();
   }
 
@@ -596,99 +578,108 @@ void setup() {
   Serial.print("BLE Device Name: ");
   Serial.println(BLE_DEVICE_NAME);
 
-  // Setup WiFi based on selected mode
-#if defined(USE_PHONE_HOTSPOT)
-  // Mode 3: Phone Hotspot (RECOMMENDED for demos)
+  // Auto-connect WiFi: scan → match saved networks → connect strongest → fallback AP
   WiFi.mode(WIFI_STA);
   WiFi.setHostname(deviceHostname.c_str());
-  WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASSWORD);
 
-  Serial.print("Connecting to phone hotspot: ");
-  Serial.println(HOTSPOT_SSID);
+  Serial.println("Scanning for WiFi networks...");
+  int numNetworks = WiFi.scanNetworks();
+  Serial.print("  Found ");
+  Serial.print(numNetworks);
+  Serial.println(" networks");
 
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 30) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
+  // Find best matching saved network (strongest RSSI)
+  int bestIndex = -1;
+  int bestRSSI = -999;
+  String bestSSID = "";
+  const char* bestPassword = NULL;
+  bool bestIsOpen = false;
+
+  for (int i = 0; i < numNetworks; i++) {
+    String scannedSSID = WiFi.SSID(i);
+    int rssi = WiFi.RSSI(i);
+    bool isOpen = (WiFi.encryptionType(i) == WIFI_AUTH_OPEN);
+
+    // Check against saved networks
+    for (int j = 0; j < NUM_SAVED_NETWORKS; j++) {
+      if (scannedSSID == SAVED_NETWORKS[j].ssid && rssi > bestRSSI) {
+        bestIndex = i;
+        bestRSSI = rssi;
+        bestSSID = scannedSSID;
+        bestPassword = SAVED_NETWORKS[j].password;
+        bestIsOpen = false;
+        break;
+      }
+    }
+
+    // Track strongest open network as fallback
+    if (ALLOW_OPEN_NETWORKS && isOpen && bestIndex == -1 && rssi > bestRSSI) {
+      bestIndex = i;
+      bestRSSI = rssi;
+      bestSSID = scannedSSID;
+      bestPassword = NULL;
+      bestIsOpen = true;
+    }
   }
 
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\n✓ Hotspot Connected!");
-    Serial.print("  IP Address: ");
-    Serial.println(WiFi.localIP());
+  WiFi.scanDelete();  // Free scan memory
 
-    // Start mDNS responder
-    if (MDNS.begin(deviceHostname.c_str())) {
-      Serial.print("  mDNS: http://");
-      Serial.print(deviceHostname);
-      Serial.println(".local");
-      MDNS.addService("http", "tcp", 80);
+  bool wifiConnected = false;
+
+  if (bestIndex >= 0) {
+    Serial.print("Connecting to: ");
+    Serial.print(bestSSID);
+    Serial.print(" (RSSI: ");
+    Serial.print(bestRSSI);
+    Serial.print(")");
+    if (bestIsOpen) Serial.print(" [open]");
+    Serial.println();
+
+    if (bestPassword && strlen(bestPassword) > 0) {
+      WiFi.begin(bestSSID.c_str(), bestPassword);
+    } else {
+      WiFi.begin(bestSSID.c_str());
+    }
+
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+      delay(500);
+      Serial.print(".");
+      attempts++;
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      wifiConnected = true;
+      Serial.println();
+      Serial.print("  WiFi Connected! IP: ");
+      Serial.println(WiFi.localIP());
+
+      if (MDNS.begin(deviceHostname.c_str())) {
+        Serial.print("  mDNS: http://");
+        Serial.print(deviceHostname);
+        Serial.println(".local");
+        MDNS.addService("http", "tcp", 80);
+      }
+    } else {
+      Serial.println("\n  Connection failed");
     }
   } else {
-    Serial.println("\n✗ Hotspot connection failed!");
-    Serial.println("  Check SSID/password and restart");
+    Serial.println("  No saved networks found");
   }
 
-#elif defined(USE_EXISTING_WIFI)
-  // Mode 2: Connect to existing WiFi (lab network)
-  WiFi.mode(WIFI_STA);
-  WiFi.setHostname(deviceHostname.c_str());
-  WiFi.begin(EXISTING_WIFI_SSID, EXISTING_WIFI_PASSWORD);
-
-  Serial.print("Connecting to WiFi: ");
-  Serial.println(EXISTING_WIFI_SSID);
-
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\n✓ WiFi Connected!");
-    Serial.print("  IP Address: ");
-    Serial.println(WiFi.localIP());
-
-    // Start mDNS responder
-    if (MDNS.begin(deviceHostname.c_str())) {
-      Serial.print("  mDNS: http://");
-      Serial.print(deviceHostname);
-      Serial.println(".local");
-      MDNS.addService("http", "tcp", 80);
-    }
-  } else {
-    Serial.println("\n✗ WiFi connection failed, falling back to AP mode");
+  // Fallback to AP mode
+  if (!wifiConnected) {
     WiFi.mode(WIFI_AP);
     WiFi.softAP(AP_SSID, AP_PASSWORD, AP_CHANNEL);
     IPAddress localIP(192, 168, 4, 1);
     IPAddress gateway(192, 168, 4, 1);
     IPAddress subnet(255, 255, 255, 0);
     WiFi.softAPConfig(localIP, gateway, subnet);
-    Serial.println("✓ AP Mode Started");
-    Serial.print("  SSID: ");
-    Serial.println(AP_SSID);
-    Serial.print("  IP Address: ");
+    Serial.print("  AP Mode: ");
+    Serial.print(AP_SSID);
+    Serial.print(" @ ");
     Serial.println(WiFi.softAPIP());
   }
-
-#else
-  // Mode 1: AP Mode (default)
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(AP_SSID, AP_PASSWORD, AP_CHANNEL);
-
-  IPAddress localIP(192, 168, 4, 1);
-  IPAddress gateway(192, 168, 4, 1);
-  IPAddress subnet(255, 255, 255, 0);
-  WiFi.softAPConfig(localIP, gateway, subnet);
-
-  Serial.println("✓ AP Mode Started");
-  Serial.print("  SSID: ");
-  Serial.println(AP_SSID);
-  Serial.print("  IP Address: ");
-  Serial.println(WiFi.softAPIP());
-#endif
 
   // Setup HTTP server
   server.on("/", HTTP_GET, handleRoot);

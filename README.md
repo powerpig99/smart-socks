@@ -64,7 +64,7 @@ ESP32S3 XIAO (all 6 sensors):
 - **Per leg:** 2 piezoresistive pressure sensors (sock) + 1 stretch sensor (knee pad)
 - **Circuit:** Voltage dividers with 10k resistors, 12-bit ADC (0-4095)
 - **Sampling:** 50 Hz
-- **Communication:** Serial/USB, WiFi (AP/Station/Hotspot), BLE
+- **Communication:** Serial/USB, WiFi (auto-connect saved networks, AP fallback), BLE
 
 ---
 
@@ -121,6 +121,8 @@ pio device monitor
 ```
 
 Source lives in `src/main.ino`. To use calibration firmware instead, copy `04_Code/arduino/calibration_all_sensors/calibration_all_sensors.ino` to `src/main.ino`.
+
+**WiFi auto-connect:** On boot, the firmware scans for available networks and connects to the strongest saved one. If none found, falls back to AP mode (SSID: SmartSocks). Edit `src/credentials.h` to add/remove networks. Set `ALLOW_OPEN_NETWORKS = true` to also connect to open networks.
 
 Serial port on macOS: `/dev/cu.usbmodem2101` (find yours with `pio device list`).
 
@@ -201,6 +203,12 @@ HELP / ?       # Show commands
 ---
 
 ## Change Log
+
+### Jan 30, 2026: WiFi Auto-Connect
+
+- **Auto-connect WiFi:** Firmware scans on boot, connects to strongest saved network, falls back to AP
+- No more `#define` switching — just edit `credentials.h` to add networks
+- Optional open network support (`ALLOW_OPEN_NETWORKS = true`)
 
 ### Jan 30, 2026: WiFi + BLE Verified, Calibration Visualizer Enhanced
 
