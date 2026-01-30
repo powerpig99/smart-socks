@@ -6,6 +6,24 @@ This guide covers PlatformIO setup for building and uploading firmware to the ES
 
 ---
 
+## Quick Command Reference
+
+```bash
+# Build
+pio run -e xiao_esp32s3
+
+# Build + Upload
+pio run -e xiao_esp32s3 -t upload
+
+# Serial monitor
+pio device monitor -e xiao_esp32s3
+
+# Build + Upload + Monitor
+pio run -e xiao_esp32s3 -t upload && pio device monitor -e xiao_esp32s3
+```
+
+---
+
 ## Quick Start
 
 ### 1. Add PlatformIO to PATH
@@ -47,35 +65,53 @@ pio --version
 
 ### Using Command Line
 
+All these commands are tested and working:
+
 **Build firmware:**
 ```bash
-cd ~/Projects/Smart-Socks
+# Long form
 platformio run --environment xiao_esp32s3
 
-# Or using short alias:
+# Medium form
+pio run --environment xiao_esp32s3
+
+# Short form (recommended)
 pio run -e xiao_esp32s3
 ```
 
 **Upload to ESP32:**
 ```bash
-# Auto-detects port
-platformio run --environment xiao_esp32s3 --target upload
+# Long form
+platformio run --target upload --environment xiao_esp32s3
+
+# Medium form
+pio run --target upload --environment xiao_esp32s3
+
+# Short form (recommended)
+pio run -e xiao_esp32s3 -t upload
 
 # Specify port explicitly:
-platformio run --environment xiao_esp32s3 --target upload --upload-port /dev/cu.usbmodem2101
+pio run -e xiao_esp32s3 -t upload --upload-port /dev/cu.usbmodem2101
 ```
 
 **Open serial monitor:**
 ```bash
+# Long form
 platformio device monitor --environment xiao_esp32s3
 
-# Or:
+# Short form (recommended)
 pio device monitor -e xiao_esp32s3
 ```
 
 **Build + Upload + Monitor (one command):**
 ```bash
-platformio run -e xiao_esp32s3 -t upload && platformio device monitor -e xiao_esp32s3
+pio run -e xiao_esp32s3 -t upload && pio device monitor -e xiao_esp32s3
+```
+
+**Full clean + rebuild:**
+```bash
+pio run -e xiao_esp32s3 -t clean
+pio run -e xiao_esp32s3
 ```
 
 ---
