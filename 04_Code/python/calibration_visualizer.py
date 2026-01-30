@@ -310,19 +310,18 @@ class CalibrationVisualizer:
             return
             
         try:
-            # Capture frame from figure
-            import io
-            buf = io.BytesIO()
-            self.fig.savefig(buf, format='rgba', dpi=100, facecolor=self.fig.get_facecolor())
-            buf.seek(0)
+            # Capture frame from figure using canvas buffer
+            import numpy as np
+            self.fig.canvas.draw()
+            
+            # Get the buffer from the figure canvas
+            buf = self.fig.canvas.buffer_rgba()
+            ncols, nrows = self.fig.canvas.get_width_height()
             
             # Convert to numpy array
-            import numpy as np
-            from PIL import Image
-            img = Image.open(buf)
-            frame = np.array(img)
+            frame = np.frombuffer(buf, dtype=np.uint8).reshape(nrows, ncols, 4)
             
-            # Write to video (RGB only, no alpha)
+            # Write to video (RGB only, flip vertically for correct orientation)
             self.video_writer.append_data(frame[:, :, :3])
             self.frame_count += 1
         except Exception as e:
@@ -534,7 +533,7 @@ class CalibrationVisualizer:
         if NORDIC_STYLE:
             self.status_ax.clear()
             state = 'PAUSED' if self.paused else 'RUNNING'
-            rec_indicator = "🔴 REC | " if self.recording else ""
+            rec_indicator = "[REC] " if self.recording else ""
             controls = "|  Q=Quit R=Reset S=Save P=Pause C=Record"
             status = f"{rec_indicator}PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
             create_status_bar(self.status_ax, status, is_recording=not self.paused)
