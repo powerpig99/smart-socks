@@ -50,7 +50,7 @@
 ### Milestone 2: Working Prototype (Week 5)
 **Criteria:**
 - [ ] All sensors integrated into socks
-- [ ] ESP32S3 successfully reads all 10 channels
+- [ ] ESP32S3 successfully reads all 6 channels
 - [ ] Data transmits reliably via serial
 - [ ] Prototype is wearable and comfortable
 

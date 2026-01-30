@@ -191,28 +191,41 @@
 
 ## How to Access Full Papers
 
-### Downloaded Papers (see `papers/` folder)
+### Downloaded Papers (in `papers/` folder)
+
 | # | Paper | Filename | Status |
 |---|-------|----------|--------|
-| 7 | Resistive Sensors with Smart Textiles | `07_Resistive_Sensors_Smart_Textiles.pdf` | ✅ Downloaded |
-| 8 | Fabrication of Wearable Sensors (Aalto) | `08_Wearable_Sensors_Aalto.pdf` | ✅ Downloaded |
-| 10 | HAR using ML Techniques | `10_HAR_ML_Techniques.pdf` | ✅ Downloaded |
+| 7 | Resistive Sensors with Smart Textiles | `07_Resistive_Sensors_Smart_Textiles.pdf` | Downloaded |
+| 8 | Fabrication of Wearable Sensors (Aalto) | `08_Wearable_Sensors_Aalto.pdf` | Downloaded |
+| 10 | HAR using ML Techniques | `10_HAR_ML_Techniques.pdf` | Downloaded |
 
-**For remaining papers:** See `papers/README.md` for download instructions.
+### Papers Requiring Manual Download
 
-### Open Access (Free)
-- MDPI journals (Sensors, Applied Sciences, Polymers)
-- ResearchGate (author-uploaded versions)
-- arXiv (preprints)
+**Open Access (free, no account needed):**
+- Paper 3 (MDPI - SWEET Sock): https://www.mdpi.com/1424-8220/20/22/6691
+- Paper 6 (MDPI - Large-Area Sensors): https://www.mdpi.com/2073-4360/15/1/78
+- Paper 9 (MDPI - Efficient HAR): https://www.mdpi.com/2076-3417/15/8/4075
 
-### Through Aalto University
-- Use Aalto library proxy: https://www.aalto.fi/en/library
-- Search in Aalto-Primo: https://aalto-primo.hosted.exlibrisgroup.com/
-- IEEE Xplore access through university network
+**Requires Aalto University access:**
+- Paper 2 (ScienceDirect - E-Textile Validation): https://www.sciencedirect.com/science/article/abs/pii/S0966636222005471
+- Paper 4 (IEEE - Stitch Sensors): https://ieeexplore.ieee.org/document/9091804/
+- Paper 5 (Wiley - Single-Layer Sensors): https://onlinelibrary.wiley.com/doi/10.1002/adem.202201736
 
-### Through MyCourses
-- Check course "Recommended Reading" section
-- Some papers may be pre-uploaded by instructors
+**Requires free ResearchGate account:**
+- Paper 1 (Gait Analysis Smart Socks): https://www.researchgate.net/publication/329486130
+
+### Aalto Library Access
+
+- **VPN:** Connect to `vpn.aalto.fi` with Cisco AnyConnect, then access publisher sites directly
+- **Aalto-Primo:** https://aalto-primo.hosted.exlibrisgroup.com/ — search by title
+- **Proxy:** Replace publisher URL domain with `.ezproxy.aalto.fi` suffix
+
+### Naming Convention for Downloads
+
+```
+##_Short_Description.pdf
+```
+Examples: `01_Gait_Analysis_Smart_Socks.pdf`, `03_SWEET_Sock_E-Textile_System.pdf`
 
 ---
 

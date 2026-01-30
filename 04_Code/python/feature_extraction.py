@@ -173,7 +173,7 @@ def extract_cross_sensor_features(data):
     return features
 
 
-def extract_frequency_features(data):
+def extract_frequency_features(data, sample_rate=None):
     """
     Extract frequency domain features using FFT.
     

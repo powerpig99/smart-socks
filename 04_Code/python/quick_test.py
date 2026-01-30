@@ -234,7 +234,7 @@ def test_pressure_response(port, baudrate=115200):
                     parts = line.split(',')
                     if len(parts) >= SENSORS['total_count'] + 1:
                         try:
-                            values = [int(p) for p in parts[1:11]]
+                            values = [int(p) for p in parts[1:NUM_SENSORS+1]]
                             baseline_readings.append(values)
                         except ValueError:
                             pass
@@ -250,7 +250,7 @@ def test_pressure_response(port, baudrate=115200):
                     parts = line.split(',')
                     if len(parts) >= SENSORS['total_count'] + 1:
                         try:
-                            values = [int(p) for p in parts[1:11]]
+                            values = [int(p) for p in parts[1:NUM_SENSORS+1]]
                             pressure_readings.append(values)
                         except ValueError:
                             pass

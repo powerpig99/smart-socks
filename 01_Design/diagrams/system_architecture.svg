@@ -1,91 +1,124 @@
-<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
       .bg { fill: #2E3440; }
       .box { fill: #3B4252; stroke: #4C566A; stroke-width: 2; }
-      .text { fill: #D8DEE9; font-family: -apple-system, sans-serif; font-size: 12px; }
-      .title { fill: #ECEFF4; font-size: 14px; font-weight: bold; }
+      .esp32 { fill: #434C5E; stroke: #88C0D0; stroke-width: 3; }
+      .text { fill: #D8DEE9; font-family: -apple-system, sans-serif; font-size: 11px; }
+      .title { fill: #ECEFF4; font-size: 13px; font-weight: bold; }
       .accent { fill: #88C0D0; }
       .line { stroke: #88C0D0; stroke-width: 2; fill: none; }
-      .sensor { fill: #81A1C1; }
+      .sensor-p { fill: #81A1C1; }
+      .sensor-s { fill: #A3BE8C; }
+      .wireless { fill: #5E81AC; }
     </style>
   </defs>
-  
-  <rect class="bg" width="800" height="400"/>
-  
-  <text x="400" y="30" text-anchor="middle" class="title" font-size="18" fill="#ECEFF4">SMART SOCKS SYSTEM ARCHITECTURE</text>
-  
-  <g transform="translate(80, 80)">
-    <rect class="box" x="0" y="0" width="140" height="200" rx="8"/>
-    <text x="70" y="25" text-anchor="middle" class="title">LEFT SOCK</text>
-    <circle class="sensor" cx="70" cy="55" r="8"/>
-    <text x="70" y="60" text-anchor="middle" class="text" fill="#2E3440" font-size="10">H</text>
-    <text x="90" y="60" class="text">L_Heel</text>
-    <circle class="sensor" cx="70" cy="90" r="8"/>
-    <text x="70" y="95" text-anchor="middle" class="text" fill="#2E3440" font-size="10">A</text>
-    <text x="90" y="95" class="text">L_Arch</text>
-    <circle class="sensor" cx="70" cy="125" r="8"/>
-    <text x="70" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">M</text>
-    <text x="90" y="130" class="text">L_MetaM</text>
-    <circle class="sensor" cx="40" cy="125" r="8"/>
-    <text x="40" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">L</text>
-    <text x="20" y="130" class="text" text-anchor="end">L_MetaL</text>
-    <circle class="sensor" cx="70" cy="165" r="8"/>
-    <text x="70" y="170" text-anchor="middle" class="text" fill="#2E3440" font-size="10">T</text>
-    <text x="90" y="170" class="text">L_Toe</text>
+
+  <rect class="bg" width="900" height="500"/>
+
+  <text x="450" y="30" text-anchor="middle" class="title" font-size="18" fill="#ECEFF4">SMART SOCKS SYSTEM ARCHITECTURE</text>
+
+  <!-- Left Leg System -->
+  <g transform="translate(50, 70)">
+    <rect class="box" x="0" y="0" width="350" height="380" rx="8"/>
+    <text x="175" y="25" text-anchor="middle" class="title" font-size="15">LEFT LEG</text>
+
+    <!-- Left Sock -->
+    <g transform="translate(20, 50)">
+      <rect class="box" x="0" y="0" width="140" height="140" rx="6"/>
+      <text x="70" y="20" text-anchor="middle" class="title">LEFT SOCK</text>
+      <circle class="sensor-p" cx="70" cy="55" r="12"/>
+      <text x="70" y="60" text-anchor="middle" class="text" fill="#2E3440" font-size="9">P</text>
+      <text x="90" y="58" class="text">L_P_Heel</text>
+      <circle class="sensor-p" cx="70" cy="95" r="12"/>
+      <text x="70" y="100" text-anchor="middle" class="text" fill="#2E3440" font-size="9">P</text>
+      <text x="90" y="98" class="text">L_P_Ball</text>
+    </g>
+
+    <!-- Left Knee -->
+    <g transform="translate(190, 50)">
+      <rect class="box" x="0" y="0" width="140" height="140" rx="6"/>
+      <text x="70" y="20" text-anchor="middle" class="title">LEFT KNEE</text>
+      <circle class="sensor-s" cx="70" cy="75" r="12"/>
+      <text x="70" y="80" text-anchor="middle" class="text" fill="#2E3440" font-size="9">S</text>
+      <text x="90" y="78" class="text">L_S_Knee</text>
+    </g>
+
+    <!-- Left ESP32 -->
+    <g transform="translate(75, 210)">
+      <rect class="esp32" x="0" y="0" width="200" height="100" rx="6"/>
+      <text x="100" y="25" text-anchor="middle" class="title">ESP32S3-XIAO</text>
+      <text x="100" y="45" text-anchor="middle" class="text">Left Leg Controller</text>
+      <text x="100" y="65" text-anchor="middle" class="accent">A0:Heel  A1:Ball  A2:Knee</text>
+      <text x="100" y="85" text-anchor="middle" class="text">Port: /dev/cu.usbmodem2101</text>
+    </g>
+
+    <!-- Output -->
+    <g transform="translate(100, 330)">
+      <rect class="wireless" x="0" y="0" width="150" height="35" rx="6" opacity="0.3"/>
+      <text x="75" y="22" text-anchor="middle" class="text">WiFi / BLE / USB</text>
+    </g>
   </g>
-  
-  <g transform="translate(580, 80)">
-    <rect class="box" x="0" y="0" width="140" height="200" rx="8"/>
-    <text x="70" y="25" text-anchor="middle" class="title">RIGHT SOCK</text>
-    <circle class="sensor" cx="70" cy="55" r="8"/>
-    <text x="70" y="60" text-anchor="middle" class="text" fill="#2E3440" font-size="10">H</text>
-    <text x="50" y="60" class="text" text-anchor="end">R_Heel</text>
-    <circle class="sensor" cx="70" cy="90" r="8"/>
-    <text x="70" y="95" text-anchor="middle" class="text" fill="#2E3440" font-size="10">A</text>
-    <text x="50" y="95" class="text" text-anchor="end">R_Arch</text>
-    <circle class="sensor" cx="70" cy="125" r="8"/>
-    <text x="70" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">M</text>
-    <text x="50" y="130" class="text" text-anchor="end">R_MetaM</text>
-    <circle class="sensor" cx="100" cy="125" r="8"/>
-    <text x="100" y="130" text-anchor="middle" class="text" fill="#2E3440" font-size="10">L</text>
-    <text x="120" y="130" class="text">R_MetaL</text>
-    <circle class="sensor" cx="70" cy="165" r="8"/>
-    <text x="70" y="170" text-anchor="middle" class="text" fill="#2E3440" font-size="10">T</text>
-    <text x="50" y="170" class="text" text-anchor="end">R_Toe</text>
+
+  <!-- Right Leg System -->
+  <g transform="translate(500, 70)">
+    <rect class="box" x="0" y="0" width="350" height="380" rx="8"/>
+    <text x="175" y="25" text-anchor="middle" class="title" font-size="15">RIGHT LEG</text>
+
+    <!-- Right Sock -->
+    <g transform="translate(20, 50)">
+      <rect class="box" x="0" y="0" width="140" height="140" rx="6"/>
+      <text x="70" y="20" text-anchor="middle" class="title">RIGHT SOCK</text>
+      <circle class="sensor-p" cx="70" cy="55" r="12"/>
+      <text x="70" y="60" text-anchor="middle" class="text" fill="#2E3440" font-size="9">P</text>
+      <text x="50" y="58" class="text" text-anchor="end">R_P_Heel</text>
+      <circle class="sensor-p" cx="70" cy="95" r="12"/>
+      <text x="70" y="100" text-anchor="middle" class="text" fill="#2E3440" font-size="9">P</text>
+      <text x="50" y="98" class="text" text-anchor="end">R_P_Ball</text>
+    </g>
+
+    <!-- Right Knee -->
+    <g transform="translate(190, 50)">
+      <rect class="box" x="0" y="0" width="140" height="140" rx="6"/>
+      <text x="70" y="20" text-anchor="middle" class="title">RIGHT KNEE</text>
+      <circle class="sensor-s" cx="70" cy="75" r="12"/>
+      <text x="70" y="80" text-anchor="middle" class="text" fill="#2E3440" font-size="9">S</text>
+      <text x="50" y="78" class="text" text-anchor="end">R_S_Knee</text>
+    </g>
+
+    <!-- Right ESP32 -->
+    <g transform="translate(75, 210)">
+      <rect class="esp32" x="0" y="0" width="200" height="100" rx="6"/>
+      <text x="100" y="25" text-anchor="middle" class="title">ESP32S3-XIAO</text>
+      <text x="100" y="45" text-anchor="middle" class="text">Right Leg Controller</text>
+      <text x="100" y="65" text-anchor="middle" class="accent">A0:Heel  A1:Ball  A2:Knee</text>
+      <text x="100" y="85" text-anchor="middle" class="text">Port: /dev/cu.usbmodem2102</text>
+    </g>
+
+    <!-- Output -->
+    <g transform="translate(100, 330)">
+      <rect class="wireless" x="0" y="0" width="150" height="35" rx="6" opacity="0.3"/>
+      <text x="75" y="22" text-anchor="middle" class="text">WiFi / BLE / USB</text>
+    </g>
   </g>
-  
-  <g transform="translate(300, 120)">
-    <rect class="box" x="0" y="0" width="200" height="160" rx="8"/>
-    <text x="100" y="25" text-anchor="middle" class="title">ESP32S3 XIAO</text>
-    <rect x="40" y="45" width="120" height="80" rx="4" fill="#434C5E" stroke="#4C566A"/>
-    <text x="100" y="70" text-anchor="middle" class="text">12-bit ADC</text>
-    <text x="100" y="90" text-anchor="middle" class="text">240 MHz</text>
-    <text x="100" y="110" text-anchor="middle" class="accent">50 Hz Sampling</text>
+
+  <!-- Central Hub -->
+  <g transform="translate(375, 200)">
+    <circle class="box" cx="75" cy="75" r="60"/>
+    <text x="75" y="70" text-anchor="middle" class="title">LAPTOP</text>
+    <text x="75" y="90" text-anchor="middle" class="text">dual_collector.py</text>
   </g>
-  
-  <path class="line" d="M220 150 L300 180" stroke-dasharray="5,5"/>
-  <path class="line" d="M580 150 L500 180" stroke-dasharray="5,5"/>
-  
-  <g transform="translate(150, 320)">
-    <rect class="box" x="0" y="0" width="140" height="60" rx="8"/>
-    <text x="70" y="25" text-anchor="middle" class="title">USB SERIAL</text>
-    <text x="70" y="45" text-anchor="middle" class="text">Data Logging</text>
+
+  <!-- Connection Lines -->
+  <line class="line" x1="300" y1="350" x2="400" y2="275"/>
+  <line class="line" x1="600" y1="350" x2="500" y2="275"/>
+
+  <!-- Legend -->
+  <g transform="translate(50, 470)">
+    <circle class="sensor-p" cx="15" cy="8" r="8"/>
+    <text x="30" y="12" class="text">Pressure Sensor (2 per foot)</text>
+    <circle class="sensor-s" cx="250" cy="8" r="8"/>
+    <text x="265" y="12" class="text">Stretch Sensor (1 per knee)</text>
+    <text x="500" y="12" class="text">6 sensors total (3 per leg)</text>
   </g>
-  
-  <g transform="translate(330, 320)">
-    <rect class="box" x="0" y="0" width="140" height="60" rx="8"/>
-    <text x="70" y="25" text-anchor="middle" class="title">WIFI AP</text>
-    <text x="70" y="45" text-anchor="middle" class="text">192.168.4.1</text>
-  </g>
-  
-  <g transform="translate(510, 320)">
-    <rect class="box" x="0" y="0" width="140" height="60" rx="8"/>
-    <text x="70" y="25" text-anchor="middle" class="title">BLUETOOTH</text>
-    <text x="70" y="45" text-anchor="middle" class="text">BLE Streaming</text>
-  </g>
-  
-  <line class="line" x1="400" y1="280" x2="220" y2="320"/>
-  <line class="line" x1="400" y1="280" x2="400" y2="320"/>
-  <line class="line" x1="400" y1="280" x2="580" y2="320"/>
 </svg>

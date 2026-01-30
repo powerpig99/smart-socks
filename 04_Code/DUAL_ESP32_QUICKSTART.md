@@ -187,7 +187,7 @@ python test_wifi_connection.py --ip 192.168.4.1
 
 ## WiFi Configuration
 
-Choose your WiFi mode (see [[WIFI_CONFIGURATION]] and [[PHONE_HOTSPOT_GUIDE]] for details):
+Choose your WiFi mode (see [[WIFI_CONFIGURATION]] for details):
 
 ### Mode A: Phone Hotspot (Recommended for Demos) ⭐
 Edit `data_collection_leg.ino`:
@@ -218,7 +218,7 @@ No changes needed. Connect laptop to:
 
 ## WiFi & Bluetooth Testing
 
-See [[WIFI_BLE_TESTING]] for detailed testing procedures.
+See [[WIFI_CONFIGURATION]] for detailed testing procedures.
 
 Quick test:
 1. Power on both ESP32s

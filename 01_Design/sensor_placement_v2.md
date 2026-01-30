@@ -253,7 +253,7 @@ def calibrate(value, min_val, max_val):
 
 | ← Previous | ↑ Up | Next → |
 |------------|------|--------|
-| [[circuit_diagram_v2]] | [[INDEX]] | [[calibration_guide]] |
+| [[circuit_diagram_v2]] | [[README]] | [[calibration_guide]] |
 
 ---
 

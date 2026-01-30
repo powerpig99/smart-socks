@@ -83,7 +83,9 @@ def plot_time_series(df, title=None, save_path=None):
     """
     Plot sensor values over time.
     """
-    fig, axes = plt.subplots(5, 2, figsize=(14, 16))
+    ncols = 2
+    nrows = (len(SENSOR_NAMES) + ncols - 1) // ncols
+    fig, axes = plt.subplots(nrows, ncols, figsize=(14, nrows * 3.2))
     axes = axes.flatten()
     
     time_col = 'time_sec' if 'time_sec' in df.columns else 'time_ms'

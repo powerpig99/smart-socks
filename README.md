@@ -1,43 +1,70 @@
-# Smart Socks Project
+# Smart Socks for Physical Activity Recognition
 
-**ELEC-E7840 Smart Wearables — Topic 3**
+**ELEC-E7840 Smart Wearables** -- Aalto University
 
-Team: Saara, Alex, Jing
+**Team:** Saara (ML, sensors, docs), Alex (Prototyping, user testing, design), Jing (Circuit, ESP32, coordination)
 
----
-
-> **🎯 COURSE STRUCTURE: 3 Parts**
-> 
-> **ELEC-E7840 Smart Wearables** has 3 sequential parts:
-> 
-> | Part | Focus | Duration | Team |
-> |------|-------|----------|------|
-> | **Part 1** | Hardware & Sensor Characterization (**NO ML**) | Weeks 1-7 | Saara, Alex, Jing |
-> | **Part 2** | Machine Learning & Classification | Weeks 8-15 | Jing only |
-> | **Part 3** | Edge ML / TinyML Extension | Personal | Jing only |
-> 
-> **Current Focus:** Part 1 - Sensor fabrication, circuit design, calibration
-> 
-> See [[PROJECT_TIMELINE]] for week-by-week schedule.
-> 
-> ---
-> 
-> > **⚠️ WORKSHOP PREPARATION (Wed 04-02)**
-> > 
-> > **Bring to workshop:** USB-C cable, microcontrollers, breadboard, jumper wires, resistors, sensors
-> > 
-> > **Install before class:**
-> > - Python: https://realpython.com/installing-python/ | Video: https://www.youtube.com/watch?v=QhukcScB9W0
-> > - IDE: [[Visual Studio Code]] (recommended) or PyCharm
-> > - We'll learn WiFi data collection using Arduino IDE/VS Code + Python
-> > 
-> > See [[PLATFORMIO_SETUP]] for detailed IDE setup instructions.
+Recognizes 5 activity categories (walking, stair climbing, sitting, sit-to-stand, standing) using textile-based pressure and stretch sensors on socks and knee pads. No IMUs -- textile sensors only.
 
 ---
 
-> **Obsidian Links:** [[INDEX]] | [[CODE_REVIEW]] | [[PLATFORMIO_SETUP]] | [[Calibration Visualizer|calibration_visualizer]]
-> 
-> This project uses [[Obsidian]]-style wiki links for cross-referencing. Open in Obsidian for best experience. Start with [[INDEX]] for navigation.
+## Quick Start
+
+### Python Setup
+
+```bash
+cd ./04_Code/python
+uv sync                         # Creates .venv and installs all dependencies
+source .venv/bin/activate        # Activate environment
+# Or run scripts directly: uv run python script.py
+```
+
+See [[README_PYTHON_SETUP]] for UV installation and detailed instructions.
+
+### PlatformIO Setup
+
+```bash
+# Upload firmware to left leg ESP32
+pio run -e left_leg -t upload
+
+# Upload firmware to right leg ESP32
+pio run -e right_leg -t upload
+
+# Serial monitor
+pio device monitor -e left_leg
+```
+
+See [[PLATFORMIO_SETUP]] for VS Code integration and board setup.
+
+---
+
+## Architecture
+
+6-sensor configuration with dual ESP32S3 (one per leg):
+
+```
+Left Leg ESP32S3:                     Right Leg ESP32S3:
+  L_P_Heel (A0) - Heel pressure        R_P_Heel (A0) - Heel pressure
+  L_P_Ball (A1) - Ball pressure         R_P_Ball (A1) - Ball pressure
+  L_S_Knee (A2) - Knee stretch          R_S_Knee (A2) - Knee stretch
+
+              ↓ Serial / WiFi / BLE ↓
+
+         Python dual_collector.py (merges streams)
+                      ↓
+    CSV: time_ms,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee
+                      ↓
+    data_preprocessing.py → feature_extraction.py → train_model.py
+                      ↓
+              Random Forest (.joblib)
+                      ↓
+            real_time_classifier.py
+```
+
+- **Per leg:** 2 piezoresistive pressure sensors (sock) + 1 stretch sensor (knee pad)
+- **Circuit:** Voltage dividers with 10k resistors, 12-bit ADC (0-4095)
+- **Sampling:** 50 Hz
+- **Communication:** Serial/USB, WiFi (AP/Station/Hotspot), BLE
 
 ---
 
@@ -45,284 +72,146 @@ Team: Saara, Alex, Jing
 
 ```
 Smart Socks/
-├── 00_Planning/          ← Project plans, meeting notes, timeline
-├── 01_Design/            ← Sensor layouts, sock sketches, circuit diagrams
-├── 02_Fabrication/       ← Photos of prototypes, build documentation
-├── 03_Data/              ← Sensor characterization, collected activity data
-├── 04_Code/              ← Arduino sketches, Python scripts
-├── 05_Analysis/          ← ML results, plots, confusion matrices
-├── 06_Presentation/      ← Slides, final report, user testing materials
-├── 07_References/        ← Papers from reading list
-├── WORK_DIARY.md         ← Team meeting notes and progress
-├── PROJECT_STATUS.md     ← Current project status and recap
-└── INDEX.md              ← Documentation navigation hub
+├── 00_Planning/           Project plans, timeline, meeting notes
+├── 01_Design/             Sensor placement, circuit diagrams
+├── 02_Fabrication/        Prototype photos, build documentation
+├── 03_Data/               Raw and processed sensor data
+├── 04_Code/
+│   ├── arduino/
+│   │   ├── data_collection_leg/       Dual ESP32 firmware (recommended)
+│   │   ├── calibration_all_sensors/   All 6 sensors on one ESP32
+│   │   ├── ei_data_forwarder/         Edge Impulse data collection
+│   │   └── ei_led_feedback/           LED feedback demo
+│   ├── python/
+│   │   ├── config.py                  Centralized configuration
+│   │   ├── calibration_visualizer.py  Real-time sensor visualization
+│   │   ├── dual_collector.py          Dual ESP32 data collection
+│   │   ├── data_preprocessing.py      Data cleaning
+│   │   ├── feature_extraction.py      ML feature extraction
+│   │   ├── train_model.py             Random Forest training
+│   │   ├── real_time_classifier.py    Live activity classification
+│   │   ├── run_full_pipeline.py       End-to-end ML automation
+│   │   └── ...
+│   └── WIFI_CONFIGURATION.md         WiFi/BLE/Hotspot setup
+├── 05_Analysis/           ML results, confusion matrices
+├── 06_Presentation/       Poster, slides, user testing materials
+├── 07_References/         Papers, datasheets (see REFERENCES.md)
+├── PLATFORMIO_SETUP.md    PlatformIO + VS Code setup
+├── README_PYTHON_SETUP.md Python/UV environment setup
+├── TROUBLESHOOTING.md     Common issues and fixes
+├── PROJECT_STATUS.md      Current project status
+└── WORK_DIARY.md          Team meeting notes and progress
 ```
 
 ---
 
-## Quick Links
+## Development Commands
 
-| Resource | Location | Obsidian Link |
-|----------|----------|---------------|
-| **Project Status** | **PROJECT_STATUS.md** | [[PROJECT_STATUS]] |
-| **Work Diary** | **WORK_DIARY.md** | [[WORK_DIARY]] |
-| Course page | MyCourses | — |
-| Assignment PDF | 00_Planning/ | — |
-| Project Timeline | 00_Planning/PROJECT_TIMELINE.md | [[PROJECT_TIMELINE]] |
-| **PlatformIO Setup** | **04_Code/PLATFORMIO_SETUP.md** | [[PLATFORMIO_SETUP]] |
-| **Python Setup** | **README_PYTHON_SETUP.md** | [[README_PYTHON_SETUP]] |
-| Code Review Report | CODE_REVIEW.md | [[CODE_REVIEW]] |
-| BLE Arduino Code | 04_Code/arduino/data_collection_ble/ | — |
-| Calibration Visualizer | 04_Code/python/calibration_visualizer.py | [[calibration_visualizer]] |
-| **GIF Recording Fix** | **04_Code/python/GIF_RECORDING_FIX.md** | [[GIF_RECORDING_FIX]] |
-
----
-
-## Working with Claude
-
-Jing has a Claude session tracking this project. To get Claude's help:
-
-1. **Upload the relevant file(s)** to the chat
-2. **Give brief context** ("this is our latest sensor data" or "current circuit diagram")
-3. **Ask your question**
-
-Claude can help with: code, data analysis, document drafts, troubleshooting, ML pipeline.
-
-See [[PROJECT_STATUS]] for complete project recap and setup history.
-
----
-
-## Status
-
-| Phase | Status | Notes |
-|-------|--------|-------|
-| 1. Sensor characterization | ✅ Ready | PlatformIO + Calibration visualizer + Web dashboard |
-| 2. Prototype design | 🟡 In Progress | Sensor placement designed |
-| 3. Data collection | ✅ Ready | WiFi+BLE+Serial pipeline, calibration tools ready |
-| 4. ML & integration | ✅ Ready | Full pipeline, all code review issues fixed |
-| 5. Testing & final | ⚪ Not started | Materials prepared |
-
----
-
-## Technical Reference
-
-### Hardware Setup (Updated Jan 29, 2026)
-- **MCU:** ESP32S3 XIAO (Seeed Studio)
-- **Sensors per leg:**
-  - **Sock:** 2 piezoresistive pressure sensors (heel + ball of foot)
-  - **Knee pad:** 1 stretch sensor (front of knee)
-- **Total:** 6 sensors (4 pressure + 2 stretch)
-- **Circuit:** Voltage dividers with 10kΩ resistors
-- **Sampling:** 50 Hz, 12-bit ADC (0-4095)
-- **Port:** `/dev/cu.usbmodem2101` (default). Use `pio device list` to find yours
-
-### Development Environment
-
-**PlatformIO + VS Code** (Recommended)
-
-Full setup guide: [[PLATFORMIO_SETUP]] or [04_Code/PLATFORMIO_SETUP.md](04_Code/PLATFORMIO_SETUP.md)
-
-Quick commands in VS Code:
-| Action | Button | Shortcut |
-|--------|--------|----------|
-| Build | ✓ (checkmark) | PlatformIO: Build |
-| Upload | → (arrow) | PlatformIO: Upload |
-| Serial Monitor | 🖥️ (terminal) | PlatformIO: Serial Monitor |
-
-**Arduino CLI** (Alternative)
-```bash
-# Compile and upload sensor test
-arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
-arduino-cli upload -p /dev/cu.usbmodem2101 --fqbn esp32:esp32:XIAO_ESP32S3 04_Code/arduino/sensor_test/
-# Replace /dev/cu.usbmodem2101 with your port (find with: pio device list)
-```
-
-### Code Structure
-```
-04_Code/
-├── arduino/
-│   ├── data_collection_leg/         # 6-sensor dual ESP32 (recommended)
-│   ├── calibration_all_sensors/     # All 6 sensors on one ESP32 for calibration
-│   ├── ei_data_forwarder/           # Edge Impulse data collection (Part 2)
-│   ├── ei_led_feedback/             # LED feedback demo (Part 2)
-│   └── deprecated_10_sensor/        # OLD 10-sensor sketches (deprecated)
-└── python/
-    ├── requirements.txt
-    ├── config.py                    # Centralized configuration (6 sensors)
-    ├── feature_utils.py             # Shared feature extraction
-    ├── calibration_visualizer.py    # Real-time calibration visualization ⭐
-    ├── dual_collector.py            # Collect from 2 ESP32s simultaneously
-    ├── serial_receiver.py           # Save serial data to CSV
-    ├── sensor_characterization.py   # Calibration curve analysis
-    ├── data_preprocessing.py        # Data cleaning and normalization
-    ├── feature_extraction.py        # Extract ML features from raw data
-    ├── train_model.py               # Train Random Forest classifier
-    ├── real_time_classifier.py      # Real-time activity classification
-    ├── analysis_report.py           # Generate evaluation reports
-    ├── visualize_data.py            # Data visualization tools
-    ├── quick_test.py                # Hardware/software sanity checks
-    └── run_full_pipeline.py         # Complete ML pipeline automation
-```
-
-**Recommended for calibration:** `calibration_visualizer.py` with `data_collection_wireless.ino`
-
----
-
-## 🧠 Edge Impulse / TinyML (Part 2 Extension)
-
-> **⚠️ NOTE:** Edge Impulse / TinyML is **Part 3** (extension) for Jing only.
-> Saara and Alex are only taking Part 1 (no ML), so Part 2 and Part 3 are NOT required for them.
-
-Based on analysis of XIAO Big Power Small Board Chapter 4, Smart Socks is an ideal candidate for Edge Impulse Studio conversion.
-
-### Why Edge Impulse? (Future Work)
-| Feature | Benefit |
-|---------|---------|
-| **Real-time inference** | 5-10ms latency on ESP32 |
-| **Standalone operation** | No PC needed for classification |
-| **Sensor fusion** | Optimized for multiple analog inputs |
-| **One-click deploy** | Arduino library auto-generation |
-| **Tiny model size** | ~20KB quantized models |
-
-### Documentation (For Reference)
-- [[EDGE_IMPULSE_ANALYSIS]] - Feasibility study
-- [[EDGE_IMPULSE_QUICKSTART]] - Deployment guide
-
-### Expected Performance
-- **Inference latency:** 5-10ms
-- **Model size:** 15-30KB
-- **Accuracy:** 90-95% (4-6 activity classes)
-
-### Installation (UV - Recommended)
-
-This project uses [UV](https://docs.astral.sh/uv/) for fast, reliable Python dependency management.
+### Build & Upload Firmware
 
 ```bash
-# Install UV (one-time)
-curl -LsSf https://astral.sh/uv/install.sh | sh
+# Left leg
+pio run -e left_leg -t upload
 
-# Setup environment (from project root)
-cd ./04_Code/python
-uv sync                    # Creates venv and installs all dependencies
+# Right leg
+pio run -e right_leg -t upload
 
-# Run quick test to verify setup
-uv run python quick_test.py --port /dev/cu.usbmodem2101
-# Replace with your port (find with: pio device list)
+# Calibration (all 6 sensors on one ESP32)
+pio run -e calibration -t upload
+
+# Serial monitor (115200 baud)
+pio device monitor -e left_leg
 ```
 
-**See [README_PYTHON_SETUP.md](README_PYTHON_SETUP.md) for detailed UV instructions.**
+Serial port on macOS: `/dev/cu.usbmodem2101` (find yours with `pio device list`).
 
-**Legacy (pip):** If you prefer pip: `pip install -r requirements.txt`
+### Data Collection
 
-### Serial Commands (Data Collection Mode)
+```bash
+cd 04_Code/python
 
-Once connected via serial monitor (115200 baud):
+# Dual ESP32 collection (recommended)
+python dual_collector.py --left /dev/cu.usbmodem2101 --right /dev/cu.usbmodem2102
+
+# Single ESP32 calibration visualization
+python calibration_visualizer.py --port /dev/cu.usbmodem2101
+# Controls: Q=quit, R=reset, S=save CSV, P=pause, C=record GIF
+```
+
+### ML Pipeline
+
+```bash
+cd 04_Code/python
+
+# Full pipeline (recommended)
+python run_full_pipeline.py --raw-data ../../03_Data/raw/ --output ../../05_Analysis/
+
+# Step-by-step
+python data_preprocessing.py --input ../../03_Data/raw/ --output ../../03_Data/processed/
+python feature_extraction.py --input ../../03_Data/processed/ --output ../../03_Data/features/
+python train_model.py --features ../../03_Data/features/features_all.csv --output ../../05_Analysis/
+python analysis_report.py --results-dir ../../05_Analysis/ --output ../../06_Presentation/report/
+```
+
+### Real-Time Demo
+
+```bash
+cd 04_Code/python
+
+# Serial mode
+python real_time_classifier.py --model ../../05_Analysis/smart_socks_model.joblib --port /dev/cu.usbmodem2101
+
+# BLE mode
+python real_time_classifier.py --model ../../05_Analysis/smart_socks_model.joblib --ble
+```
+
+### Tests & Linting
+
+```bash
+cd 04_Code/python
+python -m pytest tests/ -v
+uv run black . && uv run flake8 . && uv run mypy .
+```
+
+---
+
+## Data Format & Conventions
+
+**CSV columns (merged):** `time_ms,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee`
+
+**File naming:** `<subject_id>_<activity>_<timestamp>.csv` (e.g., `S01_walking_forward_20260115_143022.csv`)
+
+**Activity labels:** `walking_forward`, `walking_backward`, `stairs_up`, `stairs_down`, `sitting_floor`, `sitting_crossed`, `sit_to_stand`, `stand_to_sit`, `standing_upright`, `standing_lean_left`, `standing_lean_right`
+
+**Subject split:** S01-S06 training, S07-S09 testing (cross-subject validation)
+
+**Serial protocol (115200 baud):**
 ```
 START S01 walking_forward   # Start recording
 STOP                        # Stop recording
 STATUS                      # Check status
-MODE SERIAL                 # Output to serial only
-MODE BLE                    # Output via BLE only
-MODE BOTH                   # Output to both (default)
-HELP                        # Show available commands
+HELP                        # Show commands
 ```
 
-### Sensor Test Output
+**BLE:** Service `4fafc201-...914b`, Characteristic `beb5483e-...26a8`. Devices: `SmartSocks-Left`, `SmartSocks-Right`.
 
-Raw ADC values from 6 sensors (CSV format):
-```
-time_ms,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee
-181556,712,694,1203,720,820,1156
-181576,703,699,1198,729,821,1160
-```
+**Target accuracy:** >85% average, >80% per activity on held-out test subjects.
 
-### Data Collection Workflow
+---
 
-```bash
-# 1. Collect raw data
-python serial_receiver.py --port /dev/cu.usbmodem2101 --output ../../03_Data/raw/
+## Change Log
 
-# 2. Preprocess data
-python data_preprocessing.py --input ../../03_Data/raw/ --output ../../03_Data/processed/
+### Jan 29-30, 2026: Sensor Migration + Audit
 
-# 3. Extract features
-python feature_extraction.py --input ../../03_Data/processed/ --output ../../03_Data/features/
-
-# 4. Train model (with cross-subject validation)
-python train_model.py --features ../../03_Data/features/features_all.csv --output ../../05_Analysis/
-python train_model.py --features ../../03_Data/features/features_all.csv --output ../../05_Analysis/ --cross-subject
-
-# 5. Generate report
-python analysis_report.py --results-dir ../../05_Analysis/ --output ../../06_Presentation/report/
-
-# Or run full pipeline at once:
-python run_full_pipeline.py --raw-data ../../03_Data/raw/ --output ../../05_Analysis/
-```
-
-### Real-Time Classification Demo
-
-```bash
-# Serial mode
-python real_time_classifier.py --model ../../05_Analysis/smart_socks_model.joblib --port /dev/cu.usbmodem2101
-
-# BLE mode (requires bleak package)
-python real_time_classifier.py --model ../../05_Analysis/smart_socks_model.joblib --ble
-```
-
-### Real-Time Calibration Visualizer
-
-```bash
-# Connect ESP32 and visualize all 6 sensors in real-time
-python calibration_visualizer.py --port /dev/cu.usbmodem2101
-# Replace with your port (find with: pio device list)
-
-# Controls:
-#   Q - Quit
-#   R - Reset min/max tracking
-#   S - Save calibration data to CSV
-#   P - Pause/Resume
-#   C - Start/stop GIF recording (for demo/documentation)
-```
-
-**GIF Recording:** Press `C` to record a demo video of the visualization. The recording indicator (red dot) appears in the status bar. Press `C` again to save. Output: `demo_recording_YYYYMMDD_HHMMSS.gif`
-
-See [[GIF_RECORDING_FIX]] for technical details on the implementation (background threading, Retina display support, etc.).
-
-### Wireless Data Collection (Web Dashboard)
-
-```bash
-# 1. Upload data_collection_wireless.ino to ESP32
-# 2. Connect to WiFi 'SmartSocks' / 'smartwearables'
-# 3. Open browser: http://192.168.4.1
-# 4. View real-time sensor dashboard, record data, download CSV
-```
-
-### Data Visualization
-
-```bash
-# Plot time series
-python visualize_data.py --file ../../03_Data/raw/S01_walking_forward_*.csv --plot-type timeseries
-
-# Generate all plots
-python visualize_data.py --file ../../03_Data/raw/S01_walking_forward_*.csv --plot-type all --output ./plots/
-
-# Compare activities
-python visualize_data.py --dir ../../03_Data/raw/ --compare --output ./plots/
-```
-
-### Data Naming Convention
-Format: `<subject_id>_<activity>_<timestamp>.csv`
-
-Activities: `walking_forward`, `walking_backward`, `stairs_up`, `stairs_down`, `sitting_floor`, `sitting_crossed`, `sit_to_stand`, `stand_to_sit`, `standing_upright`, `standing_lean_left`, `standing_lean_right`
-
-### BLE Configuration
-- **Device Name:** SmartSocks
-- **Service UUID:** 4fafc201-1fb5-459e-8fcc-c5c9c331914b
-- **Characteristic UUID:** beb5483e-36e1-4688-b7f5-ea07361b26a8
-
-### Git
-- Local only (no remote)
-- `.gitignore` excludes `.csv` data files, Python cache, IDE settings
+- **Migrated from 10-sensor to 6-sensor design** (2 pressure + 1 stretch per leg, dual ESP32)
+- Fixed 25 audit issues across Python, Arduino, docs, and build system (see [[AUDIT_GAPS_AND_FIXES]])
+- Consolidated documentation: removed redundant files, merged wireless guides into [[WIFI_CONFIGURATION]]
+- Removed deprecated v1 10-sensor code and designs
+- Restored Obsidian wiki-links throughout documentation
+- Updated SVG diagrams to match 6-sensor configuration
+- All sensor names standardized: `L_P_Heel`, `L_P_Ball`, `L_S_Knee`, `R_P_Heel`, `R_P_Ball`, `R_S_Knee`
+- PlatformIO build uses `-D LEG_ID_LEFT=1` / `-D LEG_ID_RIGHT=1` flags
+- GIF recording in calibration_visualizer.py fully implemented
 
 ---
 
@@ -348,22 +237,10 @@ Activities: `walking_forward`, `walking_backward`, `stairs_up`, `stairs_down`, `
 
 ## Contacts
 
-- **Saara** — ML, sensors, documentation
-- **Alex** — Prototyping, user testing, design
-- **Jing** — Circuit, ESP32, coordination
+- **Saara** -- ML, sensors, documentation
+- **Alex** -- Prototyping, user testing, design
+- **Jing** -- Circuit, ESP32, coordination
 
 ---
 
----
-
-## Knowledge Graph
-
-Key concepts in this project:
-- [[Hardware]]: [[ESP32-S3]], [[XIAO]], [[ADC]], [[Piezoresistive Sensors]], [[Voltage Divider]]
-- [[Software]]: [[PlatformIO]], [[Arduino]], [[Python]], [[BLE]], [[WiFi]], [[Serial]]
-- [[ML Pipeline]]: [[Feature Extraction]], [[Random Forest]], [[Classification]], [[Calibration]]
-- [[Data]]: [[Sensor Characterization]], [[Windowing]], [[CSV]], [[JSON]]
-
----
-
-*Last updated: 2026-01-30 — All 13 audit issues fixed, GIF recording fully implemented, documentation cleaned*
+*Last updated: 2026-01-30*

@@ -2,76 +2,78 @@
   <defs>
     <style>
       .bg { fill: #2E3440; }
-      .foot-left { fill: #3B4252; stroke: #4C566A; stroke-width: 2; }
-      .foot-right { fill: #3B4252; stroke: #4C566A; stroke-width: 2; }
-      .sensor { fill: #88C0D0; stroke: #ECEFF4; stroke-width: 2; }
+      .foot { fill: #3B4252; stroke: #4C566A; stroke-width: 2; }
+      .knee-pad { fill: #3B4252; stroke: #4C566A; stroke-width: 2; }
+      .sensor-p { fill: #88C0D0; stroke: #ECEFF4; stroke-width: 2; }
+      .sensor-s { fill: #A3BE8C; stroke: #ECEFF4; stroke-width: 2; }
       .sensor-label { fill: #ECEFF4; font-family: -apple-system, sans-serif; font-size: 11px; font-weight: bold; text-anchor: middle; }
-      .anatomy { fill: none; stroke: #4C566A; stroke-width: 1; stroke-dasharray: 5,5; }
       .text { fill: #D8DEE9; font-family: -apple-system, sans-serif; font-size: 13px; }
       .title { fill: #ECEFF4; font-size: 16px; font-weight: bold; }
       .zone-label { fill: #81A1C1; font-size: 12px; }
     </style>
   </defs>
-  
+
   <rect class="bg" width="700" height="500"/>
-  
-  <text x="350" y="30" text-anchor="middle" class="title">SENSOR PLACEMENT &amp; FOOT ANATOMY</text>
-  <line x1="250" y1="40" x2="450" y2="40" stroke="#88C0D0" stroke-width="2"/>
-  
-  <g transform="translate(100, 80)">
+
+  <text x="350" y="30" text-anchor="middle" class="title">SENSOR PLACEMENT (6-SENSOR DESIGN)</text>
+  <line x1="220" y1="40" x2="480" y2="40" stroke="#88C0D0" stroke-width="2"/>
+
+  <!-- Left Foot -->
+  <g transform="translate(70, 80)">
     <text x="100" y="0" text-anchor="middle" class="title" font-size="14">LEFT FOOT</text>
-    <path class="foot-left" d="M60,40 Q100,20 140,40 Q160,80 150,150 Q140,220 100,250 Q60,220 50,150 Q40,80 60,40 Z"/>
-    <circle class="sensor" cx="100" cy="220" r="18"/>
-    <text x="100" y="225" class="sensor-label">H</text>
-    <text x="100" y="260" class="text" text-anchor="middle">L_Heel</text>
-    <circle class="sensor" cx="85" cy="160" r="15"/>
-    <text x="85" y="165" class="sensor-label">A</text>
-    <text x="45" y="165" class="text" text-anchor="end">L_Arch</text>
-    <circle class="sensor" cx="90" cy="100" r="15"/>
-    <text x="90" y="105" class="sensor-label">M</text>
-    <text x="50" y="105" class="text" text-anchor="end">L_MetaM</text>
-    <circle class="sensor" cx="130" cy="105" r="15"/>
-    <text x="130" y="110" class="sensor-label">L</text>
-    <text x="170" y="110" class="text">L_MetaL</text>
-    <circle class="sensor" cx="100" cy="55" r="16"/>
-    <text x="100" y="60" class="sensor-label">T</text>
-    <text x="100" y="25" class="text" text-anchor="middle">L_Toe</text>
-    <path class="anatomy" d="M30,130 Q100,130 170,130"/>
-    <text x="100" y="145" text-anchor="middle" class="zone-label">Arch Zone</text>
+    <path class="foot" d="M60,40 Q100,20 140,40 Q160,80 150,150 Q140,220 100,250 Q60,220 50,150 Q40,80 60,40 Z"/>
+
+    <!-- Heel pressure sensor -->
+    <circle class="sensor-p" cx="100" cy="210" r="20"/>
+    <text x="100" y="215" class="sensor-label">P</text>
+    <text x="100" y="255" class="text" text-anchor="middle">L_P_Heel</text>
+
+    <!-- Ball pressure sensor -->
+    <circle class="sensor-p" cx="95" cy="100" r="20"/>
+    <text x="95" y="105" class="sensor-label">P</text>
+    <text x="50" y="105" class="text" text-anchor="end">L_P_Ball</text>
   </g>
-  
+
+  <!-- Left Knee -->
+  <g transform="translate(70, 340)">
+    <text x="100" y="0" text-anchor="middle" class="title" font-size="14">LEFT KNEE</text>
+    <rect class="knee-pad" x="40" y="15" width="120" height="60" rx="30"/>
+    <circle class="sensor-s" cx="100" cy="45" r="15"/>
+    <text x="100" y="50" class="sensor-label">S</text>
+    <text x="100" y="95" class="text" text-anchor="middle">L_S_Knee</text>
+  </g>
+
+  <!-- Right Foot -->
   <g transform="translate(400, 80)">
     <text x="100" y="0" text-anchor="middle" class="title" font-size="14">RIGHT FOOT</text>
-    <path class="foot-right" d="M140,40 Q100,20 60,40 Q40,80 50,150 Q60,220 100,250 Q140,220 150,150 Q160,80 140,40 Z"/>
-    <circle class="sensor" cx="100" cy="220" r="18"/>
-    <text x="100" y="225" class="sensor-label">H</text>
-    <text x="100" y="260" class="text" text-anchor="middle">R_Heel</text>
-    <circle class="sensor" cx="115" cy="160" r="15"/>
-    <text x="115" y="165" class="sensor-label">A</text>
-    <text x="155" y="165" class="text">R_Arch</text>
-    <circle class="sensor" cx="110" cy="100" r="15"/>
-    <text x="110" y="105" class="sensor-label">M</text>
-    <text x="150" y="105" class="text">R_MetaM</text>
-    <circle class="sensor" cx="70" cy="105" r="15"/>
-    <text x="70" y="110" class="sensor-label">L</text>
-    <text x="30" y="110" class="text" text-anchor="end">R_MetaL</text>
-    <circle class="sensor" cx="100" cy="55" r="16"/>
-    <text x="100" y="60" class="sensor-label">T</text>
-    <text x="100" y="25" class="text" text-anchor="middle">R_Toe</text>
+    <path class="foot" d="M140,40 Q100,20 60,40 Q40,80 50,150 Q60,220 100,250 Q140,220 150,150 Q160,80 140,40 Z"/>
+
+    <!-- Heel pressure sensor -->
+    <circle class="sensor-p" cx="100" cy="210" r="20"/>
+    <text x="100" y="215" class="sensor-label">P</text>
+    <text x="100" y="255" class="text" text-anchor="middle">R_P_Heel</text>
+
+    <!-- Ball pressure sensor -->
+    <circle class="sensor-p" cx="105" cy="100" r="20"/>
+    <text x="105" y="105" class="sensor-label">P</text>
+    <text x="150" y="105" class="text">R_P_Ball</text>
   </g>
-  
-  <g transform="translate(50, 380)">
+
+  <!-- Right Knee -->
+  <g transform="translate(400, 340)">
+    <text x="100" y="0" text-anchor="middle" class="title" font-size="14">RIGHT KNEE</text>
+    <rect class="knee-pad" x="40" y="15" width="120" height="60" rx="30"/>
+    <circle class="sensor-s" cx="100" cy="45" r="15"/>
+    <text x="100" y="50" class="sensor-label">S</text>
+    <text x="100" y="95" class="text" text-anchor="middle">R_S_Knee</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(50, 460)">
     <text x="0" y="0" class="title" font-size="13">LEGEND</text>
-    <circle class="sensor" cx="20" cy="25" r="10"/>
-    <text x="40" y="30" class="text">Piezoresistive Sensor (2cm²)</text>
-    <line x1="250" y1="25" x2="280" y2="25" stroke="#4C566A" stroke-width="2"/>
-    <text x="290" y="30" class="text">Anatomical Zone</text>
-  </g>
-  
-  <g transform="translate(400, 380)">
-    <text x="0" y="0" class="title" font-size="13">PRESSURE DISTRIBUTION</text>
-    <text x="0" y="25" class="text">Heel Strike: High pressure at heel</text>
-    <text x="0" y="45" class="text">Mid Stance: Arch support</text>
-    <text x="0" y="65" class="text">Push Off: High pressure at metatarsals + toe</text>
+    <circle class="sensor-p" cx="20" cy="25" r="10"/>
+    <text x="40" y="30" class="text">Pressure Sensor (piezoresistive, 2 per foot)</text>
+    <circle class="sensor-s" cx="370" cy="25" r="10"/>
+    <text x="390" y="30" class="text">Stretch Sensor (1 per knee pad)</text>
   </g>
 </svg>

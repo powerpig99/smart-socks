@@ -33,12 +33,12 @@ const int ADC_RESOLUTION = 12;
 const int NUM_SENSORS = 6;
 const int SENSOR_PINS[] = {A0, A1, A2, A3, A4, A5};
 const char* SENSOR_NAMES[] = {
-  "L_Heel", "L_Ball", "L_Knee",
-  "R_Heel", "R_Ball", "R_Knee"
+  "L_P_Heel", "L_P_Ball", "L_S_Knee",
+  "R_P_Heel", "R_P_Ball", "R_S_Knee"
 };
 
 // Data format for Edge Impulse
-// CSV format: timestamp,L_Heel,L_Ball,L_Knee,R_Heel,R_Ball,R_Knee
+// CSV format: timestamp,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee
 
 // ============== SETUP ==============
 
@@ -68,7 +68,7 @@ void setup() {
     Serial.println(SENSOR_PINS[i]);
   }
   Serial.println();
-  Serial.println("CSV Format: timestamp,L_Heel,L_Ball,L_Knee,R_Heel,R_Ball,R_Knee");
+  Serial.println("CSV Format: timestamp,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee");
   Serial.println();
   Serial.println("Instructions:");
   Serial.println("1. Connect to Edge Impulse Studio data forwarder");
@@ -115,7 +115,7 @@ void loop() {
  *    npm install -g edge-impulse-cli
  * 
  * 2. Run data forwarder:
- *    edge-impulse-data-forwarder --frequency 50 --axes L_Heel,L_Ball,L_Knee,R_Heel,R_Ball,R_Knee
+ *    edge-impulse-data-forwarder --frequency 50 --axes L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee
  * 
  * 3. Follow prompts to connect to your project
  * 
