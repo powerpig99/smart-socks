@@ -19,10 +19,10 @@ import numpy as np
 import serial
 
 
-SENSOR_NAMES = [
-    "L_Heel", "L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-    "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"
-]
+from config import SENSORS, HARDWARE
+
+SENSOR_NAMES = SENSORS['names']
+NUM_SENSORS = SENSORS['total_count']
 
 
 def test_serial_connection(port, baudrate=115200, timeout=5):
@@ -87,9 +87,9 @@ def test_sensor_reading(port, baudrate=115200, duration=5):
                 line = ser.readline().decode('utf-8').strip()
                 if line and not line.startswith('#') and ',' in line:
                     parts = line.split(',')
-                    if len(parts) >= 11:
+                    if len(parts) >= NUM_SENSORS + 1:
                         try:
-                            values = [int(p) for p in parts[1:11]]
+                            values = [int(p) for p in parts[1:NUM_SENSORS+1]]
                             readings.append(values)
                         except ValueError:
                             pass
@@ -280,14 +280,14 @@ def test_pressure_response(port, baudrate=115200):
             else:
                 print(f"  ⚪ {sensor}: {change:+.0f} (no significant change)")
         
-        if responding_sensors >= 5:
-            print(f"\n  ✅ PASSED: {responding_sensors}/10 sensors responding to pressure")
+        if responding_sensors >= NUM_SENSORS // 2:
+            print(f"\n  ✅ PASSED: {responding_sensors}/{NUM_SENSORS} sensors responding")
             return True
         elif responding_sensors >= 2:
-            print(f"\n  ⚠️ WARNING: Only {responding_sensors}/10 sensors responding")
+            print(f"\n  ⚠️ WARNING: Only {responding_sensors}/{NUM_SENSORS} sensors responding")
             return True
         else:
-            print(f"\n  ❌ FAILED: Only {responding_sensors}/10 sensors responding")
+            print(f"\n  ❌ FAILED: Only {responding_sensors}/{NUM_SENSORS} sensors responding")
             return False
         
     except Exception as e:

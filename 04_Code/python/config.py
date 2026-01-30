@@ -42,18 +42,46 @@ HARDWARE = {
 # =============================================================================
 # SENSOR CONFIGURATION
 # Updated Jan 29, 2026: New design with pressure + stretch sensors
+# Updated Feb 2026: 2 ESP32 setup (one per leg)
 # =============================================================================
+
+# MCU Configuration - 2 ESP32S3 XIAO (one per leg)
+MCU = {
+    'left_leg': {
+        'name': 'ESP32S3-Left',
+        'port': '/dev/cu.usbmodem2101',  # Left leg ESP32
+        'sensors': ["L_P_Heel", "L_P_Ball", "L_S_Knee"],
+        'pins': {
+            'L_P_Heel': 'A0',    # GPIO 1
+            'L_P_Ball': 'A1',    # GPIO 2
+            'L_S_Knee': 'A2',    # GPIO 3
+        }
+    },
+    'right_leg': {
+        'name': 'ESP32S3-Right',
+        'port': '/dev/cu.usbmodem2102',  # Right leg ESP32 (different port)
+        'sensors': ["R_P_Heel", "R_P_Ball", "R_S_Knee"],
+        'pins': {
+            'R_P_Heel': 'A0',    # GPIO 1
+            'R_P_Ball': 'A1',    # GPIO 2
+            'R_S_Knee': 'A2',    # GPIO 3
+        }
+    }
+}
 
 SENSORS = {
     # New design: 2 pressure sensors per sock + 1 stretch sensor per knee pad
-    # Total: 6 sensors (4 pressure + 2 stretch)
-    'count': 6,
+    # Per leg: 3 sensors
+    # Total system: 6 sensors (4 pressure + 2 stretch) across 2 ESP32s
+    'count_per_leg': 3,
+    'total_count': 6,
+    
     'names': [
-        # Left leg
+        # Left leg (on ESP32S3-Left)
         "L_P_Heel",    # Left Pressure - Heel
         "L_P_Ball",    # Left Pressure - Ball of foot
         "L_S_Knee",    # Left Stretch - Knee pad
-        # Right leg
+        # Right leg (on ESP32S3-Right)
         "R_P_Heel",    # Right Pressure - Heel
         "R_P_Ball",    # Right Pressure - Ball of foot
         "R_S_Knee",    # Right Stretch - Knee pad
@@ -288,7 +316,7 @@ LOGGING = {
 
 def get_feature_count() -> int:
     """Calculate total number of features based on configuration."""
-    sensor_count = SENSORS['count']
+    sensor_count = SENSORS['total_count']
     
     # Per-sensor features
     stat_count = sum(FEATURES['statistical'].values())
@@ -331,7 +359,7 @@ def print_config():
     print(f"\nHardware:")
     print(f"  ADC Resolution: {HARDWARE['adc_resolution_bits']}-bit (0-{HARDWARE['adc_max_value']})")
     print(f"  Sample Rate: {HARDWARE['sample_rate_hz']} Hz")
-    print(f"\nSensors: {SENSORS['count']} total")
+    print(f"\nSensors: {SENSORS['total_count']} total")
     for sensor in SENSORS['names']:
         print(f"  - {sensor}")
     print(f"\nWindowing:")

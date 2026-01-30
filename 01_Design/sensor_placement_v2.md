@@ -1,156 +1,251 @@
-# Smart Socks - Sensor Placement Guide V2
+# Smart Socks - Sensor Placement V2
 
 **ELEC-E7840 Smart Wearables — Aalto University**
 
-> **Updated Design (Jan 29, 2026):** 2 pressure sensors + 1 stretch sensor per leg
+> **Updated Design (Feb 2026):** 6 sensors total, dual ESP32 configuration
 > 
-> **Related:** [[circuit_diagram]] | [[PLATFORMIO_SETUP]] | [[README]]
+> **Related:** [[circuit_diagram_v2]] | [[calibration_guide]] | [[PROJECT_STATUS]]
 
 ---
 
-## New Sensor Configuration
+## Design Philosophy
 
-Based on team meeting (Jan 29, 2026) with Saara, Alex, and Jing:
+### Why 6 Sensors?
 
-### Per Leg Setup:
-| Location | Sensor Type | Placement | Purpose |
-|----------|-------------|-----------|---------|
-| **Sock - Heel** | Pressure | Under heel | Initial contact, weight bearing |
-| **Sock - Ball** | Pressure | Under ball of foot | Push-off, propulsion |
-| **Knee Pad** | Stretch | Front of knee | Knee flexion/extension |
+After team discussion (Jan 29, 2026), we simplified from 10 sensors to **6 sensors** (3 per leg):
 
-### Total System:
-- **4 Pressure Sensors:** 2 per sock (heel + ball)
-- **2 Stretch Sensors:** 1 per knee pad
-- **Total:** 6 sensors per person
+| Leg | Pressure | Stretch | Total |
+|-----|----------|---------|-------|
+| Left | 2 (heel + ball) | 1 (knee) | 3 |
+| Right | 2 (heel + ball) | 1 (knee) | 3 |
+| **Total** | **4** | **2** | **6** |
 
----
+### Benefits
 
-## Movement Detection Strategy
-
-### Walking Forward
-- **Heel:** Peak pressure at initial contact
-- **Ball:** Peak pressure at push-off
-- **Knee:** Front stretches during swing phase
-
-### Walking Backward
-- **Ball:** Peak pressure at initial contact
-- **Heel:** Peak pressure at push-off
-- **Knee:** Front stretches during swing phase
-
-### Stairs Up
-- **Heel → Ball:** Sequential pressure (can be simultaneous)
-- **Knee:** Stronger front stretch on stepping foot (distinguishes from flat walking)
-
-### Stairs Down
-- **Ball → Heel:** Sequential pressure
-- **Knee:** Front stretch on leg that stays behind
-
-### Sitting (Feet on floor)
-- **Both Heels:** Equal pressure
-- **Both Knees:** Equal stretch (minimal)
-
-### Sitting (Legs crossed)
-- **One Heel:** Pressure only under supporting foot
-- **Both Knees:** Different stretch magnitudes
-
-### Sit-to-Stand
-- **Both Heels:** Pressure increases
-- **Both Knees:** Stretch decreases as legs straighten
-
-### Standing (Upright)
-- **Heels + Balls:** Equal pressure both feet
-- **Knees:** Minimal or no stretch
-
-### Standing (Leaning)
-- **One side:** More pressure
-- **Knees:** Minimal stretch
+1. **Reduced Complexity:** Fewer wires, easier calibration
+2. **Faster Prototyping:** Less sensor placement to iterate
+3. **Easier Debugging:** 6 data streams vs 10
+4. **Adequate Information:** Still captures gait cycle + knee movement
+5. **Cost Reduction:** ~40% fewer sensors to purchase
 
 ---
 
-## Sensor Fabrication Notes
+## Sensor Layout - Left Leg
 
-### Pressure Sensors (Per sock: 2 needed)
-- **Material:** Piezoresistive fabric (Eeonyx TL-210)
-- **Size:** 2cm × 2cm squares
-- **Method:** Heat-pressed for consistency
-- **Placement:** Sewn/adhered to sock at marked positions
+### Foot: Pressure Sensors
 
-### Stretch Sensors (Per knee pad: 1 needed)
-- **Material:** Conductive thread/knit fabric
-- **Method:** Knitted stretch sensor
-- **Placement:** Front of knee pad, across knee joint
-- **Structure:** Knitted stretch part in middle, adjustable straps on sides
+```
+        ┌─────────────────┐
+        │                 │
+        │    TOES         │
+        │                 │
+        │                 │
+        │    [BALL]  ◉    │  ← Pressure Sensor #2 (Ball)
+        │                 │     Location: 1st metatarsal head
+        │                 │     ADC: A1
+        └─────────────────┘
+                  │
+                  │
+        ┌─────────────────┐
+        │                 │
+        │    [HEEL]  ◉    │  ← Pressure Sensor #1 (Heel)
+        │                 │     Location: Center of heel
+        │                 │     ADC: A0
+        └─────────────────┘
+```
 
-### Knee Pad Design Challenge
-**Problem:** Different leg diameters affect results
+**Why these locations?**
+- **Heel:** First/last contact during walking
+- **Ball:** Push-off phase, toe clearance during swing
 
-**Solution:** 
-- Knitted stretch part in center (sensor area)
-- Elastic fabric with adjustable straps on sides
-- "Starting position" can be standardized with straps
-- Minimizes impact of different leg sizes
+### Knee: Stretch Sensor
 
----
+```
+    ┌───────────────────┐
+    │                   │
+    │     ◉ STRETCH     │  ← Stretch Sensor (Knee)
+    │    ╱   ╲          │     Location: Front of knee (patella)
+    │   ╱     ╲         │     ADC: A2
+    │  ╱   ●    ╲       │     Orientation: Horizontal across knee
+    │ ╱  (knee)  ╲      │
+    │╱             ╲    │
+    └───────────────────┘
+```
 
-## Placement Procedure
-
-### Step 1: Mark Foot
-1. Stand on paper, trace foot outline
-2. Mark:
-   - **Heel:** Center of heel
-   - **Ball:** Center of ball of foot (metatarsal heads)
-
-### Step 2: Prepare Sock
-1. Turn sock inside out
-2. Transfer marks to sock
-3. Reinforce area with fabric backing if needed
-
-### Step 3: Attach Pressure Sensors
-1. Position sensor at marked location
-2. Sew or adhere in place
-3. Route conductive thread along sock (avoid pressure points)
-4. Test conductivity
-
-### Step 4: Prepare Knee Pad
-1. Measure knee circumference
-2. Cut fabric: knitted center (sensor) + elastic sides
-3. Sew stretch sensor into front center
-4. Add adjustable straps
-
-### Step 5: Connect Wiring
-- Route all wires to central hub (ESP32 location)
-- Secure with fabric tape
-- Leave slack for movement
+**Why knee stretch?**
+- Detects knee flexion/extension angle
+- Critical for stairs vs flat walking discrimination
+- Measures swing phase knee clearance
 
 ---
 
-## References
+## Sensor Layout - Right Leg (Mirror)
 
-1. **Skating Technique Detection (3 pressure sensors):**
-   https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2025.1554264/full
-   - 2 at ball, 1 at heel
+Identical physical placement to left leg, but different pins in production:
 
-2. **Healthcare & Sport Monitoring (5 pressure sensors):**
-   https://pubs-acs-org.ezproxy.utu.fi:2443/doi/full/10.1021/acsnano.8b08329
-   - Ball, heel, big toe, sides
+**Calibration Mode (1 ESP32):**
+- **A3:** Heel pressure
+- **A4:** Ball pressure  
+- **A5:** Knee stretch
+
+**Production Mode (separate ESP32):**
+- **A3:** Heel pressure (maps to A0 if using per-leg firmware)
+- **A4:** Ball pressure (maps to A1 if using per-leg firmware)
+- **A5:** Knee stretch (maps to A2 if using per-leg firmware)
+
+> **Unified Pin Mapping:** A0-A2 = Left, A3-A5 = Right across all modes
 
 ---
 
-## Meeting Notes (Jan 29, 2026)
+## Naming Convention
 
-**Attendees:** Saara, Alex, Jing
+```python
+# config.py sensor names
+SENSORS = {
+    'names': [
+        "L_P_Heel", "L_P_Ball", "L_S_Knee",   # Left leg
+        "R_P_Heel", "R_P_Ball", "R_S_Knee",   # Right leg
+    ]
+}
 
-**Key Decisions:**
-- ✅ Adopt 2 pressure + 1 stretch sensor per leg design
-- ✅ Focus on heel and ball pressure (skip arch, metatarsals lateral, toe for now)
-- ✅ Add knee pads with stretch sensors for better activity discrimination
-- ✅ Next meeting: Sun 2.2.2026 14:45-16:45 (Y163)
+# Format: {L/R}_{P/S}_{Location}
+# L = Left, R = Right
+# P = Pressure, S = Stretch
+```
 
-**Action Items:**
-- Saara: Biosignal processing, sensor characterization methodology
-- Alex: Sock/knee pad design, user requirements, physiotherapist consultation
-- Jing: Electronics, preliminary analysis, ESP32 firmware
+---
+
+## Activity Detection Strategy
+
+### Gait Cycle Detection
+
+**Ground Contact Phases:**
+- **Heel Strike:** L_P_Heel/R_P_Heel peaks
+- **Mid-Stance:** Both pressure sensors active
+- **Toe-Off:** L_P_Ball/R_P_Ball peaks, then release
+
+**Swing Phase:**
+- **Knee Flexion:** L_S_Knee/R_S_Knee stretches during swing
+- **Knee Extension:** Returns to resting before heel strike
+
+### Activity Signatures
+
+| Activity | Pressure Pattern | Stretch Pattern |
+|----------|------------------|-----------------|
+| **Walking** | Alternating L/R heel→ball | Moderate knee flexion |
+| **Stairs Up** | Higher ball pressure | Increased knee flexion |
+| **Stairs Down** | Controlled heel landing | Extended knee stretch |
+| **Sitting** | Low/constant pressure | Knee at ~90° |
+| **Standing** | Steady weight distribution | Minimal stretch |
+
+---
+
+## Fabrication Steps
+
+### Materials Needed
+- Athletic socks (4 pairs - with spares)
+- Knee pads or fabric knee sleeves (4)
+- Conductive fabric for pressure sensors
+- Conductive thread for stretch sensors
+- Velcro straps for securing sensors
+
+### Step 1: Pressure Sensors in Socks
+
+1. **Mark locations** on sock:
+   - Heel: Center of heel cup
+   - Ball: Under big toe joint
+
+2. **Sew sensor patches:**
+   ```
+   Cut conductive fabric: 2cm × 2cm squares
+   
+   Attach to sock with conductive thread:
+   ┌─────────┐
+   │  ◉      │  ← Center point (measurement)
+   │ /│\     │
+   │/ │ \    │  ← Sew radial spokes
+   │  │  \   │
+   └─────────┘
+   ```
+
+3. **Route wires** up to ankle/lower calf
+
+### Step 2: Stretch Sensor at Knee
+
+1. **Prepare knee sleeve:**
+   - Sew conductive fabric strips (10cm × 2cm)
+   - One at top, one at bottom of knee cap
+
+2. **Create variable resistor:**
+   ```
+   Top strip ─────┬──── Wire to A2
+                  │
+                  └──── Conductive thread crossing knee
+                        (acts as variable resistor based on stretch)
+   Bottom strip ──┬──── Wire to GND
+                  │
+                  └──── Same thread
+   ```
+
+3. **Add reference resistor:**
+   - 10kΩ pull-down resistor creates voltage divider
+   - Output to ESP32 A2 pin
+
+### Step 3: Wire Management
+
+- Use **elastic straps** to route wires along leg
+- Keep **ESP32 on thigh or waist belt** for stability
+- Use **connector clips** for easy removal/washing
+
+---
+
+## Calibration Procedure
+
+### 1. Baseline Reading
+```
+Sensor sitting flat, no weight:
+  Record ADC value (typically 0-100)
+```
+
+### 2. Max Load
+```
+Standing with full weight:
+  Record ADC value (typically 3000-4000)
+```
+
+### 3. Map to 0-1 Range
+```python
+def calibrate(value, min_val, max_val):
+    return (value - min_val) / (max_val - min_val)
+```
+
+### 4. Store Calibration
+- Save per-sensor calibration to `03_Data/calibration/`
+- Run calibration tool: `python calibration_viz.py`
+
+---
+
+## Testing Checklist
+
+- [ ] All 6 sensors respond to movement
+- [ ] Heel sensors detect ground contact
+- [ ] Ball sensors detect push-off
+- [ ] Knee sensors detect flexion
+- [ ] Left/right synchronization verified
+- [ ] No crosstalk between sensors
+- [ ] Wiring secure during walking
+
+---
+
+## Troubleshooting
+
+| Problem | Possible Cause | Solution |
+|---------|---------------|----------|
+| No pressure reading | Sensor not in contact | Adjust sock tightness |
+| No stretch reading | Thread disconnected | Re-sew connection |
+| Erratic values | Loose wire | Check all solder joints |
+| One leg not working | Wrong port | Check `/dev/cu.usbmodem*` |
+| Drift over time | Temperature/humidity | Re-calibrate |
 
 ---
 
@@ -158,8 +253,8 @@ Based on team meeting (Jan 29, 2026) with Saara, Alex, and Jing:
 
 | ← Previous | ↑ Up | Next → |
 |------------|------|--------|
-| [[circuit_diagram]] | [[INDEX]] | — |
+| [[circuit_diagram_v2]] | [[INDEX]] | [[calibration_guide]] |
 
 ---
 
-*Last updated: 2026-01-29 · Design Version 2.0*
+*Last updated: February 2026 · 6-Sensor Configuration*

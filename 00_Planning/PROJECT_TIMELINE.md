@@ -10,11 +10,11 @@
 | Week | Date Range | Phase | Key Tasks | Deliverables | Owner | Status |
 |------|------------|-------|-----------|--------------|-------|--------|
 | **1** | Jan 20-26 | Planning & Setup | • Finalize sensor placement design<br>• Order/prepare materials<br>• Set up development environment | Design document, Material list | All | 🟡 In Progress |
-| **2** | Jan 27 - Feb 2 | Sensor Fabrication | • Fabricate piezoresistive sensors<br>• Initial sensor testing<br>• Characterization setup | Working sensors (5 zones × 2) | Alex/Saara | ⚪ Not Started |
+| **2** | Jan 27 - Feb 2 | Sensor Fabrication | • Fabricate piezoresistive sensors<br>• Initial sensor testing<br>• Characterization setup | Working sensors (3 per leg) | Alex/Saara | ⚪ Not Started |
 | **3** | Feb 3-9 | Sensor Characterization | • Calibration with known weights (0-5kg)<br>• Generate calibration curves<br>• Document sensor specs | Calibration report, Sensitivity data | Saara | ⚪ Not Started |
-| **4** | Feb 10-16 | Circuit & Integration | • Build voltage divider circuits<br>• Wire sensors to ESP32S3<br>• Test all 10 channels | Working circuit prototype | Jing | ⚪ Not Started |
+| **4** | Feb 10-16 | Circuit & Integration | • Build voltage divider circuits<br>• Wire sensors to ESP32S3<br>• Test all 6 channels (3 per ESP32) | Working circuit prototype | Jing | ⚪ Not Started |
 | **5** | Feb 17-23 | Prototype Integration | • Integrate into socks<br>• Wearability testing<br>• Iterate design | Wearable prototype v1 | Alex | ⚪ Not Started |
-| **6** | Feb 24 - Mar 2 | Data Collection I | • Collect data from 6 training subjects<br>• 11 activities × 3 trials each<br>• Data quality checks | Raw dataset (6 subjects) | All | ⚪ Not Started |
+| **6** | Feb 24 - Mar 2 | Data Collection I | • Collect data from 6 training subjects<br>• 11 activities × 3 trials each<br>• Data quality checks<br>• Use dual ESP32 setup | Raw dataset (6 subjects) | All | ⚪ Not Started |
 | **7** | Mar 3-9 | **Mid-term Review** | • BLE demo preparation<br>• Present sensor characterization<br>• Show data collection capability | **Mid-term Presentation** | All | 🔴 Critical |
 | **8** | Mar 10-16 | ML Pipeline Dev | • Feature extraction<br>• Model training (Random Forest)<br>• Cross-validation | Trained model, Feature set | Saara | ⚪ Not Started |
 | **9** | Mar 17-23 | ML Optimization | • Hyperparameter tuning<br>• Cross-subject validation<br>• Confusion matrix analysis | Optimized model (>80% accuracy) | Saara | ⚪ Not Started |
@@ -31,10 +31,21 @@
 
 ### Milestone 1: Sensor Characterization Complete (Week 3)
 **Criteria:**
-- [ ] All 10 sensors fabricated and tested
+- [ ] All 6 sensors fabricated and tested (4 pressure + 2 stretch)
 - [ ] Calibration curves generated (0g, 100g, 200g, 500g, 1kg, 2kg, 5kg)
 - [ ] Sensitivity and range documented
 - [ ] Sensor variance assessed
+
+### Course Structure: 3 Parts
+
+| Part | Weeks | Focus | Team |
+|------|-------|-------|------|
+| **Part 1** | 1-7 | Hardware & Sensor Characterization (**NO ML**) | Saara, Alex, Jing |
+| **Part 2** | 8-15 | Machine Learning & Classification | Jing only |
+| **Part 3** | Personal | Edge ML / TinyML Extension | Jing only |
+
+**Part 1 Ends:** Week 7 (Mid-term Review)  
+**Part 2 Ends:** Week 15 (Final Review)
 
 ### Milestone 2: Working Prototype (Week 5)
 **Criteria:**
@@ -56,14 +67,18 @@
 - [ ] Sensor characterization results
 - [ ] Working prototype demonstration
 
-### Milestone 4: Trained Model (Week 9)
+### Milestone 4: Trained Model (Week 9) — Part 2 Only
+**⚠️ Jing Only — Part 2 (ML)**
+
 **Criteria:**
 - [ ] >80% average accuracy on validation set
 - [ ] Cross-subject validation performed
 - [ ] Feature importance analyzed
 - [ ] Confusion matrix generated
 
-### Milestone 5: Real-time Demo Ready (Week 10)
+### Milestone 5: Real-time Demo Ready (Week 10) — Part 2 Only
+**⚠️ Jing Only — Part 2 (ML)**
+
 **Criteria:**
 - [ ] Model deployed on PC
 - [ ] Real-time classification <100ms latency

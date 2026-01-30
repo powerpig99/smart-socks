@@ -39,22 +39,11 @@ source .venv/bin/activate
 uv pip install -r 04_Code/python/requirements.txt
 ```
 
-#### 3. Arduino IDE Issues (Resolved)
-**Problem:** ESP32 board installation timeout in Arduino IDE Boards Manager  
-**Solution:** Use **PlatformIO** or **arduino-cli** instead
+#### 3. Arduino IDE Setup (Has FAQ)
+**Issue:** ESP32 board installation timeout in Arduino IDE Boards Manager  
+**Solution:** See [[ARDUINO_ESP32_INSTALLATION_FAQ]] for troubleshooting
 
-```bash
-# Arduino CLI (working alternative)
-arduino-cli config init
-arduino-cli config add board_manager.additional_urls \
-  "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json"
-arduino-cli core update-index
-arduino-cli core install esp32:esp32
-
-# Upload to XIAO ESP32S3
-arduino-cli upload -p /dev/cu.usbmodem2101 \
-  --fqbn esp32:esp32:XIAO_ESP32S3 <sketch>
-```
+**Recommended:** Use **PlatformIO** (primary) or **arduino-cli** (alternative)
 
 ---
 
@@ -106,6 +95,8 @@ arduino-cli upload -p /dev/cu.usbmodem2101 \
 | `data_collection` | ✅ Working | Serial data logging |
 | `data_collection_ble` | ✅ Working | BLE wireless streaming |
 | `data_collection_wireless` | ✅ Working | WiFi+BLE+Serial unified |
+| `data_collection_leg` | ✅ **NEW** | 6-sensor dual ESP32 with sync |
+| `calibration_all_sensors` | ✅ **NEW** | All 6 sensors on one ESP32 |
 
 ### Python Tools
 
@@ -115,6 +106,7 @@ arduino-cli upload -p /dev/cu.usbmodem2101 \
 | `feature_utils.py` | ✅ Ready | Shared feature extraction |
 | `train_model.py` | ✅ Ready | ML pipeline |
 | `real_time_classifier.py` | ✅ Ready | Live classification |
+| `dual_collector.py` | ✅ **NEW** | Dual ESP32 data collection + merge |
 
 ### Key Fixes Applied
 
@@ -151,14 +143,68 @@ arduino-cli upload -p /dev/cu.usbmodem2101 \
 - [x] Working diary consolidated (single WORK_DIARY.md)
 - [x] Sensor count updated (10→6)
 - [x] Sensor names updated in config.py
-- [x] Pin mapping for GPIO 7-10 (not A6-A9)
+- [x] Pin mapping simplified (A0-A2 per ESP32)
 - [x] ADC attenuation in all sketches
 - [x] Port references (using `/dev/cu.usbmodem2101` as default)
+- [x] Circuit diagram V2 created (dual ESP32)
+- [x] Sensor placement V2 created (6-sensor config)
+- [x] Bill of materials updated (4 pressure + 2 stretch + spares)
 
-### ⚠️ To Verify
-- [ ] Arduino sketches updated for 6-sensor config (not 10)
-- [ ] Circuit diagrams reflect new sensor placement
-- [ ] Bill of materials updated (4 pressure + 2 stretch sensors)
+### 🆕 New Design (Feb 2026)
+- **Hardware:** Dual ESP32S3 XIAO (one per leg)
+- **Sensors:** 6 total (4 pressure + 2 stretch)
+- **Docs:** [[sensor_placement_v2]] | [[circuit_diagram_v2]]
+
+### ✅ New Features (Feb 2026)
+- [x] Arduino `data_collection_leg.ino` - 6-sensor, sync support
+- [x] Arduino `calibration_all_sensors.ino` - All 6 sensors on one ESP32
+- [x] Synchronization: Independent / Master-Slave / Trigger modes
+- [x] Python `dual_collector.py` - Merge + visualize dual streams
+- [x] Unified pin mapping: A0-A2=left, A3-A5=right
+- [x] WiFi: AP mode, Station mode, AND Phone Hotspot support
+- [x] mDNS hostnames: smartsocks-left.local / smartsocks-right.local
+- [x] MAC address identification for device discovery
+- [x] Python `find_smartsocks.py` - Auto-discovery by MAC
+- [x] BLE with device-specific names
+- [x] Documentation: README for dual ESP32 setup
+- [x] **Edge Impulse Analysis: TinyML feasibility study completed**
+- [x] **Edge Impulse Quick Start guide for real-time edge ML**
+- [x] **LED Display Research: RGB, OLED, 7-segment options documented**
+- [x] **Reference Library: 8 papers organized with README**
+- [x] **Arduino IDE FAQ: ESP32 installation troubleshooting guide**
+- [x] **XIAO Chapter 4: Converted to linked Markdown for Obsidian**
+
+### Course Structure: 3 Parts
+
+| Part | Focus | Duration | Team |
+|------|-------|----------|------|
+| **Part 1** | Hardware & Sensor Characterization (**NO ML**) | Weeks 1-7 | Saara, Alex, Jing |
+| **Part 2** | Machine Learning & Classification | Weeks 8-15 | Jing only |
+| **Part 3** | Edge ML / TinyML Extension | Personal | Jing only |
+
+### Part 1 Focus (All Team - NO ML)
+**Priority: Hardware, Calibration, Data Collection**
+- [ ] Fabricate 6 sensors (4 pressure + 2 stretch)
+- [ ] Build voltage divider circuits
+- [ ] Calibrate sensors with known weights
+- [ ] Test BLE/WiFi data transmission
+- [ ] Collect initial dataset
+- [ ] **Mid-term deliverable:** Working prototype with sensor characterization
+
+### Part 2 Focus (Jing Only - WITH ML)
+**Priority: ML Pipeline & Real-time Classification**
+- [ ] Collect training data from 6+ subjects
+- [ ] Train Random Forest model (>85% accuracy)
+- [ ] Real-time classification via Python
+- [ ] User study with 5+ participants
+- [ ] **Final deliverable:** Working ML system
+
+### Part 3 Extension (Jing Only - Edge ML)
+**Priority: TinyML on ESP32 (Optional)**
+- [ ] Create Edge Impulse Studio project
+- [ ] Deploy quantized model to ESP32
+- [ ] Standalone operation without PC
+- **Status:** Documented for future work
 
 ---
 

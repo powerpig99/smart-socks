@@ -28,7 +28,11 @@ from datetime import datetime
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import SENSOR_NAMES, WINDOWING, SAMPLING
+from config import SENSORS, WINDOWING, HARDWARE
+
+# Backwards compatibility
+SENSOR_NAMES = SENSORS['names']
+SAMPLING = {'rate_hz': HARDWARE['sample_rate_hz']}
 from feature_utils import extract_all_features, features_to_array, get_feature_names
 
 # Window configuration (from config)
@@ -155,7 +159,7 @@ class RealTimeClassifier:
                 line = self.connection.readline().decode('utf-8').strip()
                 if line and not line.startswith('#') and ',' in line:
                     parts = line.split(',')
-                    if len(parts) >= 11:  # timestamp + 10 sensors
+                    if len(parts) >= SENSORS['total_count'] + 1:  # timestamp + sensors
                         values = {
                             'timestamp': int(parts[0]),
                         }

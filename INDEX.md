@@ -5,18 +5,19 @@ Team: Saara, Alex, Jing
 
 ---
 
-> **⚠️ WORKSHOP PREPARATION (Wednesday 04-02)**
+> **🎯 COURSE STRUCTURE: 3 Parts**
 > 
-> **Next Tutorial:** WiFi Data Collection Workshop
+> **ELEC-E7840 Smart Wearables**
 > 
-> **Bring:** USB-C cable, microcontrollers, breadboard, jumper wires, resistors, sensors
+> | Part | Focus | Team |
+> |------|-------|------|
+> | **Part 1** | Hardware & Sensor Characterization (**NO ML**) | Saara, Alex, Jing |
+> | **Part 2** | Machine Learning & Classification | Jing only |
+> | **Part 3** | Edge ML / TinyML Extension | Jing only |
 > 
-> **Install Before Class:**
-> - Python: https://realpython.com/installing-python/
-> - Python Tutorial Video: https://www.youtube.com/watch?v=QhukcScB9W0
-> - IDE: Visual Studio Code (recommended) or PyCharm
+> **Current Focus:** Part 1 - Sensor fabrication, circuit design, calibration
 > 
-> **Workshop Goal:** Learn WiFi data collection using Arduino IDE/VS Code + Python
+> **Hardware:** 6-sensor design (2 ESP32, 3 sensors each)
 > 
 > ---
 
@@ -34,7 +35,8 @@ Team: Saara, Alex, Jing
 | **Project Overview** | Main README with quick links | [[README]] |
 | **Project Status** | Current status, recap, setup history | [[PROJECT_STATUS]] |
 | **Work Diary** | Team meeting notes and decisions | [[WORK_DIARY]] |
-| **PlatformIO Setup** | Hardware setup, build instructions | [[PLATFORMIO_SETUP]] |
+| **PlatformIO Setup** | Hardware setup, build instructions (PlatformIO - Recommended) | [[PLATFORMIO_SETUP]] |
+| **Arduino IDE FAQ** | ESP32 installation troubleshooting | [[ARDUINO_ESP32_INSTALLATION_FAQ]] |
 | **Python Setup** | UV environment setup guide | [[README_PYTHON_SETUP]] |
 | **Code Review** | Bug fixes and issue tracking | [[CODE_REVIEW]] |
 | **Design Assets** | Nordic design system, logos, icons | [[DESIGN_ASSETS]] |
@@ -43,11 +45,26 @@ Team: Saara, Alex, Jing
 
 ## 🔧 Hardware
 
+### Design Documents (Updated Feb 2026)
+| Document | Description |
+|----------|-------------|
+| [[sensor_placement_v2]] | 6-sensor placement guide (heel, ball, knee) |
+| [[circuit_diagram_v2]] | Dual ESP32 system architecture + BOM |
+| [[PIN_MAPPING]] | Unified pin mapping (A0-A2=left, A3-A5=right) |
+| [[WIFI_CONFIGURATION]] | WiFi modes: AP vs Station vs Phone Hotspot |
+| [[PHONE_HOTSPOT_GUIDE]] | Using phone hotspot for mobile demos |
+| [[WIFI_BLE_TESTING]] | WiFi & Bluetooth testing procedures |
+| [[EDGE_IMPULSE_ANALYSIS]] | **TinyML feasibility study & deep dive** |
+| [[EDGE_IMPULSE_QUICKSTART]] | **Step-by-step Edge ML deployment** |
+| [[LED_DISPLAY_RESEARCH]] | **LED feedback options (RGB, OLED, 7-segment)** |
+| [[XIAO_Chapter_4/00_INDEX]] | **XIAO Book Ch.4 - TinyML (linked Markdown)** |
+
 ### Microcontroller
 - [[ESP32-S3]] — Dual-core 240MHz processor
 - [[XIAO ESP32S3]] — Seeed Studio development board
 - [[ADC]] — 12-bit analog-to-digital converter
 - [[GPIO]] — Pin mappings and configuration
+- [[Dual ESP32]] — Two controllers (one per leg)
 
 ### Sensors
 - [[Piezoresistive Sensors]] — Fabric pressure sensors
@@ -77,6 +94,8 @@ Team: Saara, Alex, Jing
 | data_collection | Serial data logging | `04_Code/arduino/data_collection/` |
 | data_collection_ble | BLE streaming | `04_Code/arduino/data_collection_ble/` |
 | data_collection_wireless | WiFi+BLE+Web | [[data_collection_wireless]] |
+| **data_collection_leg** | **6-sensor dual ESP32** | [[data_collection_leg]] |
+| **calibration_all_sensors** | **All 6 sensors on one ESP32** | `04_Code/arduino/calibration_all_sensors/` |
 
 ### Python Tools
 | Tool | Purpose | Link |
@@ -85,6 +104,7 @@ Team: Saara, Alex, Jing
 | feature_utils | Shared feature extraction | [[feature_utils.py]] |
 | train_model | ML training pipeline | `04_Code/python/train_model.py` |
 | real_time_classifier | Live classification | [[real_time_classifier.py]] |
+| **dual_collector** | **Dual ESP32 collection** | [[dual_collector.py]] |
 
 ---
 
@@ -117,11 +137,23 @@ Team: Saara, Alex, Jing
 - [[Min/Max Tracking]] — Dynamic range detection
 
 ### Process
-1. Upload [[data_collection_wireless]] firmware
-2. Connect to [[WiFi]] or run [[calibration_visualizer]]
-3. Apply known weights to each [[Sensor Zones|sensor zone]]
+1. Upload [[data_collection_wireless]] firmware to **both** ESP32s
+2. Connect to [[WiFi]] or run [[calibration_visualizer]] (two instances for two legs)
+3. Apply known weights to each sensor zone:
+   - Heel pressure (standing)
+   - Ball pressure (toe push)
+   - Knee stretch (knee flexion)
 4. Record [[ADC]] response values
-5. Save [[Calibration Curves]]
+5. Save calibration to `03_Data/calibration/`
+
+### Calibration Commands
+```bash
+# Terminal 1 - Left leg
+python 04_Code/python/calibration_visualizer.py --port /dev/cu.usbmodem2101
+
+# Terminal 2 - Right leg (different port)
+python 04_Code/python/calibration_visualizer.py --port /dev/cu.usbmodem2102
+```
 
 ---
 
@@ -151,10 +183,15 @@ See [[CODE_REVIEW]] for full details.
 
 ## 🚀 Quick Start
 
+> **New to the project?** See [[DUAL_ESP32_QUICKSTART]] for the 6-sensor setup.
+> 
+> **Want Edge ML?** See [[EDGE_IMPULSE_QUICKSTART]] for TinyML deployment!
+
 ### 1. Hardware Setup
 ```bash
-# Connect XIAO ESP32S3 via USB-C
-# Default port: /dev/cu.usbmodem2101 (macOS). Use `pio device list` to find yours
+# Connect BOTH XIAO ESP32S3s via USB-C (one per leg)
+# Default ports: /dev/cu.usbmodem2101 (Left), /dev/cu.usbmodem2102 (Right)
+# Use `pio device list` to find your ports
 ```
 
 ### 2. Build & Upload
@@ -228,5 +265,5 @@ Smart Socks/
 
 ---
 
-*Last updated: 2026-01-29*  
+*Last updated: 2026-02-01*  
 *Open in [[Obsidian]] for best experience*
