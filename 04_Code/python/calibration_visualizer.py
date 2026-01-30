@@ -310,19 +310,22 @@ class CalibrationVisualizer:
             return
             
         try:
-            # Capture frame from figure using canvas buffer
             import numpy as np
+            # Draw the canvas
             self.fig.canvas.draw()
             
-            # Get the buffer from the figure canvas
-            buf = self.fig.canvas.buffer_rgba()
-            ncols, nrows = self.fig.canvas.get_width_height()
+            # Get the RGBA buffer from the figure
+            w, h = self.fig.canvas.get_width_height()
+            buf = np.frombuffer(self.fig.canvas.tostring_argb(), dtype=np.uint8)
             
-            # Convert to numpy array
-            frame = np.frombuffer(buf, dtype=np.uint8).reshape(nrows, ncols, 4)
+            # Reshape and convert ARGB to RGB
+            # buf shape is (h, w, 4) in ARGB format
+            buf.shape = (h, w, 4)
+            # Convert ARGB to RGB (skip alpha channel, reorder)
+            rgb_frame = buf[:, :, 1:]  # Take R, G, B (skip A)
             
-            # Write to video (RGB only, flip vertically for correct orientation)
-            self.video_writer.append_data(frame[:, :, :3])
+            # Write to video
+            self.video_writer.append_data(rgb_frame)
             self.frame_count += 1
         except Exception as e:
             print(f"[WARNING] Failed to save frame: {e}")
