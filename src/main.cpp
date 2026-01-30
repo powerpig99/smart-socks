@@ -42,6 +42,11 @@ const int ADC_RESOLUTION = 12;
 
 WebServer server(80);
 
+// ============== FUNCTION DECLARATIONS ==============
+
+void handleRoot();
+void handleSensors();
+
 // ============== SETUP ==============
 
 void setup() {
