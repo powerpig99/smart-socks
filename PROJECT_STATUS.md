@@ -106,9 +106,9 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 "L_P_Heel",  // Left Pressure - Heel (A0/GPIO 1)
 "L_P_Ball",  // Left Pressure - Ball (A1/GPIO 2)
 "L_S_Knee",  // Left Stretch - Knee (A2/GPIO 3)
-"R_P_Heel",  // Right Pressure - Heel (A0/GPIO 1 - on 2nd ESP32)
-"R_P_Ball",  // Right Pressure - Ball (A1/GPIO 2 - on 2nd ESP32)
-"R_S_Knee"   // Right Stretch - Knee (A2/GPIO 3 - on 2nd ESP32)
+"R_P_Heel",  // Right Pressure - Heel (A3/GPIO 4)
+"R_P_Ball",  // Right Pressure - Ball (A4/GPIO 5)
+"R_S_Knee"   // Right Stretch - Knee (A5/GPIO 6)
 ```
 
 ### Movement Detection Strategy
@@ -178,7 +178,7 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 | `data_collection` | ✅ Working | Serial data logging |
 | `data_collection_ble` | ✅ Working | BLE wireless streaming |
 | `data_collection_wireless` | ✅ Working | WiFi+BLE+Serial unified |
-| `data_collection_leg` | ✅ **NEW** | 6-sensor dual ESP32 with sync |
+| `data_collection_leg` | ✅ **NEW** | 6-sensor single ESP32 (WiFi+BLE+serial) |
 | `calibration_all_sensors` | ✅ **NEW** | All 6 sensors on one ESP32 |
 
 ### Python Tools
@@ -189,7 +189,7 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 | `feature_extraction.py` | ✅ Ready | Config-aware feature extraction |
 | `train_model.py` | ✅ Ready | ML pipeline |
 | `real_time_classifier.py` | ⚠️ Needs Fix | Uses `feature_utils.py` (wrong features) |
-| `dual_collector.py` | ❌ **BROKEN** | Import error (C5) |
+| `collector.py` | ✅ Ready | Single-port data collection |
 | `demo.py` | ❌ **BROKEN** | `range(10)` crash (C3) |
 | `quick_test.py` | ❌ **BROKEN** | Rejects 6-sensor data (C4) |
 
@@ -238,14 +238,14 @@ uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 - [x] `train_model.py` imports activities from config
 
 ### 🆕 New Design (Feb 2026)
-- **Hardware:** Dual ESP32S3 XIAO (one per leg)
+- **Hardware:** Single ESP32S3 XIAO (all 6 sensors)
 - **Sensors:** 6 total (4 pressure + 2 stretch)
 - **Docs:** [[sensor_placement_v2]] | [[circuit_diagram_v2]]
 
 ### 🐛 Critical Bugs to Fix
 - [ ] `demo.py` — `range(10)` crash (C3)
 - [ ] `quick_test.py` — rejects 6-sensor data (C4)
-- [ ] `dual_collector.py` — `CONFIG` import error (C5)
+- [x] `dual_collector.py` — replaced with `collector.py` (single ESP32)
 - [ ] `feature_utils.py` — wrong index math (C1-C2)
 - [ ] `demo.py`, `ble_client.py` — old sensor names (H1)
 
