@@ -77,18 +77,19 @@ uv run calibration_visualizer.py --port /dev/cu.usbmodem2101
 #   Windows: COM3
 ```
 
-### Running from project root
+### Working Directory
+
+**Always work from `04_Code/python/` directory for Python tasks:**
 
 ```bash
-# From Smart-Socks/ root
-cd ~/Projects/Smart-Socks
+cd ~/Projects/Smart-Socks/04_Code/python
 
-# Using uv run with module path
-uv run python -m 04_Code.python.calibration_visualizer --port /dev/cu.usbmodem2101
-
-# Or with explicit path
-uv run python 04_Code/python/calibration_visualizer.py --port /dev/cu.usbmodem2101
+# Then use UV commands
+uv sync
+uv run calibration_visualizer.py --port /dev/cu.usbmodem2101
 ```
+
+This keeps the Python environment co-located with the code.
 
 ## Project Structure
 
