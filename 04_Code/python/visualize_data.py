@@ -228,6 +228,10 @@ def plot_correlation_matrix(df, save_path=None):
 def plot_foot_pressure_map(df, time_idx=None, save_path=None):
     """
     Create a visual representation of pressure on foot.
+    
+    Updated for 6-sensor design (Jan 2026):
+    - 2 pressure sensors per foot: Heel and Ball
+    - 1 stretch sensor per leg: Knee
     """
     if time_idx is None:
         time_idx = len(df) // 2  # Use middle time point
@@ -235,51 +239,66 @@ def plot_foot_pressure_map(df, time_idx=None, save_path=None):
     # Extract values at specific time
     row = df.iloc[time_idx]
     
+    # 6-sensor layout: L_P_Heel, L_P_Ball, L_S_Knee, R_P_Heel, R_P_Ball, R_S_Knee
+    # Map to current sensor names from config
+    from config import SENSORS
+    
+    # Get pressure values (default to 0 if column missing)
+    left_heel = row.get('L_P_Heel', 0)
+    left_ball = row.get('L_P_Ball', 0)
+    left_knee = row.get('L_S_Knee', 0)
+    right_heel = row.get('R_P_Heel', 0)
+    right_ball = row.get('R_P_Ball', 0)
+    right_knee = row.get('R_S_Knee', 0)
+    
     fig, axes = plt.subplots(1, 2, figsize=(12, 8))
     
-    # Left foot
-    left_values = [row.get(f"L_{zone}", 0) for zone in ["Heel", "Arch", "MetaM", "MetaL", "Toe"]]
-    left_positions = [(0.5, 0.2), (0.5, 0.4), (0.3, 0.7), (0.7, 0.7), (0.5, 0.9)]
+    # Left foot (Heel + Ball pressure + Knee stretch indicator)
+    left_values = [left_heel, left_ball, left_knee]
+    # Positions: Heel at bottom, Ball at top, Knee shown separately
+    left_positions = [(0.5, 0.25), (0.5, 0.75)]  # Heel, Ball
+    left_labels = ['Heel', 'Ball']
     
     ax = axes[0]
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_aspect('equal')
     ax.axis('off')
-    ax.set_title('Left Foot Pressure Map')
+    ax.set_title(f'Left Foot Pressure Map\nKnee: {left_knee:.0f}')
     
     # Draw foot outline (simplified)
     foot_outline = plt.Rectangle((0.2, 0.1), 0.6, 0.8, fill=False, linewidth=2)
     ax.add_patch(foot_outline)
     
-    # Draw pressure circles
-    max_val = max(left_values) if max(left_values) > 0 else 1
-    for (x, y), val, name in zip(left_positions, left_values, ["Heel", "Arch", "MetaM", "MetaL", "Toe"]):
-        size = (val / max_val) * 500
+    # Draw pressure circles (heel and ball only)
+    max_val = max(left_values[:2]) if max(left_values[:2]) > 0 else 1
+    for (x, y), val, name in zip(left_positions, left_values[:2], left_labels):
+        size = (val / max_val) * 800
         color = plt.cm.YlOrRd(val / 4095)
         ax.scatter(x, y, s=size, c=[color], alpha=0.7, edgecolors='black')
-        ax.annotate(name, (x, y), ha='center', va='center', fontsize=8)
+        ax.annotate(f'{name}\n{val:.0f}', (x, y), ha='center', va='center', fontsize=9)
     
     # Right foot
-    right_values = [row.get(f"R_{zone}", 0) for zone in ["Heel", "Arch", "MetaM", "MetaL", "Toe"]]
-    right_positions = [(0.5, 0.2), (0.5, 0.4), (0.7, 0.7), (0.3, 0.7), (0.5, 0.9)]
+    right_values = [right_heel, right_ball, right_knee]
+    right_positions = [(0.5, 0.25), (0.5, 0.75)]  # Heel, Ball
+    right_labels = ['Heel', 'Ball']
     
     ax = axes[1]
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_aspect('equal')
     ax.axis('off')
-    ax.set_title('Right Foot Pressure Map')
+    ax.set_title(f'Right Foot Pressure Map\nKnee: {right_knee:.0f}')
     
     foot_outline = plt.Rectangle((0.2, 0.1), 0.6, 0.8, fill=False, linewidth=2)
     ax.add_patch(foot_outline)
     
-    max_val = max(right_values) if max(right_values) > 0 else 1
-    for (x, y), val, name in zip(right_positions, right_values, ["Heel", "Arch", "MetaM", "MetaL", "Toe"]):
-        size = (val / max_val) * 500
+    max_val = max(right_values[:2]) if max(right_values[:2]) > 0 else 1
+    for (x, y), val, name in zip(right_positions, right_values[:2], right_labels):
+        size = (val / max_val) * 800
         color = plt.cm.YlOrRd(val / 4095)
         ax.scatter(x, y, s=size, c=[color], alpha=0.7, edgecolors='black')
-        ax.annotate(name, (x, y), ha='center', va='center', fontsize=8)
+        ax.annotate(f'{name}\n{val:.0f}', (x, y), ha='center', va='center', fontsize=9)
     
     plt.tight_layout()
     

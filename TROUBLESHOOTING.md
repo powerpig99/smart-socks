@@ -430,7 +430,7 @@ When reporting an issue, include:
 ### Q: Can I use a different microcontroller?
 **A:** Yes, but you'll need to modify the Arduino code for your board's ADC and pin layout.
 
-### Q: What if I don't have all 10 sensors working?
+### Q: What if I don't have all 6 sensors working?
 **A:** The code can work with fewer sensors, but accuracy may decrease. Update `SENSORS['names']` in `config.py`.
 
 ### Q: Can I increase the sampling rate?

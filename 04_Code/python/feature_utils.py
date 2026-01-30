@@ -17,6 +17,14 @@ from config import SENSORS, HARDWARE
 SENSOR_NAMES = SENSORS['names']
 SAMPLING = {'rate_hz': HARDWARE['sample_rate_hz']}
 
+# Sensor groupings for 6-sensor design (4 pressure + 2 stretch)
+PRESSURE_SENSORS = SENSORS['pressure_sensors']
+STRETCH_SENSORS = SENSORS['stretch_sensors']
+HEEL_ZONES = SENSORS['heel_zones']
+BALL_ZONES = SENSORS['ball_zones']
+LEFT_PRESSURE = SENSORS['left_pressure']
+RIGHT_PRESSURE = SENSORS['right_pressure']
+
 
 def extract_statistical_features(data, sensor_names=SENSOR_NAMES):
     """
@@ -82,6 +90,10 @@ def extract_cross_sensor_features(data, sensor_names=SENSOR_NAMES):
     """
     Extract features that combine multiple sensors.
     
+    Designed for 6-sensor layout: 2 pressure + 1 stretch per leg
+    - Pressure: L_P_Heel, L_P_Ball, R_P_Heel, R_P_Ball
+    - Stretch: L_S_Knee, R_S_Knee
+    
     Args:
         data: numpy array of shape (n_samples, n_sensors) or list of dicts
         sensor_names: List of sensor names (default from config)
@@ -93,49 +105,70 @@ def extract_cross_sensor_features(data, sensor_names=SENSOR_NAMES):
     if isinstance(data, list):
         data = np.array([[s[sensor] for sensor in sensor_names] for s in data])
     
-    features = {}
-    n_sensors = len(sensor_names)
-    n_left = n_sensors // 2  # Assume first half are left foot
+    # Build index mapping for sensor names
+    sensor_idx = {name: i for i, name in enumerate(sensor_names)}
     
-    # Calculate total pressure per foot
-    left_total = np.sum(data[:, 0:n_left], axis=1)
-    right_total = np.sum(data[:, n_left:n_sensors], axis=1)
+    features = {}
+    
+    # Helper to get column by sensor name
+    def get_col(name):
+        return data[:, sensor_idx[name]] if name in sensor_idx else np.zeros(data.shape[0])
+    
+    # ===== PRESSURE FEATURES =====
+    # Calculate total pressure per leg (heel + ball)
+    left_pressure_sum = sum(get_col(s) for s in LEFT_PRESSURE)
+    right_pressure_sum = sum(get_col(s) for s in RIGHT_PRESSURE)
+    
+    features['left_pressure_mean'] = np.mean(left_pressure_sum)
+    features['left_pressure_std'] = np.std(left_pressure_sum)
+    features['right_pressure_mean'] = np.mean(right_pressure_sum)
+    features['right_pressure_std'] = np.std(right_pressure_sum)
+    features['left_right_pressure_ratio'] = np.mean(left_pressure_sum) / (np.mean(right_pressure_sum) + 1e-6)
+    
+    # Heel vs Ball pressure ratio (hindfoot vs forefoot)
+    left_heel = get_col('L_P_Heel')
+    left_ball = get_col('L_P_Ball')
+    right_heel = get_col('R_P_Heel')
+    right_ball = get_col('R_P_Ball')
+    
+    features['left_heel_ball_ratio'] = np.mean(left_heel) / (np.mean(left_ball) + 1e-6)
+    features['right_heel_ball_ratio'] = np.mean(right_heel) / (np.mean(right_ball) + 1e-6)
+    
+    # ===== STRETCH FEATURES =====
+    left_knee = get_col('L_S_Knee')
+    right_knee = get_col('R_S_Knee')
+    
+    features['left_knee_mean'] = np.mean(left_knee)
+    features['left_knee_std'] = np.std(left_knee)
+    features['right_knee_mean'] = np.mean(right_knee)
+    features['right_knee_std'] = np.std(right_knee)
+    features['left_right_knee_ratio'] = np.mean(left_knee) / (np.mean(right_knee) + 1e-6)
+    
+    # ===== COMBINED FEATURES =====
+    # Total activity per leg (pressure + stretch)
+    left_total = left_pressure_sum + left_knee
+    right_total = right_pressure_sum + right_knee
     
     features['left_total_mean'] = np.mean(left_total)
-    features['left_total_std'] = np.std(left_total)
     features['right_total_mean'] = np.mean(right_total)
-    features['right_total_std'] = np.std(right_total)
-    features['left_right_ratio'] = np.mean(left_total) / (np.mean(right_total) + 1e-6)
+    features['left_right_total_ratio'] = np.mean(left_total) / (np.mean(right_total) + 1e-6)
     
-    # Forefoot vs hindfoot pressure ratio (assuming: heel, arch = hind, metaM, metaL, toe = fore)
-    left_forefoot = np.sum(data[:, 2:n_left], axis=1)  # MetaM, MetaL, Toe
-    left_hindfoot = np.sum(data[:, 0:2], axis=1)  # Heel, Arch
-    right_forefoot = np.sum(data[:, n_left+2:n_sensors], axis=1)
-    right_hindfoot = np.sum(data[:, n_left:n_left+2], axis=1)
-    
-    features['left_fore_hind_ratio'] = np.mean(left_forefoot) / (np.mean(left_hindfoot) + 1e-6)
-    features['right_fore_hind_ratio'] = np.mean(right_forefoot) / (np.mean(right_hindfoot) + 1e-6)
-    
-    # Medial vs lateral pressure (for metatarsals: index 2 and 3)
-    if n_left >= 4:
-        left_medial = data[:, 2]  # MetaM
-        left_lateral = data[:, 3]  # MetaL
-        features['left_medial_lateral_ratio'] = np.mean(left_medial) / (np.mean(left_lateral) + 1e-6)
-    else:
-        features['left_medial_lateral_ratio'] = 0
-    
-    if n_sensors >= n_left + 4:
-        right_medial = data[:, n_left + 2]  # MetaM
-        right_lateral = data[:, n_left + 3]  # MetaL
-        features['right_medial_lateral_ratio'] = np.mean(right_medial) / (np.mean(right_lateral) + 1e-6)
-    else:
-        features['right_medial_lateral_ratio'] = 0
-    
-    # Balance between feet (correlation)
+    # Balance between legs (correlation of total activity)
     if len(left_total) > 1 and np.std(left_total) > 0 and np.std(right_total) > 0:
         features['left_right_correlation'] = np.corrcoef(left_total, right_total)[0, 1]
     else:
         features['left_right_correlation'] = 0
+    
+    # Pressure vs Stretch correlation (within each leg)
+    if np.std(left_pressure_sum) > 0 and np.std(left_knee) > 0:
+        features['left_pressure_stretch_corr'] = np.corrcoef(left_pressure_sum, left_knee)[0, 1]
+    else:
+        features['left_pressure_stretch_corr'] = 0
+        
+    if np.std(right_pressure_sum) > 0 and np.std(right_knee) > 0:
+        features['right_pressure_stretch_corr'] = np.corrcoef(right_pressure_sum, right_knee)[0, 1]
+    else:
+        features['right_pressure_stretch_corr'] = 0
     
     return features
 

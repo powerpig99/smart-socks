@@ -105,10 +105,10 @@ class CalibrationVisualizer:
         self.save_calibration = False
         self.sample_count = 0
         
-        # GIF recording
+        # GIF recording (streaming to disk for O(1) memory usage)
         self.record_file = None
         self.recording = False
-        self.frames = []
+        self.gif_writer = None
         self.frame_count = 0
         
         # Setup plot
@@ -250,57 +250,98 @@ class CalibrationVisualizer:
             self._stop_recording()
         else:
             self._start_recording()
-            
+
     def _start_recording(self):
-        """Start recording GIF."""
+        """Start recording GIF with background writer thread."""
         if self.recording:
             return
-            
+
+        try:
+            import imageio
+        except ImportError:
+            print("\n[ERROR] imageio not installed. Install with: pip install imageio")
+            return
+
+        import threading
+        import queue
+
         # Generate filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.record_file = f"demo_recording_{timestamp}.gif"
-        
+
+        # Frame queue for background writing
+        self._frame_queue = queue.Queue()
+
+        # Background writer thread — defers file creation until first frame
+        def _writer_loop(filename, frame_queue):
+            import os
+            writer = None
+            count = 0
+            while True:
+                frame = frame_queue.get()
+                if frame is None:  # Sentinel: stop
+                    break
+                # Create writer lazily on first frame
+                if writer is None:
+                    writer = imageio.get_writer(filename, mode='I', duration=50, loop=0)
+                writer.append_data(frame)
+                count += 1
+            if writer is not None:
+                writer.close()
+                print(f"\n[RECORDING SAVED] {count} frames to: {filename}")
+                print(f"[INFO] GIF duration: {count / 20:.1f} seconds")
+
+        self._writer_thread = threading.Thread(
+            target=_writer_loop,
+            args=(self.record_file, self._frame_queue),
+            daemon=True
+        )
+        self._writer_thread.start()
         self.recording = True
-        self.frames = []
         self.frame_count = 0
         print(f"\n[RECORDING STARTED] Saving to: {self.record_file}")
         print("[INFO] Press 'C' again to stop and save GIF")
-        
+
     def _stop_recording(self):
-        """Stop recording and save GIF."""
+        """Stop recording and finalize GIF in background."""
         if not self.recording:
             return
-            
+
         self.recording = False
-        
-        if self.frames:
-            try:
-                import imageio
-                # Save GIF with 20fps (50ms interval)
-                imageio.mimsave(self.record_file, self.frames, fps=20)
-                print(f"\n[RECORDING STOPPED] Saved {self.frame_count} frames to: {self.record_file}")
-                print(f"[INFO] GIF duration: {self.frame_count / 20:.1f} seconds")
-            except Exception as e:
-                print(f"\n[ERROR] Failed to save GIF: {e}")
-        else:
+        frame_queue = self._frame_queue
+        writer_thread = self._writer_thread
+        record_file = self.record_file
+        self._frame_queue = None
+        self._writer_thread = None
+
+        if frame_queue:
+            # Send sentinel to stop writer thread
+            frame_queue.put(None)
+            # Join in background so UI doesn't freeze
+            import threading
+            def _wait_and_report(thread):
+                thread.join()
+            threading.Thread(target=_wait_and_report, args=(writer_thread,), daemon=True).start()
+
+        if self.frame_count == 0:
             print("\n[WARNING] No frames captured")
-        
-        self.frames = []
-        
+
     def _save_frame(self):
-        """Capture frame for GIF."""
+        """Capture frame and queue it for background GIF writing."""
         if not self.recording:
             return
-            
+        frame_queue = self._frame_queue
+        if not frame_queue:
+            return
+
         try:
-            import numpy as np
-            # Draw and capture
-            self.fig.canvas.draw()
+            from PIL import Image
             buf = self.fig.canvas.buffer_rgba()
-            ncols, nrows = self.fig.canvas.get_width_height()
-            # Convert to numpy array
-            img = np.frombuffer(buf, np.uint8).reshape(nrows, ncols, 4)
-            self.frames.append(img)
+            img = np.asarray(buf).copy()  # Copy before buffer is reused
+            pil_img = Image.fromarray(img, 'RGBA').convert('RGB')
+            w, h = pil_img.size
+            pil_img = pil_img.resize((w // 2, h // 2), Image.LANCZOS)
+            frame_queue.put(np.asarray(pil_img))
             self.frame_count += 1
         except Exception as e:
             print(f"[WARNING] Failed to capture frame: {e}")
@@ -510,11 +551,12 @@ class CalibrationVisualizer:
         # Update status bar
         if NORDIC_STYLE:
             self.status_ax.clear()
+            self.status_ax.set_facecolor(COLORS['nord0'])  # Prevent white background showing
             state = 'PAUSED' if self.paused else 'RUNNING'
             # Show recording indicator by changing C=Record to C=*REC* when recording
             controls = "|  Q=Quit R=Reset S=Save P=Pause C=*REC*" if self.recording else "|  Q=Quit R=Reset S=Save P=Pause C=Record"
             status = f"PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
-            create_status_bar(self.status_ax, status, is_recording=not self.paused)
+            create_status_bar(self.status_ax, status, is_recording=self.recording)
         
         # Save frame if recording
         if self.recording:

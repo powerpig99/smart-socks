@@ -105,6 +105,7 @@ Team: Saara, Alex, Jing
 | train_model | ML training pipeline | `04_Code/python/train_model.py` |
 | real_time_classifier | Live classification | [[real_time_classifier.py]] |
 | **dual_collector** | **Dual ESP32 collection** | [[dual_collector.py]] |
+| **GIF Recording Fix** | **Technical deep-dive on calibration visualizer recording** | [[GIF_RECORDING_FIX]] |
 
 ---
 
@@ -176,8 +177,9 @@ python 04_Code/python/calibration_visualizer.py --port /dev/cu.usbmodem2102
 - [[Issue 12]] — Window sliding
 - [[Issue 13]] — quick_test warnings
 - [[Issue 14]] — Accuracy parsing
+- [[GIF_RECORDING_FIX]] — Calibration visualizer GIF recording (6 bugs fixed)
 
-See [[CODE_REVIEW]] for full details.
+See [[CODE_REVIEW]] and [[AUDIT_GAPS_AND_FIXES]] for full details.
 
 ---
 

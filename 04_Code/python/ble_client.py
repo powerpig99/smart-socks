@@ -31,7 +31,7 @@ except ImportError:
     print("Warning: BLE support requires 'bleak' package.")
     print("Install with: pip install bleak")
 
-from config import HARDWARE, SENSORS, REALTIME
+from config import HARDWARE, SENSORS, REALTIME, WINDOWING
 from logging_utils import get_logger, setup_logging
 
 logger = get_logger(__name__)
@@ -43,7 +43,7 @@ CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 # Sensor configuration
 SENSOR_NAMES = SENSORS['names']
-WINDOW_SAMPLES = int(REALTIME['window_size_ms'] / 1000 * HARDWARE['sample_rate_hz'])
+WINDOW_SAMPLES = int(WINDOWING['window_size_ms'] / 1000 * HARDWARE['sample_rate_hz'])
 
 
 class BLESmartSocksClient:

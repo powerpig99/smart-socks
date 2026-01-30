@@ -42,6 +42,11 @@ bleak>=0.19.0
 pytest>=7.0.0
 pytest-cov>=4.0.0
 
+# Image/video recording (for calibration_visualizer.py)
+imageio>=2.25.0
+imageio-ffmpeg>=0.4.8
+Pillow>=9.0.0
+
 # Development tools
 black>=22.0.0          # Code formatting
 flake8>=5.0.0          # Linting
