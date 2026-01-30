@@ -235,12 +235,24 @@ MODEL = {
 # =============================================================================
 
 ACTIVITIES = {
+    # Target activities for classification
     'all': [
         'walking_forward', 'walking_backward',
         'stairs_up', 'stairs_down',
         'sitting_floor', 'sitting_crossed',
         'sit_to_stand', 'stand_to_sit',
-        'standing_upright', 'standing_lean_left', 'standing_lean_right'
+        'standing_upright', 'standing_lean_left', 'standing_lean_right',
+        'unknown'  # IMPORTANT: Required per course feedback - catch-all for non-target activities
+    ],
+    
+    # Activities for ML training (includes unknown for robust classification)
+    'training': [
+        'walking_forward', 'walking_backward',
+        'stairs_up', 'stairs_down',
+        'sitting_floor', 'sitting_crossed',
+        'sit_to_stand', 'stand_to_sit',
+        'standing_upright', 'standing_lean_left', 'standing_lean_right',
+        'unknown'
     ],
     
     'categories': {
@@ -249,11 +261,22 @@ ACTIVITIES = {
         'sitting': ['sitting_floor', 'sitting_crossed'],
         'transitions': ['sit_to_stand', 'stand_to_sit'],
         'standing': ['standing_upright', 'standing_lean_left', 'standing_lean_right'],
+        'unknown': ['unknown'],
     },
     
     'requires_step_counting': [
         'walking_forward', 'walking_backward',
         'stairs_up', 'stairs_down'
+    ],
+    
+    # Activities that should be classified as 'unknown' (for data collection reference)
+    'should_be_unknown': [
+        'jumping',           # Not in target list
+        'running',           # Not in target list
+        'random_movement',   # Random leg movements
+        'shaking_legs',      # Sitting with restless leg movement
+        'stretching',        # Static stretching
+        'lying_down',        # Not in target list
     ],
 }
 
