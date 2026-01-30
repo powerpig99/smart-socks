@@ -1,8 +1,15 @@
 # Smart Socks - Python Dependencies
 # ELEC-E7840 Smart Wearables (Aalto University)
 #
-# Install with: pip install -r requirements.txt
-# For development: pip install -r requirements.txt -r requirements-dev.txt
+# ⚠️  NOTE: This project uses UV for dependency management
+# See: pyproject.toml (preferred) and README_PYTHON_SETUP.md
+#
+# Quick setup with UV:
+#   cd 04_Code/python
+#   uv sync
+#
+# Legacy pip install (not recommended):
+#   pip install -r requirements.txt
 
 # Data handling
 numpy>=1.21.0

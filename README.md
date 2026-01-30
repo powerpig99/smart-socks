@@ -192,17 +192,26 @@ Based on analysis of XIAO Big Power Small Board Chapter 4, Smart Socks is an ide
 - **Model size:** 15-30KB
 - **Accuracy:** 90-95% (4-6 activity classes)
 
-### Installation
+### Installation (UV - Recommended)
+
+This project uses [UV](https://docs.astral.sh/uv/) for fast, reliable Python dependency management.
 
 ```bash
-# Install Python dependencies
+# Install UV (one-time)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Setup environment
 cd 04_Code/python/
-pip install -r requirements.txt
+uv sync                    # Creates venv and installs all dependencies
 
 # Run quick test to verify setup
-python quick_test.py --port /dev/cu.usbmodem2101
+uv run python quick_test.py --port /dev/cu.usbmodem2101
 # Replace with your port (find with: pio device list)
 ```
+
+**See [README_PYTHON_SETUP.md](README_PYTHON_SETUP.md) for detailed UV instructions.**
+
+**Legacy (pip):** If you prefer pip: `pip install -r requirements.txt`
 
 ### Serial Commands (Data Collection Mode)
 
