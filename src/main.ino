@@ -562,6 +562,40 @@ void setup() {
   Serial.println(NUM_SENSORS);
   Serial.println();
 
+  // Initialize BLE BEFORE WiFi (shared antenna, BLE needs to init first)
+  BLEDevice::init(BLE_DEVICE_NAME);
+  bleServer = BLEDevice::createServer();
+  bleServer->setCallbacks(new SmartSocksServerCallbacks());
+
+  BLEService *pService = bleServer->createService(BLE_SERVICE_UUID);
+
+  bleSensorChar = pService->createCharacteristic(
+    BLE_CHAR_SENSOR,
+    BLECharacteristic::PROPERTY_READ |
+    BLECharacteristic::PROPERTY_NOTIFY
+  );
+  bleSensorChar->addDescriptor(new BLE2902());
+
+  bleCommandChar = pService->createCharacteristic(
+    BLE_CHAR_COMMAND,
+    BLECharacteristic::PROPERTY_WRITE
+  );
+  bleCommandChar->setCallbacks(new BLECommandCallbacks());
+  bleCommandChar->addDescriptor(new BLE2902());
+
+  pService->start();
+
+  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(BLE_SERVICE_UUID);
+  pAdvertising->setScanResponse(true);
+  pAdvertising->setMinPreferred(0x06);
+  pAdvertising->setMaxPreferred(0x12);
+  BLEDevice::startAdvertising();
+
+  Serial.println("BLE Advertising started");
+  Serial.print("BLE Device Name: ");
+  Serial.println(BLE_DEVICE_NAME);
+
   // Setup WiFi based on selected mode
 #if defined(USE_PHONE_HOTSPOT)
   // Mode 3: Phone Hotspot (RECOMMENDED for demos)
@@ -667,39 +701,6 @@ void setup() {
   server.begin();
   Serial.println("HTTP Server started on port 80");
 
-  // Initialize BLE
-  BLEDevice::init(BLE_DEVICE_NAME);
-  bleServer = BLEDevice::createServer();
-  bleServer->setCallbacks(new SmartSocksServerCallbacks());
-
-  BLEService *pService = bleServer->createService(BLE_SERVICE_UUID);
-
-  bleSensorChar = pService->createCharacteristic(
-    BLE_CHAR_SENSOR,
-    BLECharacteristic::PROPERTY_READ |
-    BLECharacteristic::PROPERTY_NOTIFY
-  );
-  bleSensorChar->addDescriptor(new BLE2902());
-
-  bleCommandChar = pService->createCharacteristic(
-    BLE_CHAR_COMMAND,
-    BLECharacteristic::PROPERTY_WRITE
-  );
-  bleCommandChar->setCallbacks(new BLECommandCallbacks());
-  bleCommandChar->addDescriptor(new BLE2902());
-
-  pService->start();
-
-  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(BLE_SERVICE_UUID);
-  pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06);
-  pAdvertising->setMaxPreferred(0x12);
-  BLEDevice::startAdvertising();
-
-  Serial.println("BLE Advertising started");
-  Serial.print("BLE Device Name: ");
-  Serial.println(BLE_DEVICE_NAME);
   Serial.println("\n========================================");
 
   printHelp();
