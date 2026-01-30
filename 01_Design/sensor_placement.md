@@ -1,8 +1,12 @@
-# Smart Socks - Sensor Placement Guide
+# Smart Socks - Sensor Placement Guide [DEPRECATED]
 
 **ELEC-E7840 Smart Wearables — Aalto University**
 
-> **Related:** [[circuit_diagram]] | [[PLATFORMIO_SETUP]] | [[README]]
+> ⚠️ **DEPRECATED:** This document describes the original 10-sensor (5 per sock) placement.
+> 
+> **Current design:** See [[sensor_placement_v2]] for the 6-sensor configuration (2 pressure sensors per sock + 1 stretch sensor per knee).
+> 
+> **Related:** [[circuit_diagram]] | [[circuit_diagram_v2]] | [[PLATFORMIO_SETUP]] | [[README]]
 
 ---
 

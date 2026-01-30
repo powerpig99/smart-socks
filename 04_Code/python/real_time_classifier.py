@@ -245,9 +245,9 @@ class RealTimeClassifier:
         if 'walking' not in activity and 'stairs' not in activity:
             return False
         
-        # Use heel pressure for step detection
-        left_heel = sensor_data.get('L_Heel', 0)
-        right_heel = sensor_data.get('R_Heel', 0)
+        # Use heel pressure for step detection (updated sensor names)
+        left_heel = sensor_data.get('L_P_Heel', 0)
+        right_heel = sensor_data.get('R_P_Heel', 0)
         total_pressure = left_heel + right_heel
         
         # Simple threshold-based step detection

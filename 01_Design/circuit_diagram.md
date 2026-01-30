@@ -1,8 +1,12 @@
-# Smart Socks - Circuit Diagram
+# Smart Socks - Circuit Diagram [DEPRECATED]
 
 **ELEC-E7840 Smart Wearables — Aalto University**
 
-> **Related:** [[sensor_placement]] | [[PLATFORMIO_SETUP]] | [[README]]
+> ⚠️ **DEPRECATED:** This document describes the original 10-sensor (5 per sock) design.
+> 
+> **Current design:** See [[circuit_diagram_v2]] for the 6-sensor configuration (3 per leg: 2 pressure + 1 stretch).
+> 
+> **Related:** [[sensor_placement]] | [[sensor_placement_v2]] | [[PLATFORMIO_SETUP]] | [[README]]
 
 ---
 

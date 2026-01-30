@@ -12,6 +12,7 @@ Usage:
 
 import argparse
 import os
+import sys
 import glob
 import numpy as np
 import pandas as pd
@@ -19,16 +20,19 @@ from scipy import interpolate, stats
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Sensor channel names
-SENSOR_NAMES = [
-    "L_Heel", "L_Arch", "L_MetaM", "L_MetaL", "L_Toe",
-    "R_Heel", "R_Arch", "R_MetaM", "R_MetaL", "R_Toe"
-]
+from config import SENSORS, DATA_QUALITY
 
-# Expected sampling interval at 50 Hz
-EXPECTED_INTERVAL_MS = 20
-MAX_GAP_MS = 50  # Maximum acceptable gap for interpolation
+# Sensor channel names from config
+SENSOR_NAMES = SENSORS['names']
+
+# Data quality thresholds from config
+EXPECTED_INTERVAL_MS = 1000 // 50  # From HARDWARE['sample_rate_hz']
+MAX_GAP_MS = DATA_QUALITY['max_acceptable_gap_ms']
+
+# Note: EXPECTED_INTERVAL_MS and MAX_GAP_MS now imported from config above
 
 
 def detect_outliers(data, method='iqr', threshold=3):

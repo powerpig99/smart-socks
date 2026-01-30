@@ -12,6 +12,7 @@ Usage:
 
 import argparse
 import os
+import sys
 import pickle
 import numpy as np
 import pandas as pd
@@ -24,15 +25,13 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 from sklearn.model_selection import GridSearchCV
 import joblib
 
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Activity labels
-ACTIVITIES = [
-    'walking_forward', 'walking_backward',
-    'stairs_up', 'stairs_down',
-    'sitting_floor', 'sitting_crossed',
-    'sit_to_stand', 'stand_to_sit',
-    'standing_upright', 'standing_lean_left', 'standing_lean_right'
-]
+from config import ACTIVITIES
+
+# Activity labels from config
+ACTIVITIES_LIST = ACTIVITIES['all']
 
 
 def load_features(features_path):
