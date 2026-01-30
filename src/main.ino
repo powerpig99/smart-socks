@@ -34,6 +34,7 @@
 
 // MODE 2: Station Mode - Connect to existing WiFi/lab network
 // Best for: Lab use with known network
+// #define USE_EXISTING_WIFI
 // MODE 3: Phone Hotspot (RECOMMENDED for demos)
 // Best for: Mobile demos, full control over network
 #define USE_PHONE_HOTSPOT
@@ -625,12 +626,21 @@ void setup() {
     }
   } else {
     Serial.println("\n✗ WiFi connection failed, falling back to AP mode");
-    goto fallback_to_ap;
+    WiFi.mode(WIFI_AP);
+    WiFi.softAP(AP_SSID, AP_PASSWORD, AP_CHANNEL);
+    IPAddress localIP(192, 168, 4, 1);
+    IPAddress gateway(192, 168, 4, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    WiFi.softAPConfig(localIP, gateway, subnet);
+    Serial.println("✓ AP Mode Started");
+    Serial.print("  SSID: ");
+    Serial.println(AP_SSID);
+    Serial.print("  IP Address: ");
+    Serial.println(WiFi.softAPIP());
   }
 
 #else
-  // Mode 1: AP Mode (default) or fallback
-  fallback_to_ap:
+  // Mode 1: AP Mode (default)
   WiFi.mode(WIFI_AP);
   WiFi.softAP(AP_SSID, AP_PASSWORD, AP_CHANNEL);
 
