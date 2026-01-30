@@ -67,15 +67,16 @@ monitor_speed = 115200
 
 #### 2. Python Environment Setup ✅
 - **Environment Manager:** UV (replaces pip+venv)
-- **Location:** `~/Projects/Smart-Socks/.venv/`
-- **Key Packages:** numpy, pandas, scipy, scikit-learn, matplotlib, pyserial, bleak
+- **Configuration:** `04_Code/python/pyproject.toml`
+- **Key Packages:** numpy, pandas, scipy, scikit-learn, matplotlib, pyserial, bleak, imageio
 
 ```bash
-# Setup commands
-cd ~/Projects/Smart-Socks
-uv venv
-source .venv/bin/activate
-uv pip install -r 04_Code/python/requirements.txt
+# Setup commands (recommended)
+cd ~/Projects/Smart-Socks/04_Code/python
+uv sync                    # Creates venv and installs all dependencies
+
+# Run scripts with UV (no activation needed)
+uv run python calibration_visualizer.py --port /dev/cu.usbmodem2101
 ```
 
 #### 3. Arduino IDE Setup (Has FAQ)
