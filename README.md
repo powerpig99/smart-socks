@@ -78,25 +78,27 @@ Smart Socks/
 ├── 03_Data/               Raw and processed sensor data
 ├── 04_Code/
 │   ├── arduino/
-│   │   ├── data_collection_leg/       Data collection firmware (WiFi+BLE+serial)
-│   │   ├── calibration_all_sensors/   All 6 sensors on one ESP32
+│   │   ├── data_collection_leg/       Reference copy of main firmware
+│   │   ├── calibration_all_sensors/   Calibration firmware (simple serial)
 │   │   ├── ei_data_forwarder/         Edge Impulse data collection
 │   │   └── ei_led_feedback/           LED feedback demo
 │   ├── python/
 │   │   ├── config.py                  Centralized configuration
 │   │   ├── calibration_visualizer.py  Real-time sensor visualization
-│   │   ├── collector.py                Data collection tool
+│   │   ├── collector.py               Data collection tool
 │   │   ├── data_preprocessing.py      Data cleaning
 │   │   ├── feature_extraction.py      ML feature extraction
 │   │   ├── train_model.py             Random Forest training
 │   │   ├── real_time_classifier.py    Live activity classification
 │   │   ├── run_full_pipeline.py       End-to-end ML automation
 │   │   └── ...
-│   ├── QUICKSTART.md                Quick start for single ESP32
+│   ├── QUICKSTART.md                  Quick start for single ESP32
 │   └── WIFI_CONFIGURATION.md         WiFi/BLE/Hotspot setup
 ├── 05_Analysis/           ML results, confusion matrices
 ├── 06_Presentation/       Poster, slides, user testing materials
 ├── 07_References/         Papers, datasheets (see REFERENCES.md)
+├── src/                   PlatformIO source (main firmware)
+├── platformio.ini         PlatformIO build configuration
 ├── PLATFORMIO_SETUP.md    PlatformIO + VS Code setup
 ├── README_PYTHON_SETUP.md Python/UV environment setup
 ├── TROUBLESHOOTING.md     Common issues and fixes
@@ -111,15 +113,14 @@ Smart Socks/
 ### Build & Upload Firmware
 
 ```bash
-# Data collection firmware (WiFi + BLE + serial)
-pio run -e xiao_esp32s3 -t upload
-
-# Calibration firmware (simple serial-only)
-pio run -e calibration -t upload
+# Build and upload (source in src/main.ino)
+pio run -t upload
 
 # Serial monitor (115200 baud)
-pio device monitor -e xiao_esp32s3
+pio device monitor
 ```
+
+Source lives in `src/main.ino`. To use calibration firmware instead, copy `04_Code/arduino/calibration_all_sensors/calibration_all_sensors.ino` to `src/main.ino`.
 
 Serial port on macOS: `/dev/cu.usbmodem2101` (find yours with `pio device list`).
 
