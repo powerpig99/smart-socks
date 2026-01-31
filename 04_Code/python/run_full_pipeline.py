@@ -66,6 +66,17 @@ def main():
         default=None,
         help='Specific subjects for testing (e.g., S07 S08 S09)'
     )
+    parser.add_argument(
+        '--with-rejection',
+        choices=['confidence', 'novelty'],
+        default=None,
+        help='Train with unknown class rejection (default: skip)'
+    )
+    parser.add_argument(
+        '--feature-importance',
+        action='store_true',
+        help='Run feature importance analysis after training'
+    )
 
     args = parser.parse_args()
 
@@ -122,6 +133,26 @@ def main():
     else:
         print("\n❌ Model training failed!")
         return 1
+
+    # Step 3b: Unknown Class Rejection (optional)
+    if args.with_rejection:
+        cmd = (f'python train_model.py --features "{features_file}" '
+               f'--output "{args.output}" --rejection {args.with_rejection}')
+        if run_command(cmd, f"Unknown Class Rejection ({args.with_rejection})"):
+            print("Rejection model saved")
+
+    # Step 3c: Feature Importance Analysis (optional)
+    if args.feature_importance:
+        model_file = os.path.join(args.output, 'smart_socks_model.joblib')
+        if os.path.exists(model_file):
+            importance_dir = os.path.join(args.output, 'feature_importance')
+            os.makedirs(importance_dir, exist_ok=True)
+            cmd = (f'python feature_importance.py --model "{model_file}" '
+                   f'--output "{importance_dir}" --features-csv "{features_file}"')
+            if run_command(cmd, "Feature Importance Analysis"):
+                print("Feature importance analysis complete")
+        else:
+            print(f"Skipping feature importance: model not found at {model_file}")
 
     # Step 4: Cross-Subject Validation (optional but recommended)
     print("\n" + "="*60)
