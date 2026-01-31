@@ -85,10 +85,14 @@ Smart Socks/
 │   ├── python/
 │   │   ├── config.py                  Centralized configuration
 │   │   ├── calibration_visualizer.py  Real-time sensor visualization
-│   │   ├── collector.py               Data collection tool
+│   │   ├── collector.py               Data collection tool (--validate for live QA)
 │   │   ├── data_preprocessing.py      Data cleaning
+│   │   ├── data_validation.py         Data quality checks
+│   │   ├── auto_validator.py          Live validation during collection
 │   │   ├── feature_extraction.py      ML feature extraction
-│   │   ├── train_model.py             Random Forest training
+│   │   ├── feature_importance.py      Feature importance for edge deployment
+│   │   ├── train_model.py             Random Forest training (--rejection support)
+│   │   ├── unknown_class.py           Unknown class detection/rejection
 │   │   ├── real_time_classifier.py    Live activity classification
 │   │   ├── run_full_pipeline.py       End-to-end ML automation
 │   │   └── ...
@@ -134,6 +138,9 @@ cd 04_Code/python
 # Record activity data
 python collector.py --activity walking_forward --port /dev/cu.usbmodem2101
 
+# Record with live data validation (checks quality every 5s)
+python collector.py --activity walking_forward --port /dev/cu.usbmodem2101 --validate
+
 # Calibration visualization (upload calibration firmware first)
 python calibration_visualizer.py --port /dev/cu.usbmodem2101
 # Controls: Q=quit, R=reset, S=save CSV, P=pause, C=record GIF
@@ -148,11 +155,25 @@ cd 04_Code/python
 # Full pipeline (recommended)
 python run_full_pipeline.py --raw-data ../../03_Data/raw/ --output ../../05_Analysis/
 
+# Full pipeline with unknown class rejection and feature importance analysis
+python run_full_pipeline.py --raw-data ../../03_Data/raw/ --output ../../05_Analysis/ \
+    --with-rejection confidence --feature-importance
+
 # Step-by-step
 python data_preprocessing.py --input ../../03_Data/raw/ --output ../../03_Data/processed/
 python feature_extraction.py --input ../../03_Data/processed/ --output ../../03_Data/features/
 python train_model.py --features ../../03_Data/features/features_all.csv --output ../../05_Analysis/
 python analysis_report.py --results-dir ../../05_Analysis/ --output ../../06_Presentation/report/
+
+# Train with unknown class rejection
+python train_model.py --features ../../03_Data/features/features_all.csv --output ../../05_Analysis/ \
+    --rejection confidence --rejection-threshold 0.6
+
+# Analyze feature importance for edge deployment
+python feature_importance.py --model ../../05_Analysis/smart_socks_model.joblib --output ../../05_Analysis/feature_importance/
+
+# Compare unknown class rejection methods
+python unknown_class.py --compare --features ../../03_Data/features/features_all.csv --output ./comparison/
 ```
 
 ### Real-Time Demo
@@ -203,6 +224,15 @@ HELP / ?       # Show commands
 ---
 
 ## Change Log
+
+### Jan 31, 2026: Proposals Integration (Unknown Class, Feature Importance, Auto Validation)
+
+- **Unknown class detection** (`unknown_class.py`): Confidence threshold and novelty detection (Isolation Forest) methods for rejecting non-target activities. Integrated via `--rejection` flag in `train_model.py`.
+- **Feature importance analysis** (`feature_importance.py`): Identifies minimal feature set for edge deployment with 90/95/99% importance thresholds. Generates edge config JSON for reduced-feature inference.
+- **Automated data validation** (`auto_validator.py`): Live validation during data collection via `--validate` flag in `collector.py`. Checks temporal jumps, stuck sensors, recording duration, and sample completeness in real-time.
+- **Pipeline integration**: `run_full_pipeline.py` gains `--with-rejection` and `--feature-importance` optional steps.
+- **Config additions**: `DATA_QUALITY` now includes `temporal_jump_threshold`, `live_validation_interval_s`, `min_recording_duration_s`.
+- **Tests**: 16 new tests across `test_unknown_class.py`, `test_feature_importance.py`, `test_auto_validator.py` (36 total, all passing).
 
 ### Jan 30, 2026: WiFi Auto-Connect
 
@@ -277,4 +307,4 @@ HELP / ?       # Show commands
 
 ---
 
-*Last updated: 2026-01-30*
+*Last updated: 2026-01-31*

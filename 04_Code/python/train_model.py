@@ -14,6 +14,7 @@ import argparse
 import os
 import sys
 import pickle
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -414,6 +415,22 @@ def main():
         default='smart_socks_model',
         help='Base name for saved model files'
     )
+    parser.add_argument(
+        '--rejection',
+        choices=['confidence', 'novelty', 'none'],
+        default='none',
+        help='Unknown class rejection method (default: none)'
+    )
+    parser.add_argument(
+        '--rejection-threshold',
+        type=float, default=0.6,
+        help='Confidence threshold for rejection (default: 0.6)'
+    )
+    parser.add_argument(
+        '--rejection-contamination',
+        type=float, default=0.1,
+        help='Contamination parameter for novelty detection (default: 0.1)'
+    )
 
     args = parser.parse_args()
 
@@ -449,7 +466,44 @@ def main():
         
         # Save model
         save_model(model, scaler, feature_names, label_encoder, args.output, args.model_name)
-    
+
+        # Optional: wrap with rejection
+        if args.rejection and args.rejection != 'none':
+            from unknown_class import (
+                ConfidenceThresholdClassifier, NoveltyDetector,
+                IsolationForest
+            )
+
+            rejection_name = f'{args.model_name}_rejection'
+
+            if args.rejection == 'confidence':
+                rejector = ConfidenceThresholdClassifier(model, args.rejection_threshold)
+                rejector.set_scaler(scaler)
+                rejector.save(Path(args.output) / f'{rejection_name}.joblib')
+                rejection_config = {
+                    'method': 'confidence_threshold',
+                    'threshold': args.rejection_threshold,
+                    'classes': list(rejector.classes_),
+                }
+            elif args.rejection == 'novelty':
+                novelty_det = IsolationForest(
+                    contamination=args.rejection_contamination,
+                    random_state=42, n_jobs=-1
+                )
+                detector = NoveltyDetector(model, novelty_det, scaler)
+                detector.fit_novelty_detector(X_train)
+                detector.save(Path(args.output) / f'{rejection_name}.joblib')
+                rejection_config = {
+                    'method': 'novelty_detection',
+                    'contamination': args.rejection_contamination,
+                    'classes': list(detector.classes_),
+                }
+
+            import json
+            with open(Path(args.output) / f'{rejection_name}_config.json', 'w') as f:
+                json.dump(rejection_config, f, indent=2)
+            print(f"\nSaved rejection model: {rejection_name}.joblib")
+
     print("\n" + "="*50)
     print("Training complete!")
     print("="*50)

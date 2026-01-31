@@ -333,6 +333,9 @@ Examples:
     parser.add_argument('--subject', default='unknown', help='Subject identifier')
     parser.add_argument('--duration', type=int, help='Recording duration in seconds')
 
+    parser.add_argument('--validate', action='store_true',
+                       help='Enable live data validation during recording')
+
     parser.add_argument('--list-ports', action='store_true', help='List available serial ports')
 
     args = parser.parse_args()
@@ -371,6 +374,12 @@ Examples:
         print(f"Recording activity: {args.activity}")
         collector = DataCollector(args.port)
 
+        validator = None
+        if args.validate:
+            from auto_validator import LiveValidator
+            validator = LiveValidator()
+            print("Live validation enabled")
+
         if not collector.connect():
             print("Failed to connect")
             return
@@ -385,17 +394,49 @@ Examples:
 
             if args.duration:
                 print(f"Recording for {args.duration} seconds...")
-                time.sleep(args.duration)
+                start = time.time()
+                while time.time() - start < args.duration:
+                    elapsed = time.time() - start
+                    if validator and validator.should_validate(elapsed):
+                        buf = list(collector.data_buffer)
+                        ok, issues = validator.validate_buffer(buf, args.activity)
+                        if not ok:
+                            for issue in issues:
+                                print(f"  [VALIDATE] {issue}")
+                    time.sleep(0.1)
             else:
                 print("Recording... Press Ctrl+C to stop")
+                start = time.time()
                 while True:
+                    elapsed = time.time() - start
+                    if validator and validator.should_validate(elapsed):
+                        buf = list(collector.data_buffer)
+                        ok, issues = validator.validate_buffer(buf, args.activity)
+                        if not ok:
+                            for issue in issues:
+                                print(f"  [VALIDATE] {issue}")
                     time.sleep(0.1)
 
         except KeyboardInterrupt:
             print("\nStopping...")
         finally:
             data = collector.stop_recording()
-            collector.save_data(data, args.activity, args.subject)
+
+            save = True
+            if validator and data:
+                filepath_tmp = collector.save_data(data, args.activity, args.subject)
+                if filepath_tmp:
+                    report = validator.post_collection_report(filepath_tmp)
+                    print(f"\n{report.summary()}")
+                    if report.issues:
+                        answer = input("\nRecording has issues. Save anyway? [y/N] ")
+                        if answer.lower() != 'y':
+                            filepath_tmp.unlink(missing_ok=True)
+                            print("Recording discarded.")
+                            save = False
+                save = False  # Already saved above
+            if save:
+                collector.save_data(data, args.activity, args.subject)
             collector.disconnect()
         return
 

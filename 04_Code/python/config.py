@@ -132,6 +132,11 @@ DATA_QUALITY = {
     # ADC validation
     'adc_saturation_threshold': 4000,  # Near max value = saturated
     'adc_noise_threshold': 10,         # Near min value = disconnected/noisy
+
+    # Live validation (auto_validator.py)
+    'temporal_jump_threshold': 1000,     # Max ADC change per sample
+    'live_validation_interval_s': 5,     # How often to validate during collection
+    'min_recording_duration_s': 10,      # Minimum valid recording length
 }
 
 
