@@ -42,7 +42,7 @@ WiFi mode: set `#define` at top of `src/main.ino`:
 |------|--------|-------------|
 | `data_collection_leg.ino` | Working | Main firmware: WiFi + BLE + serial + web dashboard |
 | `calibration_all_sensors.ino` | Working | Simple calibration: always streams all 6 sensors |
-| `calibration_visualizer.py` | Working | Real-time plots, serial commands (1=CAL, Enter=START/STOP, I=STATUS), GIF recording |
+| `calibration_visualizer.py` | Working | Real-time plots, serial commands (Enter=START/STOP, I=STATUS), GIF recording |
 | `collector.py` | Ready | Single-port CSV data collection |
 | `config.py` | Ready | Centralized configuration |
 | `data_preprocessing.py` | Ready | Data cleaning pipeline |

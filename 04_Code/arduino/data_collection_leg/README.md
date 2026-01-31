@@ -41,7 +41,6 @@ Connect via serial monitor (115200 baud):
 ```
 START / S      - Start recording
 STOP / X       - Stop recording
-CAL ON/OFF     - Calibration mode
 STATUS         - Show status
 HELP / ?       - Show help
 ```

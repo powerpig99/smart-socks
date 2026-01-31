@@ -84,8 +84,6 @@ String dataBuffer = "";
 const int MAX_BUFFER_LINES = 1000;
 int bufferLineCount = 0;
 
-// Calibration mode
-bool calibrationMode = false;
 
 // Forward declarations
 void processCommand(String cmd);
@@ -463,14 +461,6 @@ void processCommand(String cmd) {
   else if (cmd == "STOP" || cmd == "X") {
     stopRecording();
   }
-  else if (cmd == "CAL ON") {
-    calibrationMode = true;
-    Serial.println("Calibration mode ON");
-  }
-  else if (cmd == "CAL OFF") {
-    calibrationMode = false;
-    Serial.println("Calibration mode OFF");
-  }
   else if (cmd == "STATUS") {
     printStatus();
   }
@@ -500,7 +490,6 @@ void printHelp() {
   Serial.println("\n=== Smart Socks Commands ===");
   Serial.println("START / S      - Start recording");
   Serial.println("STOP / X       - Stop recording");
-  Serial.println("CAL ON/OFF     - Calibration mode");
   Serial.println("STATUS         - Show status");
   Serial.println("HELP / ?       - Show this help");
 
@@ -719,7 +708,7 @@ void loop() {
     String jsonData = readSensorsJSON();
 
     // Send to Serial
-    if (calibrationMode || isRecording) {
+    if (isRecording) {
       Serial.println(csvLine);
     }
 
