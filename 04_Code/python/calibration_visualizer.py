@@ -303,8 +303,12 @@ class CalibrationVisualizer:
         if self.recording:
             return
 
+        from pathlib import Path
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.record_file = f"demo_recording_{timestamp}.gif"
+        script_dir = Path(__file__).resolve().parent
+        output_dir = script_dir / ".." / ".." / "04_Code" / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        self.record_file = str(output_dir / f"demo_recording_{timestamp}.gif")
         self._frames = []
         self._last_frame_time = time.time()
         self.recording = True
@@ -522,11 +526,12 @@ class CalibrationVisualizer:
             
     def _save_calibration(self):
         """Save current calibration values to file."""
+        from pathlib import Path
         filename = f"calibration_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        filepath = f"../../03_Data/calibration/{filename}"
-        
-        import os
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        # Resolve relative to this script, not the working directory
+        script_dir = Path(__file__).resolve().parent
+        filepath = script_dir / ".." / ".." / "03_Data" / "calibration" / filename
+        filepath.parent.mkdir(parents=True, exist_ok=True)
         
         with open(filepath, 'w') as f:
             f.write("Sensor,Current,Min,Max,Range\n")
