@@ -144,7 +144,7 @@ python collector.py --activity walking_forward --port /dev/cu.usbmodem2101 --val
 # Calibration visualization (upload calibration firmware first)
 python calibration_visualizer.py --port /dev/cu.usbmodem2101
 # Controls: Q=quit, R=reset, S=save CSV, P=pause, C=record GIF
-#           1=toggle CAL, Enter=toggle START/STOP, I=STATUS
+#           Enter=toggle START/STOP, I=STATUS
 ```
 
 ### ML Pipeline
@@ -212,7 +212,6 @@ uv run black . && uv run flake8 . && uv run mypy .
 ```
 START / S      # Start recording
 STOP / X       # Stop recording
-CAL ON/OFF     # Calibration mode
 STATUS         # Check status
 HELP / ?       # Show commands
 ```
@@ -224,6 +223,16 @@ HELP / ?       # Show commands
 ---
 
 ## Change Log
+
+### Jan 31, 2026: Remove CAL ON/OFF, Fix GIF Recording
+
+- **Removed CAL ON/OFF:** Calibration mode was redundant — calibration firmware always streams, data collection firmware uses START/STOP. Removed from firmware (`src/main.ino`, reference copy), visualizer, and all documentation.
+- **Fixed GIF recording:** Rewrote frame capture in `calibration_visualizer.py`:
+  - Root cause: `buffer_rgba()` fails with `'no attribute renderer'` if canvas hasn't been drawn yet; exception was silently caught, producing empty GIFs.
+  - Fix: Use `savefig()` to BytesIO buffer instead — handles its own rendering internally.
+  - Replaced background thread + imageio writer with in-memory PIL frames + synchronous save — eliminates race conditions that caused truncated files on quit.
+  - Added 10 FPS throttle (was 20 FPS) — reduces GIF size, `savefig` overhead is ~12-16ms per frame.
+  - Removed `imageio` dependency — PIL handles GIF natively.
 
 ### Jan 31, 2026: Proposals Integration (Unknown Class, Feature Importance, Auto Validation)
 
@@ -250,7 +259,7 @@ HELP / ?       # Show commands
 - WiFi mode selectable via `#define` in firmware: `USE_PHONE_HOTSPOT`, `USE_EXISTING_WIFI`, or AP mode
 - Station mode falls back to AP mode if WiFi connection fails
 - Non-blocking serial command processing in firmware
-- Calibration visualizer: added serial command sending (1=toggle CAL, Enter=START/STOP, I=STATUS)
+- Calibration visualizer: added serial command sending (Enter=START/STOP, I=STATUS)
 - Calibration visualizer: device info panel shows WiFi IP, BLE status, recording state
 - Firmware workflow: swap `src/main.ino` between calibration and data collection firmware
 

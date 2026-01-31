@@ -20,7 +20,6 @@ Interactive Controls (press key while window is focused):
     S - Save current calibration data to CSV file
     P - Pause/Resume the display (data continues collecting when paused)
     C - Toggle GIF recording (press C to start/stop)
-    1 - Toggle CAL ON/OFF (calibration mode)
     Enter - Toggle START/STOP recording on ESP32
     I - Request device STATUS (WiFi, BLE, recording info)
 
@@ -108,7 +107,6 @@ class CalibrationVisualizer:
         self.save_calibration = False
         self.sample_count = 0
         self.esp_recording = False  # ESP32 recording state
-        self.calibration_mode = False  # ESP32 calibration mode
 
         # Device info (populated by STATUS command)
         self.device_info = {
@@ -118,11 +116,13 @@ class CalibrationVisualizer:
             'esp_samples': '—',
         }
         
-        # GIF recording (streaming to disk for O(1) memory usage)
+        # GIF recording (in-memory, saved on stop)
         self.record_file = None
         self.recording = False
-        self.gif_writer = None
+        self._frames = []
+        self._last_frame_time = 0.0
         self.frame_count = 0
+
         
         # Setup plot
         self._setup_plot()
@@ -264,7 +264,6 @@ class CalibrationVisualizer:
             S - Save calibration data to file
             P - Pause/Resume display
             C - Toggle GIF recording (for demo)
-            1 - Toggle CAL ON/OFF
             Enter - Toggle START/STOP on ESP32
             I - Request STATUS info
         """
@@ -281,9 +280,6 @@ class CalibrationVisualizer:
             self.paused = not self.paused
         elif key == 'c':
             self._toggle_recording()
-        elif key == '1':
-            self.calibration_mode = not self.calibration_mode
-            self._send_command("CAL ON" if self.calibration_mode else "CAL OFF")
         elif key in ('enter', 'return'):
             self._toggle_esp_recording()
         elif key == 'i':
@@ -303,96 +299,71 @@ class CalibrationVisualizer:
             self._start_recording()
 
     def _start_recording(self):
-        """Start recording GIF with background writer thread."""
+        """Start recording GIF frames in memory."""
         if self.recording:
             return
 
-        try:
-            import imageio
-        except ImportError:
-            print("\n[ERROR] imageio not installed. Install with: pip install imageio")
-            return
-
-        import threading
-        import queue
-
-        # Generate filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.record_file = f"demo_recording_{timestamp}.gif"
-
-        # Frame queue for background writing
-        self._frame_queue = queue.Queue()
-
-        # Background writer thread — defers file creation until first frame
-        def _writer_loop(filename, frame_queue):
-            import os
-            writer = None
-            count = 0
-            while True:
-                frame = frame_queue.get()
-                if frame is None:  # Sentinel: stop
-                    break
-                # Create writer lazily on first frame
-                if writer is None:
-                    writer = imageio.get_writer(filename, mode='I', duration=50, loop=0)
-                writer.append_data(frame)
-                count += 1
-            if writer is not None:
-                writer.close()
-                print(f"\n[RECORDING SAVED] {count} frames to: {filename}")
-                print(f"[INFO] GIF duration: {count / 20:.1f} seconds")
-
-        self._writer_thread = threading.Thread(
-            target=_writer_loop,
-            args=(self.record_file, self._frame_queue),
-            daemon=True
-        )
-        self._writer_thread.start()
+        self._frames = []
+        self._last_frame_time = time.time()
         self.recording = True
         self.frame_count = 0
-        print(f"\n[RECORDING STARTED] Saving to: {self.record_file}")
-        print("[INFO] Press 'C' again to stop and save GIF")
+        print(f"\n[RECORDING STARTED] Press 'C' to stop and save GIF")
 
     def _stop_recording(self):
-        """Stop recording and finalize GIF in background."""
+        """Stop recording and save GIF to disk."""
         if not self.recording:
             return
 
         self.recording = False
-        frame_queue = self._frame_queue
-        writer_thread = self._writer_thread
-        record_file = self.record_file
-        self._frame_queue = None
-        self._writer_thread = None
 
-        if frame_queue:
-            # Send sentinel to stop writer thread
-            frame_queue.put(None)
-            # Join in background so UI doesn't freeze
-            import threading
-            def _wait_and_report(thread):
-                thread.join()
-            threading.Thread(target=_wait_and_report, args=(writer_thread,), daemon=True).start()
-
-        if self.frame_count == 0:
+        if not self._frames:
             print("\n[WARNING] No frames captured")
+            return
+
+        print(f"\n[SAVING] {self.frame_count} frames to {self.record_file}...")
+        try:
+            # PIL saves GIF with per-frame duration support
+            self._frames[0].save(
+                self.record_file,
+                save_all=True,
+                append_images=self._frames[1:],
+                duration=100,  # 100ms per frame = 10 FPS
+                loop=0,
+                optimize=False,
+            )
+            duration = len(self._frames) * 0.1
+            print(f"[SAVED] {self.record_file} ({self.frame_count} frames, {duration:.1f}s)")
+        except Exception as e:
+            print(f"[ERROR] Failed to save GIF: {e}")
+        finally:
+            self._frames = []
 
     def _save_frame(self):
-        """Capture frame and queue it for background GIF writing."""
+        """Capture current figure as a GIF frame (throttled to 10 FPS).
+
+        Uses savefig() to a BytesIO buffer instead of buffer_rgba(), because
+        buffer_rgba() fails with 'no attribute renderer' if the canvas hasn't
+        been drawn yet, and calling canvas.draw() inside FuncAnimation breaks
+        the animation loop.
+        """
         if not self.recording:
             return
-        frame_queue = self._frame_queue
-        if not frame_queue:
+
+        # Throttle to 10 FPS — GIF doesn't need 20 FPS
+        now = time.time()
+        if now - self._last_frame_time < 0.1:
             return
+        self._last_frame_time = now
 
         try:
-            from PIL import Image
-            buf = self.fig.canvas.buffer_rgba()
-            img = np.asarray(buf).copy()  # Copy before buffer is reused
-            pil_img = Image.fromarray(img, 'RGBA').convert('RGB')
-            w, h = pil_img.size
-            pil_img = pil_img.resize((w // 2, h // 2), Image.LANCZOS)
-            frame_queue.put(np.asarray(pil_img))
+            buf = io.BytesIO()
+            self.fig.savefig(buf, format='png', dpi=50,
+                             facecolor=self.fig.get_facecolor())
+            buf.seek(0)
+            pil_img = Image.open(buf).convert('RGB')
+            self._frames.append(pil_img.copy())
             self.frame_count += 1
         except Exception as e:
             print(f"[WARNING] Failed to capture frame: {e}")
@@ -455,11 +426,6 @@ class CalibrationVisualizer:
                 return None
             elif line.startswith('Samples:'):
                 self.device_info['esp_samples'] = line.split(':', 1)[1].strip()
-                return None
-            elif line.startswith('Calibration mode'):
-                self.calibration_mode = 'ON' in line.upper()
-                mode = 'ON' if self.calibration_mode else 'OFF'
-                print(f"[ESP32] Calibration mode {mode}")
                 return None
             elif line == 'Recording started':
                 self.esp_recording = True
@@ -612,13 +578,11 @@ class CalibrationVisualizer:
 
         # Device info section
         di = self.device_info
-        cal_str = "ON" if self.calibration_mode else "OFF"
         esp_rec_str = "ON" if self.esp_recording else "OFF"
         stats_lines.append("DEVICE INFO")
         stats_lines.append("─" * 45)
         stats_lines.append(f"  WiFi IP:     {di['wifi_ip']}")
         stats_lines.append(f"  BLE:         {di['ble_connected']}")
-        stats_lines.append(f"  Calibration: {cal_str}")
         stats_lines.append(f"  Recording:   {esp_rec_str}")
         stats_lines.append(f"  ESP Samples: {di['esp_samples']}")
         stats_lines.append("")
@@ -662,9 +626,8 @@ class CalibrationVisualizer:
             state = 'PAUSED' if self.paused else 'RUNNING'
             # Show recording indicator by changing C=Record to C=*REC* when recording
             rec_label = "C=*REC*" if self.recording else "C=Record"
-            cal_label = "1=Cal:ON" if self.calibration_mode else "1=Cal:OFF"
             esp_label = "Enter=STOP" if self.esp_recording else "Enter=START"
-            controls = f"|  Q=Quit R=Reset S=Save P=Pause {rec_label} {cal_label} {esp_label} I=Info"
+            controls = f"|  Q=Quit R=Reset S=Save P=Pause {rec_label} {esp_label} I=Info"
             status = f"PORT: {self.port}  |  SAMPLES: {self.sample_count}  |  {state}  {controls}"
             create_status_bar(self.status_ax, status, is_recording=self.recording)
         
@@ -687,7 +650,7 @@ class CalibrationVisualizer:
         print(f"History: {self.history_seconds}s")
         print("\nControls:")
         print("  Q=Quit  R=Reset  S=Save  P=Pause  C=Record")
-        print("  1=CAL ON/OFF  Enter=START/STOP  I=Status")
+        print("  Enter=START/STOP  I=Status")
         print("="*60 + "\n")
         
         # Start animation
