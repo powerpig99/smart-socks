@@ -2,7 +2,7 @@
 
 **ELEC-E7840 Smart Wearables -- Aalto University**
 **Team:** Saara, Alex, Jing
-**Last Updated:** January 30, 2026
+**Last Updated:** February 1, 2026
 
 ---
 
@@ -109,6 +109,16 @@ WiFi mode: set `#define` at top of `src/main.ino`:
 
 ---
 
+## Reference Documentation
+
+- [[REFERENCES]] -- Master reference list (academic papers, datasheets)
+- [[sensor_manufacturing_research]] -- Detailed fabrication guide (pressure + stretch sensors, construction steps, material specs)
+- [[video_tutorials]] -- Curated video tutorials for sensor construction
+
+All three are cross-linked to each other and to [[sensor_placement_v2]], [[circuit_diagram_v2]], and [[PROPOSALS]].
+
+---
+
 ## Next Steps
 
 1. **Fabricate remaining sensors** -- 4 pressure + 2 stretch
@@ -142,4 +152,4 @@ uv run python run_full_pipeline.py --raw-data ../../03_Data/raw/ --output ../../
 
 ---
 
-*Last updated: 2026-01-30*
+*Last updated: 2026-02-01*

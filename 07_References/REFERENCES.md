@@ -252,5 +252,17 @@ Examples: `01_Gait_Analysis_Smart_Socks.pdf`, `03_SWEET_Sock_E-Textile_System.pd
 
 ---
 
+## Companion Research Documents
+
+These documents provide detailed fabrication and tutorial guidance beyond the academic papers above:
+
+- **[[sensor_manufacturing_research]]** — Detailed fabrication guide covering piezoresistive pressure sensors and conductive fabric stretch sensors, with step-by-step construction instructions
+  - *GitHub:* [sensor_manufacturing_research.md](sensor_manufacturing_research.md)
+  - *Note:* Paper #6 (PMC9824245, Large-Area Piezoresistive Textile Sensors) is also referenced in Section 1.2 Option C
+- **[[video_tutorials]]** — Curated collection of video tutorials for Velostat pressure sensors, EeonTex stretch sensors, and general e-textile skills
+  - *GitHub:* [video_tutorials.md](video_tutorials.md)
+
+---
+
 *Last Updated: 2026-01-29*
 *Maintained by: Smart Socks Team*

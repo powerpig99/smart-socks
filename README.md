@@ -100,7 +100,7 @@ Smart Socks/
 │   └── WIFI_CONFIGURATION.md         WiFi/BLE/Hotspot setup
 ├── 05_Analysis/           ML results, confusion matrices
 ├── 06_Presentation/       Poster, slides, user testing materials
-├── 07_References/         Papers, datasheets (see REFERENCES.md)
+├── 07_References/         Papers, datasheets, fabrication research, video tutorials
 ├── src/                   PlatformIO source (main firmware)
 ├── platformio.ini         PlatformIO build configuration
 ├── PLATFORMIO_SETUP.md    PlatformIO + VS Code setup
@@ -224,6 +224,15 @@ HELP / ?       # Show commands
 
 ## Change Log
 
+### Feb 1, 2026: Reference Docs — Content Fixes & Cross-Linking
+
+- **Fixed EeonTex resistance direction** in `sensor_manufacturing_research.md`: resistance **decreases** with stretch (was incorrectly stated as increases). Added specific values from Adafruit/Eeonyx datasheet (20kΩ → ~10kΩ).
+- **Fixed ADC readings** for knee stretch sensor: corrected physical model (bent knee = more stretch = lower R = higher ADC) and added voltage divider formula.
+- **Added stretch direction note**: course vs. wale direction for EeonTex longevity.
+- **Added 10kΩ vs 18kΩ resistor note**: explains choice vs. Amitrano et al. (2020).
+- **Added fallback links** for potentially dead YouTube tutorial in `video_tutorials.md`.
+- **Cross-linked all reference docs** with Obsidian `[[...]]` wiki links and GitHub-compatible relative links, matching the convention in design docs. Connected `sensor_manufacturing_research.md`, `video_tutorials.md`, and `REFERENCES.md` to each other and to `sensor_placement_v2`, `circuit_diagram_v2`, and `PROPOSALS`.
+
 ### Jan 31, 2026: Remove CAL ON/OFF, Fix GIF Recording
 
 - **Removed CAL ON/OFF:** Calibration mode was redundant — calibration firmware always streams, data collection firmware uses START/STOP. Removed from firmware (`src/main.ino`, reference copy), visualizer, and all documentation.
@@ -316,4 +325,4 @@ HELP / ?       # Show commands
 
 ---
 
-*Last updated: 2026-01-31*
+*Last updated: 2026-02-01*
