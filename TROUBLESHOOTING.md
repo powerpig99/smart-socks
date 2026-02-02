@@ -425,6 +425,28 @@ When reporting an issue, include:
 
 ---
 
+## Web Dashboard Issues
+
+### Brave Browser Won't Connect to Dashboard
+
+**Symptom:** Brave shows connection error or redirects to HTTPS when accessing `http://192.168.4.1` or the device's WiFi IP.
+
+**Cause:** Brave automatically upgrades HTTP to HTTPS. The ESP32 serves plain HTTP only.
+
+**Solutions:**
+
+1. **Use Safari or Chrome** — they allow plain HTTP on local/private IPs without issues
+2. **Type `http://` explicitly** in Brave's address bar — Brave sometimes respects this for local IPs
+3. **Disable HTTPS upgrade in Brave:**
+   - Go to `brave://settings/shields`
+   - Turn off "Upgrade connections to HTTPS"
+   - Or add the device IP to exceptions
+4. **Use Brave flag:** Navigate to `brave://flags/#https-upgrades` → set to Disabled
+
+**Note:** This is a browser policy, not a device issue. The ESP32's web dashboard works correctly over HTTP.
+
+---
+
 ## FAQ
 
 ### Q: Can I use a different microcontroller?
@@ -476,4 +498,4 @@ When reporting an issue, include:
 
 ---
 
-*Last updated: 2026-01-29*
+*Last updated: 2026-02-02*
