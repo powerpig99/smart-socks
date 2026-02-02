@@ -561,18 +561,30 @@ void setup() {
   pAdvertising->setScanResponse(true);
   pAdvertising->setMinPreferred(0x06);
   pAdvertising->setMaxPreferred(0x12);
-  BLEDevice::startAdvertising();
-
-  Serial.println("BLE Advertising started");
+  // Pause BLE advertising during WiFi scan (shared antenna on XIAO ESP32S3)
   Serial.print("BLE Device Name: ");
   Serial.println(BLE_DEVICE_NAME);
+  Serial.println("BLE initialized (advertising paused for WiFi scan)");
 
   // Auto-connect WiFi: scan → match saved networks → connect strongest → fallback AP
   WiFi.mode(WIFI_STA);
   WiFi.setHostname(deviceHostname.c_str());
+  delay(500);
 
   Serial.println("Scanning for WiFi networks...");
   int numNetworks = WiFi.scanNetworks();
+
+  // Retry up to 3 times if scan found few networks (radio may need more time)
+  for (int retry = 0; retry < 3 && numNetworks < 2; retry++) {
+    Serial.print("  Found ");
+    Serial.print(numNetworks);
+    Serial.print(" networks, retrying (");
+    Serial.print(retry + 1);
+    Serial.println("/3)...");
+    WiFi.scanDelete();
+    delay(1500);
+    numNetworks = WiFi.scanNetworks();
+  }
   Serial.print("  Found ");
   Serial.print(numNetworks);
   Serial.println(" networks");
@@ -588,6 +600,15 @@ void setup() {
     String scannedSSID = WiFi.SSID(i);
     int rssi = WiFi.RSSI(i);
     bool isOpen = (WiFi.encryptionType(i) == WIFI_AUTH_OPEN);
+
+    Serial.print("  [");
+    Serial.print(i);
+    Serial.print("] \"");
+    Serial.print(scannedSSID);
+    Serial.print("\" RSSI:");
+    Serial.print(rssi);
+    if (isOpen) Serial.print(" [open]");
+    Serial.println();
 
     // Check against saved networks
     for (int j = 0; j < NUM_SAVED_NETWORKS; j++) {
@@ -680,6 +701,15 @@ void setup() {
   server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("HTTP Server started on port 80");
+
+  // Resume BLE advertising now that WiFi is settled
+  pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(BLE_SERVICE_UUID);
+  pAdvertising->setScanResponse(true);
+  pAdvertising->setMinPreferred(0x06);
+  pAdvertising->setMaxPreferred(0x12);
+  BLEDevice::startAdvertising();
+  Serial.println("BLE Advertising started");
 
   Serial.println("\n========================================");
 
