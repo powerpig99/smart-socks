@@ -472,10 +472,12 @@ void processCommand(String cmd) {
 void printStatus() {
   Serial.println("\n=== Smart Socks Status ===");
   Serial.print("WiFi: ");
-  if (WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP_STA) {
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print(WiFi.SSID());
+    Serial.print(" @ ");
     Serial.println(WiFi.localIP());
   } else {
-    Serial.println(WiFi.softAPIP());
+    Serial.println("Not connected");
   }
   Serial.print("BLE Connected: ");
   Serial.println(bleDeviceConnected ? "Yes" : "No");
@@ -502,11 +504,93 @@ void printHelp() {
   Serial.println();
 }
 
+// ============== WIFI CONNECT ==============
+
+// Single scan+connect attempt. Non-blocking — returns true if connected.
+// Called from setup (repeatedly) and from loop (once per interval).
+bool tryConnectWiFi() {
+  Serial.println("Scanning for WiFi networks...");
+  int numNetworks = WiFi.scanNetworks();
+  Serial.print("  Found ");
+  Serial.print(numNetworks);
+  Serial.println(" networks");
+
+  int bestRSSI = -999;
+  String bestSSID = "";
+  const char* bestPassword = NULL;
+  bool found = false;
+
+  for (int i = 0; i < numNetworks; i++) {
+    String scannedSSID = WiFi.SSID(i);
+    int rssi = WiFi.RSSI(i);
+
+    Serial.print("  [");
+    Serial.print(i);
+    Serial.print("] \"");
+    Serial.print(scannedSSID);
+    Serial.print("\" RSSI:");
+    Serial.println(rssi);
+
+    for (int j = 0; j < NUM_SAVED_NETWORKS; j++) {
+      if (scannedSSID == SAVED_NETWORKS[j].ssid && rssi > bestRSSI) {
+        bestRSSI = rssi;
+        bestSSID = scannedSSID;
+        bestPassword = SAVED_NETWORKS[j].password;
+        found = true;
+        break;
+      }
+    }
+  }
+  WiFi.scanDelete();
+
+  if (!found) {
+    Serial.println("  Hotspot not found");
+    return false;
+  }
+
+  Serial.print("Connecting to: ");
+  Serial.print(bestSSID);
+  Serial.print(" (RSSI: ");
+  Serial.print(bestRSSI);
+  Serial.println(")");
+
+  if (bestPassword && strlen(bestPassword) > 0) {
+    WiFi.begin(bestSSID.c_str(), bestPassword);
+  } else {
+    WiFi.begin(bestSSID.c_str());
+  }
+
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println();
+    Serial.print("WiFi: ");
+    Serial.print(WiFi.SSID());
+    Serial.print(" @ ");
+    Serial.println(WiFi.localIP());
+
+    if (MDNS.begin(deviceHostname.c_str())) {
+      Serial.print("  mDNS: http://");
+      Serial.print(deviceHostname);
+      Serial.println(".local");
+      MDNS.addService("http", "tcp", 80);
+    }
+    return true;
+  }
+
+  Serial.println("\n  Connection failed");
+  return false;
+}
+
 // ============== SETUP & LOOP ==============
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial) delay(10);
 
   Serial.println("\n========================================");
   Serial.println("Smart Socks - Data Collection (6 Sensors)");
@@ -566,129 +650,18 @@ void setup() {
   Serial.println(BLE_DEVICE_NAME);
   Serial.println("BLE initialized (advertising paused for WiFi scan)");
 
-  // Auto-connect WiFi: scan → match saved networks → connect strongest → fallback AP
+  // Auto-connect WiFi: try a few times on boot, then proceed without it
+  // Loop will keep retrying in the background
   WiFi.mode(WIFI_STA);
   WiFi.setHostname(deviceHostname.c_str());
   delay(500);
 
-  Serial.println("Scanning for WiFi networks...");
-  int numNetworks = WiFi.scanNetworks();
-
-  // Retry up to 3 times if scan found few networks (radio may need more time)
-  for (int retry = 0; retry < 3 && numNetworks < 2; retry++) {
-    Serial.print("  Found ");
-    Serial.print(numNetworks);
-    Serial.print(" networks, retrying (");
-    Serial.print(retry + 1);
-    Serial.println("/3)...");
-    WiFi.scanDelete();
-    delay(1500);
-    numNetworks = WiFi.scanNetworks();
+  for (int i = 0; i < 3 && WiFi.status() != WL_CONNECTED; i++) {
+    if (i > 0) delay(3000);
+    tryConnectWiFi();
   }
-  Serial.print("  Found ");
-  Serial.print(numNetworks);
-  Serial.println(" networks");
-
-  // Find best matching saved network (strongest RSSI)
-  int bestIndex = -1;
-  int bestRSSI = -999;
-  String bestSSID = "";
-  const char* bestPassword = NULL;
-  bool bestIsOpen = false;
-
-  for (int i = 0; i < numNetworks; i++) {
-    String scannedSSID = WiFi.SSID(i);
-    int rssi = WiFi.RSSI(i);
-    bool isOpen = (WiFi.encryptionType(i) == WIFI_AUTH_OPEN);
-
-    Serial.print("  [");
-    Serial.print(i);
-    Serial.print("] \"");
-    Serial.print(scannedSSID);
-    Serial.print("\" RSSI:");
-    Serial.print(rssi);
-    if (isOpen) Serial.print(" [open]");
-    Serial.println();
-
-    // Check against saved networks
-    for (int j = 0; j < NUM_SAVED_NETWORKS; j++) {
-      if (scannedSSID == SAVED_NETWORKS[j].ssid && rssi > bestRSSI) {
-        bestIndex = i;
-        bestRSSI = rssi;
-        bestSSID = scannedSSID;
-        bestPassword = SAVED_NETWORKS[j].password;
-        bestIsOpen = false;
-        break;
-      }
-    }
-
-    // Track strongest open network as fallback
-    if (ALLOW_OPEN_NETWORKS && isOpen && bestIndex == -1 && rssi > bestRSSI) {
-      bestIndex = i;
-      bestRSSI = rssi;
-      bestSSID = scannedSSID;
-      bestPassword = NULL;
-      bestIsOpen = true;
-    }
-  }
-
-  WiFi.scanDelete();  // Free scan memory
-
-  bool wifiConnected = false;
-
-  if (bestIndex >= 0) {
-    Serial.print("Connecting to: ");
-    Serial.print(bestSSID);
-    Serial.print(" (RSSI: ");
-    Serial.print(bestRSSI);
-    Serial.print(")");
-    if (bestIsOpen) Serial.print(" [open]");
-    Serial.println();
-
-    if (bestPassword && strlen(bestPassword) > 0) {
-      WiFi.begin(bestSSID.c_str(), bestPassword);
-    } else {
-      WiFi.begin(bestSSID.c_str());
-    }
-
-    int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-      delay(500);
-      Serial.print(".");
-      attempts++;
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-      wifiConnected = true;
-      Serial.println();
-      Serial.print("  WiFi Connected! IP: ");
-      Serial.println(WiFi.localIP());
-
-      if (MDNS.begin(deviceHostname.c_str())) {
-        Serial.print("  mDNS: http://");
-        Serial.print(deviceHostname);
-        Serial.println(".local");
-        MDNS.addService("http", "tcp", 80);
-      }
-    } else {
-      Serial.println("\n  Connection failed");
-    }
-  } else {
-    Serial.println("  No saved networks found");
-  }
-
-  // Fallback to AP mode
-  if (!wifiConnected) {
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP(AP_SSID, AP_PASSWORD, AP_CHANNEL);
-    IPAddress localIP(192, 168, 4, 1);
-    IPAddress gateway(192, 168, 4, 1);
-    IPAddress subnet(255, 255, 255, 0);
-    WiFi.softAPConfig(localIP, gateway, subnet);
-    Serial.print("  AP Mode: ");
-    Serial.print(AP_SSID);
-    Serial.print(" @ ");
-    Serial.println(WiFi.softAPIP());
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("  WiFi not connected — will keep retrying in background");
   }
 
   // Setup HTTP server
@@ -737,8 +710,8 @@ void loop() {
     String csvLine = readSensorsCSV();
     String jsonData = readSensorsJSON();
 
-    // Send to Serial
-    if (isRecording) {
+    // Send to Serial only when USB host is listening (prevents buffer-full blocking)
+    if (Serial) {
       Serial.println(csvLine);
     }
 
@@ -764,6 +737,28 @@ void loop() {
         }
       }
     }
+  }
+
+  // Reconnect WiFi if not connected
+  static unsigned long lastWifiCheck = 0;
+  static int wifiFailCount = 0;
+  if (WiFi.status() != WL_CONNECTED && currentTime - lastWifiCheck > 15000) {
+    lastWifiCheck = currentTime;
+    wifiFailCount++;
+    if (wifiFailCount <= 3) {
+      // Quick reconnect to last known network (non-blocking, no scan)
+      Serial.println("WiFi: reconnecting...");
+      WiFi.reconnect();
+    } else {
+      // Full scan after 3 failed quick reconnects
+      Serial.println("WiFi: retrying...");
+      wifiFailCount = 0;
+      WiFi.disconnect();
+      delay(100);
+      tryConnectWiFi();
+    }
+  } else if (WiFi.status() == WL_CONNECTED) {
+    wifiFailCount = 0;
   }
 
   // Reconnect BLE if disconnected
