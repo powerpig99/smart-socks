@@ -10,7 +10,7 @@ Run the diagnostic tool first:
 
 ```bash
 cd 04_Code/python/
-python quick_test.py --port /dev/ttyUSB0
+python quick_test.py --port /dev/cu.usbmodem2101
 ```
 
 This checks:
@@ -25,7 +25,7 @@ This checks:
 
 ### ESP32 Not Detected
 
-**Symptom:** `Error: [Errno 2] could not open port /dev/ttyUSB0`
+**Symptom:** `Error: [Errno 2] could not open port /dev/cu.usbmodem2101`
 
 **Solutions:**
 1. Check USB cable (use data cable, not charging-only)
@@ -52,7 +52,7 @@ This checks:
 
 **Diagnosis:**
 ```bash
-python quick_test.py --port /dev/ttyUSB0
+python quick_test.py --port /dev/cu.usbmodem2101
 ```
 
 **Solutions:**
@@ -68,6 +68,16 @@ python quick_test.py --port /dev/ttyUSB0
 1. Verify voltage divider: 10kΩ resistor between signal and GND
 2. Check piezoresistive fabric continuity with multimeter
 3. Verify ESP32 pin assignments match code
+
+---
+
+### ESP32 Hangs on Battery Power
+
+**Symptom:** Device does nothing when powered by battery (no WiFi, no BLE, no sensor output)
+
+**Cause:** `while (!Serial)` blocks forever on ESP32-S3 native USB when no USB host is connected.
+
+**Solution:** Remove `while (!Serial)` from setup(). The current data collection firmware already has this fix. If using older calibration sketches, update them too. Also guard serial output with `if (Serial)` to prevent TX buffer blocking.
 
 ---
 
@@ -104,7 +114,7 @@ python quick_test.py --port /dev/ttyUSB0
 **Solution:**
 ```bash
 cd 04_Code/python/
-pip install -r requirements.txt
+uv sync
 ```
 
 **Symptom:** `ModuleNotFoundError: No module named 'config'`
@@ -429,7 +439,7 @@ When reporting an issue, include:
 
 ### Brave Browser Won't Connect to Dashboard
 
-**Symptom:** Brave shows connection error or redirects to HTTPS when accessing `http://192.168.4.1` or the device's WiFi IP.
+**Symptom:** Brave shows connection error or redirects to HTTPS when accessing the device's WiFi IP.
 
 **Cause:** Brave automatically upgrades HTTP to HTTPS. The ESP32 serves plain HTTP only.
 
@@ -498,4 +508,4 @@ When reporting an issue, include:
 
 ---
 
-*Last updated: 2026-02-02*
+*Last updated: 2026-02-09*

@@ -159,30 +159,21 @@ pio device monitor -e xiao_esp32s3
 
 ## WiFi Configuration
 
-Choose your WiFi mode (see [[WIFI_CONFIGURATION]] for details):
+Edit `credentials.h` (see [[WIFI_CONFIGURATION]] for details):
 
-### Mode A: Phone Hotspot (Recommended for Demos)
-Edit `credentials.h`:
 ```cpp
-#define HOTSPOT_SSID "YourPhoneName"
-#define HOTSPOT_PASSWORD "yourpassword"
+const WiFiNetwork SAVED_NETWORKS[] = {
+    {"YourPhone-Hotspot", "your_password"},  // Phone hotspot (recommended for demos)
+    {"HomeWiFi", "home_password"},           // Home WiFi
+    // Add more networks here
+};
 ```
-Access via:
+
+On boot, the ESP32 scans for available networks, matches against `SAVED_NETWORKS[]`, and connects to the strongest match. If no network is found, it proceeds without WiFi and retries every 15s in the background.
+
+Access the web dashboard via:
 - http://smartsocks.local (mDNS)
-- Or check serial output for assigned IP
-
-### Mode B: Connect to Existing WiFi (Lab Use)
-Edit `credentials.h`:
-```cpp
-#define EXISTING_WIFI_SSID "aalto"
-#define EXISTING_WIFI_PASSWORD "password"
-```
-
-### Mode C: ESP32 Creates WiFi Network (Standalone)
-No changes needed. Connect laptop to:
-- Network: `SmartSocks`
-- Password: `smartwearables`
-- Dashboard: http://192.168.4.1
+- Or check serial output for the assigned IP
 
 ## BLE Testing
 
@@ -193,4 +184,4 @@ No changes needed. Connect laptop to:
 
 ---
 
-*Updated: January 2026 · Single ESP32 Edition*
+*Updated: February 2026 · Single ESP32 Edition*

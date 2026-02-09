@@ -26,11 +26,9 @@
 // ============== CONFIGURATION ==============
 
 // WiFi Configuration
-// Choose ONE mode by uncommenting the appropriate section:
-
-// WiFi: Auto-connect to saved networks, fallback to AP mode
 // Edit credentials.h to add/remove networks (file is gitignored)
-// On boot: scan → match saved networks → connect to strongest → fallback to AP
+// On boot: scan → match saved networks → connect to strongest
+// No AP mode — retries in background every 15s
 #include "credentials.h"
 
 // Device identification (works in all modes)
@@ -38,9 +36,6 @@
 // You can identify devices by MAC instead of IP
 String deviceMAC;
 String deviceHostname = "smartsocks";
-
-// AP channel (not sensitive)
-const int AP_CHANNEL = 6;
 
 // BLE Configuration
 #define BLE_DEVICE_NAME   "SmartSocks"
@@ -152,14 +147,14 @@ String getDeviceInfoJSON() {
   doc["mac"] = deviceMAC;
   doc["hostname"] = deviceHostname;
 
-  if (WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP_STA) {
+  if (WiFi.status() == WL_CONNECTED) {
     doc["mode"] = "station";
     doc["ssid"] = WiFi.SSID();
     doc["ip"] = WiFi.localIP().toString();
   } else {
-    doc["mode"] = "ap";
-    doc["ssid"] = AP_SSID;
-    doc["ip"] = WiFi.softAPIP().toString();
+    doc["mode"] = "disconnected";
+    doc["ssid"] = "";
+    doc["ip"] = "";
   }
 
   JsonArray pins = doc.createNestedArray("pins");
@@ -496,10 +491,10 @@ void printHelp() {
   Serial.println("HELP / ?       - Show this help");
 
   Serial.print("\nWeb: http://");
-  if (WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP_STA) {
+  if (WiFi.status() == WL_CONNECTED) {
     Serial.println(WiFi.localIP());
   } else {
-    Serial.println(WiFi.softAPIP());
+    Serial.println("not connected");
   }
   Serial.println();
 }

@@ -7,7 +7,7 @@
  *   A1: L_P_Ball    A4: R_P_Ball  
  *   A2: L_S_Knee    A5: R_S_Knee
  *
- * For production data collection, use data_collection_leg.ino on two ESP32s.
+ * For production data collection, use data_collection_leg.ino (single ESP32, WiFi+BLE+serial).
  */
 
 #include <WiFi.h>
@@ -15,17 +15,16 @@
 
 // ============== CONFIGURATION ==============
 
-// Unified pin mapping: A0=Heel, A1=Ball, A2=Knee on EVERY ESP32
-// Calibration mode: 6 sensors on A0-A5 (one ESP32)
-// Production mode: 3 sensors on A0-A2 (two ESP32s, one per leg)
+// Pin mapping: A0=Heel, A1=Ball, A2=Knee per leg
+// All 6 sensors on A0-A5 (single ESP32)
 const int SENSOR_PINS[] = {A0, A1, A2, A3, A4, A5};
 const char* SENSOR_NAMES[] = {
   "L_P_Heel",   // A0 - Left Heel Pressure
   "L_P_Ball",   // A1 - Left Ball Pressure
   "L_S_Knee",   // A2 - Left Knee Stretch
-  "R_P_Heel",   // A3 - Right Heel Pressure (A0 on right ESP32)
-  "R_P_Ball",   // A4 - Right Ball Pressure (A1 on right ESP32)
-  "R_S_Knee"    // A5 - Right Knee Stretch (A2 on right ESP32)
+  "R_P_Heel",   // A3 - Right Heel Pressure
+  "R_P_Ball",   // A4 - Right Ball Pressure
+  "R_S_Knee"    // A5 - Right Knee Stretch
 };
 const int NUM_SENSORS = 6;
 
@@ -46,8 +45,7 @@ WebServer server(80);
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial) delay(10);
-  
+
   Serial.println("\n========================================");
   Serial.println("Smart Socks - CALIBRATION MODE");
   Serial.println("All 6 sensors on single ESP32");
@@ -165,12 +163,14 @@ void loop() {
   if (now - lastPrint >= SAMPLE_INTERVAL_MS) {
     lastPrint = now;
     
-    // Output CSV for Python visualizer
-    Serial.print(now);
-    for (int i = 0; i < NUM_SENSORS; i++) {
-      Serial.print(",");
-      Serial.print(analogRead(SENSOR_PINS[i]));
+    // Output CSV for Python visualizer (only when USB host is listening)
+    if (Serial) {
+      Serial.print(now);
+      for (int i = 0; i < NUM_SENSORS; i++) {
+        Serial.print(",");
+        Serial.print(analogRead(SENSOR_PINS[i]));
+      }
+      Serial.println();
     }
-    Serial.println();
   }
 }

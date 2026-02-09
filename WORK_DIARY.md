@@ -85,40 +85,47 @@
 
 ---
 
-## Shared Meeting Calendar
+## Workshop: February 2, 2026
 
-### Option 1: Import Calendar File (Recommended)
-Download and import the calendar file:
-```
-00_Planning/meetings/smart_socks_meetings.ics
-```
+**Attendees:** All present (Saara, Alex, Jing)
+**Location:** Y163 - Interaction Zone
+**Time:** 14:45-16:45
 
-**How to import:**
-- **Google Calendar:** Settings → Import & Export → Import → Select .ics file
-- **Outlook:** File → Open & Export → Import/Export → Import an iCalendar
-- **Apple Calendar:** File → Import → Select .ics file
+### Sensor Fabrication Progress
 
-### Option 2: Manual Calendar Entry
-Use these details to create your own calendar event:
+- **4 pressure sensors** fabricated (piezoresistive fabric + conductive thread)
+- **2 stretch sensors** fabricated (conductive knit)
+- **3 sensors sewn onto one sock** (left leg: heel, ball, knee)
+- **External antenna** attached to XIAO ESP32S3 for improved WiFi/BLE range
 
-### Next Meeting: Sunday, February 2, 2026
-```
-Title: Smart Socks Team Meeting
-Date: 2026-02-02
-Time: 14:45 - 16:45
-Location: Y163 - Interaction Zone
-Attendees: Saara, Alex, Jing
-```
+### Action Items
+- [ ] **Saara:** Continue sensor characterization with calibration firmware
+- [ ] **Alex:** Finalize knee pad design for stretch sensor mounting
+- [ ] **Jing:** Test WiFi reliability with external antenna, prep for midterm demo
 
-### Workshop: Wednesday, February 4, 2026
-```
-Title: Smart Socks - WiFi Data Collection Workshop
-Date: 2026-02-04
-Time: TBD (during tutorial slot)
-Location: TBD
-Attendees: Saara, Alex, Jing
-Required: USB-C cable, microcontrollers, breadboard, jumper wires, resistors, sensors
-```
+---
+
+## Firmware & Documentation Session: February 9, 2026
+
+**Attendees:** Jing (solo session — firmware & docs)
+
+### WiFi Reliability Overhaul
+- **Non-blocking boot:** WiFi tries 3 times on startup, then proceeds without it. Retries every 15s in background.
+- **Tiered reconnect:** Quick `WiFi.reconnect()` x3, then full scan. Counter resets on success.
+- **AP mode removed:** No more fallback AP. Hotspot-only for demos. Removed `AP_SSID`, `AP_PASSWORD`, `AP_CHANNEL`, `softAP` code paths.
+
+### Serial Blocking Fixes
+- **Removed `while (!Serial)`** — blocked forever on battery (no USB host).
+- **Guarded output with `if (Serial)`** — prevents TX buffer blocking when no host is connected.
+- **Serial always streams** when USB host listens (no START command needed). `isRecording` only controls CSV download buffer on web dashboard.
+
+### Documentation Sync
+- Updated: README.md, PROJECT_STATUS.md, WIFI_CONFIGURATION.md, CLAUDE.md
+- All now reflect single ESP32, no AP mode, `SAVED_NETWORKS[]` config
+
+### Timeline
+- **Feb 11:** Final prep, all sensors on both socks, end-to-end test
+- **Feb 14:** Midterm demo
 
 ---
 
@@ -130,4 +137,4 @@ Required: USB-C cable, microcontrollers, breadboard, jumper wires, resistors, se
 
 ---
 
-*Last updated: January 29, 2026*
+*Last updated: February 9, 2026*

@@ -15,7 +15,7 @@ This sketch runs on a **single ESP32S3 XIAO** reading all 6 sensors (A0-A5):
 
 ## Features
 
-- **WiFi:** HTTP server with web dashboard (AP, Station, or Phone Hotspot mode)
+- **WiFi:** HTTP server with web dashboard (auto-connects to saved WiFi networks)
 - **BLE:** Real-time sensor streaming as JSON
 - **Serial:** CSV data output and command interface
 - **Recording:** Buffer data for HTTP download
@@ -79,7 +79,7 @@ time_ms,L_P_Heel,L_P_Ball,L_S_Knee,R_P_Heel,R_P_Ball,R_S_Knee
 |-------|----------|
 | Wrong sensor values | Check wiring - Left: A0-A2, Right: A3-A5 |
 | Can't connect | Use `pio device list` to find correct port |
-| No WiFi | Check credentials.h and selected WiFi mode |
+| No WiFi | Check `SAVED_NETWORKS[]` in credentials.h — SSID/password correct? 2.4GHz? |
 
 ## Wiring Reference
 
