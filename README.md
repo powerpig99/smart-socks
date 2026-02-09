@@ -64,7 +64,7 @@ ESP32S3 XIAO (all 6 sensors):
 - **Per leg:** 2 piezoresistive pressure sensors (sock) + 1 stretch sensor (knee pad)
 - **Circuit:** Voltage dividers with 10k resistors, 12-bit ADC (0-4095)
 - **Sampling:** 50 Hz
-- **Communication:** Serial/USB, WiFi (auto-connect saved networks, AP fallback), BLE
+- **Communication:** Serial/USB, WiFi (auto-connect saved networks, background retry), BLE
 
 ---
 
@@ -126,7 +126,7 @@ pio device monitor
 
 Source lives in `src/main.ino`. To use calibration firmware instead, copy `04_Code/arduino/calibration_all_sensors/calibration_all_sensors.ino` to `src/main.ino`.
 
-**WiFi auto-connect:** On boot, the firmware scans for available networks and connects to the strongest saved one. If none found, falls back to AP mode (SSID: SmartSocks). Edit `src/credentials.h` to add/remove networks. Set `ALLOW_OPEN_NETWORKS = true` to also connect to open networks.
+**WiFi auto-connect:** On boot, the firmware scans for saved networks and connects to the strongest match (3 attempts). If not found, proceeds and retries every 15s in the background (quick reconnect first, full scan after repeated failures). No AP mode. Edit `src/credentials.h` to add/remove networks. Serial always streams when a USB host is listening — no START command needed. Works on battery power without USB.
 
 Serial port on macOS: `/dev/cu.usbmodem2101` (find yours with `pio device list`).
 
@@ -260,13 +260,13 @@ HELP / ?       # Show commands
 
 ### Jan 30, 2026: WiFi + BLE Verified, Calibration Visualizer Enhanced
 
-- **WiFi tested:** Phone hotspot (Maximize Compatibility), home WiFi (TP-Link), AP mode — all working
+- **WiFi tested:** Phone hotspot (Maximize Compatibility), home WiFi (TP-Link) — all working
 - **BLE tested:** Discoverable from iPhone (nRF Connect), works concurrently with WiFi hotspot
 - BLE initialized before WiFi to avoid shared-antenna conflicts on XIAO ESP32S3
 - Note: BLE signal is weak on XIAO ESP32S3 (tiny PCB antenna shared with WiFi); not discoverable from macOS
 - Web dashboard accessible over WiFi at device IP (e.g., `http://192.168.8.167`)
-- WiFi mode selectable via `#define` in firmware: `USE_PHONE_HOTSPOT`, `USE_EXISTING_WIFI`, or AP mode
-- Station mode falls back to AP mode if WiFi connection fails
+- WiFi auto-connects to saved networks via `SAVED_NETWORKS[]` in `credentials.h`
+- Background retry every 15s if connection drops (quick reconnect, then full scan)
 - Non-blocking serial command processing in firmware
 - Calibration visualizer: added serial command sending (Enter=START/STOP, I=STATUS)
 - Calibration visualizer: device info panel shows WiFi IP, BLE status, recording state

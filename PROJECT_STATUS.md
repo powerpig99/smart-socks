@@ -21,14 +21,13 @@
 | Mode | Status | Notes |
 |------|--------|-------|
 | Serial/USB | Working | 50Hz streaming, 115200 baud, `/dev/cu.usbmodem2101` |
-| WiFi AP | Working | SSID: SmartSocks, IP: `192.168.4.1` |
 | WiFi Hotspot | Working | iPhone (Maximize Compatibility), IP: `172.20.10.3` |
-| WiFi Home | Working | TP-Link_F528, IP: `192.168.8.167` |
-| WiFi Aalto Open | Connects | Public network blocks web interface -- unusable for demos |
+| WiFi Home | Tested | TP-Link_F528 (commented out in credentials for demos) |
+| WiFi Aalto Open | Blocked | Public network blocks web interface -- unusable for demos |
 | BLE | Working | Discoverable from iPhone (nRF Connect), improved signal with external antenna |
 | Web Dashboard | Working | Accessible at device IP over WiFi, shows all 6 sensors in 2x3 grid |
 
-**WiFi for demos:** `credentials.h` set to hotspot-only (`ALLOW_OPEN_NETWORKS = false`). Aalto's public network has stronger signal but blocks the web interface, so it is commented out. AP mode fallback still works if hotspot is unavailable.
+**WiFi for demos:** `credentials.h` set to hotspot-only (`ALLOW_OPEN_NETWORKS = false`). No AP mode -- firmware retries hotspot connection in background (quick reconnect x3, then full scan). Works on battery power without USB.
 
 ### Firmware Workflow
 Source lives in `src/main.ino` (PlatformIO default). Swap firmware by copying:
@@ -36,7 +35,7 @@ Source lives in `src/main.ino` (PlatformIO default). Swap firmware by copying:
 - **Calibration:** `cp 04_Code/arduino/calibration_all_sensors/calibration_all_sensors.ino src/main.ino`
 - **Build & upload:** `pio run -t upload`
 
-WiFi mode: firmware scans `SAVED_NETWORKS[]` in `src/credentials.h` (gitignored) and connects to the strongest available match. Comment/uncomment entries to control which networks are tried. AP mode fallback activates if no saved network is found.
+WiFi mode: firmware scans `SAVED_NETWORKS[]` in `src/credentials.h` (gitignored) and connects to the strongest saved match. Tries 3 times on boot, then proceeds -- retries every 15s in the background. No AP mode. Serial always streams when USB host is listening (no START needed).
 
 ### Software
 
