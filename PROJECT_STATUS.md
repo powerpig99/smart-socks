@@ -2,16 +2,19 @@
 
 **ELEC-E7840 Smart Wearables -- Aalto University**
 **Team:** Saara, Alex, Jing
-**Last Updated:** February 1, 2026
+**Last Updated:** February 9, 2026
 
 ---
 
-## Current State (Jan 30, 2026)
+## Current State (Feb 9, 2026)
 
 ### Hardware
 - **Single ESP32S3 XIAO** reading all 6 sensors on pins A0-A5
-- 1 pressure sensor currently connected (A0: L_P_Heel), remaining 5 sensors pending fabrication
-- No external antenna -- using onboard PCB antenna
+- **External antenna** attached -- reliable WiFi and BLE signal
+- 3 sensors sewn onto one sock, tested working
+- 4 new 3-layer pressure sensors fabricated and tested -- all work
+- 2 knee stretch sensors fabricated and tested -- all work
+- Decision: 3 layers not enough sensitivity -- making smaller 4-layer sensors next
 
 ### Communication -- All Verified
 
@@ -21,8 +24,11 @@
 | WiFi AP | Working | SSID: SmartSocks, IP: `192.168.4.1` |
 | WiFi Hotspot | Working | iPhone (Maximize Compatibility), IP: `172.20.10.3` |
 | WiFi Home | Working | TP-Link_F528, IP: `192.168.8.167` |
-| BLE | Working | Discoverable from iPhone (nRF Connect), weak signal (shared PCB antenna), not visible from macOS CoreBluetooth |
+| WiFi Aalto Open | Connects | Public network blocks web interface -- unusable for demos |
+| BLE | Working | Discoverable from iPhone (nRF Connect), improved signal with external antenna |
 | Web Dashboard | Working | Accessible at device IP over WiFi, shows all 6 sensors in 2x3 grid |
+
+**WiFi for demos:** `credentials.h` set to hotspot-only (`ALLOW_OPEN_NETWORKS = false`). Aalto's public network has stronger signal but blocks the web interface, so it is commented out. AP mode fallback still works if hotspot is unavailable.
 
 ### Firmware Workflow
 Source lives in `src/main.ino` (PlatformIO default). Swap firmware by copying:
@@ -30,11 +36,7 @@ Source lives in `src/main.ino` (PlatformIO default). Swap firmware by copying:
 - **Calibration:** `cp 04_Code/arduino/calibration_all_sensors/calibration_all_sensors.ino src/main.ino`
 - **Build & upload:** `pio run -t upload`
 
-WiFi mode: set `#define` at top of `src/main.ino`:
-- `USE_PHONE_HOTSPOT` (default) -- connect to phone hotspot
-- `USE_EXISTING_WIFI` -- connect to home/lab WiFi
-- Neither -- AP mode (ESP32 creates its own network)
-- Credentials in `src/credentials.h` (gitignored)
+WiFi mode: firmware scans `SAVED_NETWORKS[]` in `src/credentials.h` (gitignored) and connects to the strongest available match. Comment/uncomment entries to control which networks are tried. AP mode fallback activates if no saved network is found.
 
 ### Software
 
@@ -66,12 +68,13 @@ WiFi mode: set `#define` at top of `src/main.ino`:
 ### Checklist
 
 #### Hardware (Priority 1)
-- [ ] Fabricate 4 pressure sensors (heel + ball for both socks)
-- [ ] Fabricate 2 stretch sensors (knee pads)
-- [ ] Integrate sensors into socks and knee pads
+- [x] Fabricate 4 pressure sensors (heel + ball for both socks) -- 4x 3-layer done, making 4-layer next
+- [x] Fabricate 2 stretch sensors (knee pads) -- done
+- [~] Integrate sensors into socks and knee pads -- 3 sensors sewn onto one sock
 - [ ] Build voltage divider circuits (10k resistors)
 - [ ] Wire all 6 sensors to ESP32
 - [x] Test single sensor working with firmware
+- [x] Attach external antenna
 
 #### Sensor Characterization (Priority 2)
 - [ ] Calibrate pressure sensors with known weights
@@ -119,14 +122,25 @@ All three are cross-linked to each other and to [[sensor_placement_v2]], [[circu
 
 ---
 
-## Next Steps
+## Timeline
 
-1. **Fabricate remaining sensors** -- 4 pressure + 2 stretch
-2. **Connect all 6 sensors** and verify with calibration visualizer
-3. **Sensor characterization** -- calibration curves with known weights
-4. **Collect activity data** from test subjects (S01-S06 training, S07-S09 testing)
-5. **Run ML pipeline** -- preprocessing, feature extraction, training
-6. **Optional:** BLE ESP32-to-ESP32 for dual-leg wireless communication
+- **Wednesday Feb 11, 16:00** -- Final prep meeting
+- **Friday Feb 14, 12:15** -- Live midterm presentation
+
+## Next Steps (Midterm Prep)
+
+1. **Fabricate 4-layer pressure sensors** -- 3 layers not sensitive enough, making smaller 4-layer versions
+2. **Finish integrating sensors** into both socks and knee pads
+3. **Build voltage dividers** and wire all 6 sensors to ESP32
+4. **Sensor characterization** -- calibration curves with known weights
+5. **Prepare live demo** -- all sensors streaming via hotspot + web dashboard
+6. **Record backup video** in case live demo has issues
+
+## Next Steps (Post-Midterm)
+
+1. **Collect activity data** from test subjects (S01-S06 training, S07-S09 testing)
+2. **Run ML pipeline** -- preprocessing, feature extraction, training
+3. **Optional:** BLE ESP32-to-ESP32 for dual-leg wireless communication
 
 ---
 
@@ -152,4 +166,4 @@ uv run python run_full_pipeline.py --raw-data ../../03_Data/raw/ --output ../../
 
 ---
 
-*Last updated: 2026-02-01*
+*Last updated: 2026-02-09*
