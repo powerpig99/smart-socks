@@ -85,47 +85,53 @@
 
 ---
 
-## Workshop: February 2, 2026
+## Meeting 3: February 5, 2026
 
 **Attendees:** All present (Saara, Alex, Jing)
-**Location:** Y163 - Interaction Zone
-**Time:** 14:45-16:45
 
-### Sensor Fabrication Progress
+### Key Decisions
+- Use **3 layers** of pressure-sensing material with **3 sensors per foot** + **1 stretch sensor per knee**
+- External antenna attached to XIAO ESP32S3 — improved WiFi/BLE signal
 
-- **4 pressure sensors** fabricated (piezoresistive fabric + conductive thread)
-- **2 stretch sensors** fabricated (conductive knit)
-- **3 sensors sewn onto one sock** (left leg: heel, ball, knee)
-- **External antenna** attached to XIAO ESP32S3 for improved WiFi/BLE range
-
-### Action Items
-- [ ] **Saara:** Continue sensor characterization with calibration firmware
-- [ ] **Alex:** Finalize knee pad design for stretch sensor mounting
-- [ ] **Jing:** Test WiFi reliability with external antenna, prep for midterm demo
+### Task Assignments
+- **Saara:** Wove two fabric samples, will make more
+- **Alex:** Will fabricate the pressure sensors (has sewing machine at home)
+- **Jing:** Continue software development and sensor testing
 
 ---
 
-## Firmware & Documentation Session: February 9, 2026
+## Meeting 4 + Work Session: February 9, 2026
 
-**Attendees:** Jing (solo session — firmware & docs)
+**Attendees:** All present (Saara, Alex, Jing)
 
-### WiFi Reliability Overhaul
-- **Non-blocking boot:** WiFi tries 3 times on startup, then proceeds without it. Retries every 15s in background.
-- **Tiered reconnect:** Quick `WiFi.reconnect()` x3, then full scan. Counter resets on success.
-- **AP mode removed:** No more fallback AP. Hotspot-only for demos. Removed `AP_SSID`, `AP_PASSWORD`, `AP_CHANNEL`, `softAP` code paths.
+### Sensor Testing Results
+- Sewed **3 sensors onto one sock** — tested and working
+- Tested **4 new 3-layer pressure sensors** — all work
+- Tested **2 knee stretch sensors** — all work
+- **Finding:** 3 layers is still not enough sensitivity → decided to make **smaller 4-layer sensors**
 
-### Serial Blocking Fixes
-- **Removed `while (!Serial)`** — blocked forever on battery (no USB host).
-- **Guarded output with `if (Serial)`** — prevents TX buffer blocking when no host is connected.
-- **Serial always streams** when USB host listens (no START command needed). `isRecording` only controls CSV download buffer on web dashboard.
+### Midterm Demo Decision
+- **Live presentation** for midterm (first one), Friday Feb 14 at 12:15
+- Final prep meeting: Wednesday Feb 11 at 16:00
 
-### Documentation Sync
-- Updated: README.md, PROJECT_STATUS.md, WIFI_CONFIGURATION.md, CLAUDE.md
-- All now reflect single ESP32, no AP mode, `SAVED_NETWORKS[]` config
+### WiFi Observations
+- With external antenna, firmware now connects reliably to the open Aalto network (was previously a signal strength issue)
+- **Problem:** Cannot access web interface on the free public network (likely network restrictions)
+- Firmware tends to connect to the open network even when hotspot is nearby and on
+- **Decision:** Limit to hotspot only for the midterm demonstration
 
-### Timeline
-- **Feb 11:** Final prep, all sensors on both socks, end-to-end test
-- **Feb 14:** Midterm demo
+### Firmware & Documentation Work (Jing)
+- WiFi reliability overhaul: non-blocking boot, tiered reconnect, AP mode removed
+- Serial blocking fixes: removed `while (!Serial)`, guarded output with `if (Serial)`
+- Serial always streams when USB host listens (no START needed)
+- Documentation sync: README, PROJECT_STATUS, WIFI_CONFIGURATION, CLAUDE.md, AGENTS.md, QUICKSTART, TROUBLESHOOTING
+
+### Next Steps
+- [ ] Update calibration firmware to use hotspot only (not open networks)
+- [ ] Fabricate smaller 4-layer pressure sensors
+- [ ] Finish integrating sensors into both socks and knee pads
+- [ ] Prepare for midterm demo — check all requirements
+- [ ] Meet Wednesday Feb 11 at 16:00 for final prep
 
 ---
 

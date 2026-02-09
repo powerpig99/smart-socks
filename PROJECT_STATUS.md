@@ -27,7 +27,7 @@
 | BLE | Working | Discoverable from iPhone (nRF Connect), improved signal with external antenna |
 | Web Dashboard | Working | Accessible at device IP over WiFi, shows all 6 sensors in 2x3 grid |
 
-**WiFi for demos:** `credentials.h` set to hotspot-only (`ALLOW_OPEN_NETWORKS = false`). No AP mode -- firmware retries hotspot connection in background (quick reconnect x3, then full scan). Works on battery power without USB.
+**WiFi for demos:** `credentials.h` set to hotspot-only (`ALLOW_OPEN_NETWORKS = false`). No AP mode -- firmware retries hotspot connection in background (quick reconnect x3, then full scan). Works on battery power without USB. **Note:** With external antenna, open Aalto network is reachable but blocks web interface. Firmware may prefer open networks over hotspot if saved -- keep only hotspot in `SAVED_NETWORKS[]` for demos.
 
 ### Firmware Workflow
 Source lives in `src/main.ino` (PlatformIO default). Swap firmware by copying:
