@@ -127,7 +127,7 @@
 - Documentation sync: README, PROJECT_STATUS, WIFI_CONFIGURATION, CLAUDE.md, AGENTS.md, QUICKSTART, TROUBLESHOOTING
 
 ### Next Steps
-- [ ] Update calibration firmware to use hotspot only (not open networks)
+- [x] Update calibration firmware to use hotspot only (not open networks)
 - [ ] Fabricate smaller 4-layer pressure sensors
 - [ ] Finish integrating sensors into both socks and knee pads
 - [ ] Prepare for midterm demo — check all requirements
