@@ -68,3 +68,9 @@ demo_recording_*.gif
 # Output folder (screenshots, screen recordings)
 04_Code/output/*
 !04_Code/output/.gitkeep
+
+# Large presentation PDFs
+06_Presentation/*.pdf
+
+# Gemini config
+.gemini/
